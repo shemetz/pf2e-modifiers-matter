@@ -1,6 +1,7 @@
 const MODULE_ID = 'pf2e-highlight-status-effect-consequences'
 // TODO - figure out how to notice effects on the target that change their Ref/Fort/Will DC, e.g. when trying to Tumble Through against targeted enemy
 // TODO - also effects from "rules" in general
+// so far:  got Cover to work (flat modifier to ac)
 
 // Helpful for testing - replace random dice roller with 1,2,3,4....19,20 by putting this in the console:
 /*
@@ -50,9 +51,10 @@ const valueNegative = m => m.value < 0
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
 const acModOfCon = i => i.data.modifiers && i.data.modifiers.find(isAcMod)
-const fixFrightenedCondition = i => {
-  if (!i.data.value.isValued) return i
+const convertAcConditionsWithValuedValues = i => {
+  if (!i.data.value || !i.data.value.isValued) return i
   const m = acModOfCon(i)
+  if (!m) return i
   return {
     name: i.name,
     data: {
@@ -65,12 +67,31 @@ const fixFrightenedCondition = i => {
     }
   }
 }
+const isAcSelector = m => m.selector === 'ac' || m.selector === 'all'
+const convertAcConditionsWithRuleElements = i => {
+  if (!i.data.rules) return i
+  const acRule = i.data.rules.find(isAcSelector)
+  if (!acRule) return i
+  if (acRule.key !== 'FlatModifier') return i
+  return {
+    name: i.name,
+    data: {
+      modifiers: [{
+        group: acRule.selector,
+        type: acRule.type,
+        // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
+        value: acRule.value
+      }]
+    }
+  }
+}
 const acConsOfToken = (targetedToken) => {
   return targetedToken.data.actorData.items
+    .map(convertAcConditionsWithValuedValues)
+    .map(convertAcConditionsWithRuleElements)
     .filter(i => acModOfCon(i) !== undefined)
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
-    .map(fixFrightenedCondition)
     // remove items where condition can't stack;  by checking if another item has equal/higher mods of same type
     .filter((i1, idx, a) => {
       const m1 = acModOfCon(i1)

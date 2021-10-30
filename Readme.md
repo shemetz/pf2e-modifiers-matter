@@ -47,7 +47,7 @@ turned a miss into a critical miss even when you don't care about it.  This is b
 versus critically missed attacks - for example: Dueling Riposte, Confident Finisher)
 
 Sadly, I've not been able to show how similar status effects change the DC of spells, or the fortitude/reflex/will DCs of creatures.
-I am also unable to do this with Rule Elements, including some basic ones like cover.
+I am also unable to do this with all Rule Elements (though I managed some basics like Cover).
 This will hopefully be an upcoming feature.
 
 ## Examples
