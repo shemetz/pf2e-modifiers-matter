@@ -30,11 +30,9 @@ The color will be a strong red/green for an effect that directly caused a change
 A less striking and less saturated red/green color will be used for effects that were helpful/hurtful but not strictly necessary. 
 For example, if you rolled a total of 17 against an enemy with AC 16, you hit (Success +1).  If you've been currently under
 the effects of both Bless (+1 status bonus) and Assisting Shot (+1 circumstance bonus), then either of them would have helped
-you land your attack, but no one of them was necessary for the attack, so they'll both be less highlighted.
-
-(You might notice that sometimes conditions are highlighted when they're completely unnecessary - e.g. if you had a +4 and +1 simultaneously, and
-rolled a total of 17 against that enemy - the +4 will be a bright green and the +1 will be a faded green.  This isn't perfect but
-making it more accurate would require more complex code.)
+you land your attack, but no one of them was necessary for the attack, so they'll both be partially highlighted.
+If an effect was definitely not necessary for the change in outcome - due to another effect being much more impactful - 
+the unnecessary effect will not be colored at all.
 
 ## Extra - AC conditions
 
@@ -73,6 +71,17 @@ A miss caused by Ezren's Frightened condition.
 
 Note that Ezren was also Enfeebled, but due to Pathfinder 2e rules, since both of them apply "status"-type penalties 
 one of them is ignored by the system (in this case Enfeebled), and isn't shown on the chat card.
+
+![](metadata/example_4.png)
+
+Fun example of a special case:  the positive conditions together are responsible for an outcome, and the negative
+conditions together are responsible for an outcome, but also no one/single condition here was necessary to reach this
+result.  In a way, all of these status effects were equally important here.
+
+![](metadata/example_5.png)
+
+In this example, the attack failed because the skeleton had greater cover (+4 to AC).  Even though it's also frightened,
+the frightened condition modifier on this card will not be highlighted because it did not affect the outcome whatsoever.
 
 ## Accessibility
 
