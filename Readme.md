@@ -82,7 +82,7 @@ result.  In a way, all of these status effects were equally important here.
 
 ![](metadata/example_5.png)
 
-In this example, the attack failed because the skeleton had greater cover (+4 to AC).  Even though it's also frightened,
+In this example, the attack failed because the skeleton had greater cover (+4 to AC).  Even though Ezren is also frightened
 the frightened condition modifier on this card will not be highlighted because it did not affect the outcome whatsoever.
 
 ## Accessibility
