@@ -1,5 +1,13 @@
 const MODULE_ID = 'pf2e-highlight-status-effect-consequences'
 // TODO - figure out how to notice effects on the target that change their Ref/Fort/Will DC, e.g. when trying to Tumble Through against targeted enemy
+// TODO - also effects from "rules" in general
+
+// Helpful for testing - replace random dice roller with 1,2,3,4....19,20 by putting this in the console:
+/*
+NEXT_RND_ROLLS_D20 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
+rndIndex = -1
+CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D20.length; return NEXT_RND_ROLLS_D20[rndIndex] / 20 - 0.001}
+ */
 
 // this file has a ton of math (mostly simple).
 // I did my best to make it all easily understandable math, but there are limits to what I can do.
@@ -13,10 +21,10 @@ const MODULE_ID = 'pf2e-highlight-status-effect-consequences'
 // if you had rolled a 13 in this case, the +2 would be strong green but the +1 would still be weak green, simply
 // because it's difficult to come up with an algorithm that would solve complex cases.
 // note, by the way, that in case of multiple non-stacking conditions, PF2e hides some of them from the chat card.
-const POSITIVE_COLOR = '#00aa11'
-const WEAK_POSITIVE_COLOR = '#779944'
-const NEGATIVE_COLOR = '#ff4400'
-const WEAK_NEGATIVE_COLOR = '#ef7f0d'
+const POSITIVE_COLOR = '#008000'
+const WEAK_POSITIVE_COLOR = '#91a82a'
+const NEGATIVE_COLOR = '#ff0000'
+const WEAK_NEGATIVE_COLOR = '#ff852f'
 const IGNORED_MODIFIERS = [
   'PF2E.BaseModifier',
   'PF2E.MultipleAttackPenalty',
@@ -41,7 +49,7 @@ const valuePositive = m => m.value > 0
 const valueNegative = m => m.value < 0
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
-const acModOfCon = i => i.data.modifiers.find(isAcMod)
+const acModOfCon = i => i.data.modifiers && i.data.modifiers.find(isAcMod)
 const fixFrightenedCondition = i => {
   if (!i.data.value.isValued) return i
   const m = acModOfCon(i)
@@ -106,9 +114,9 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const totalAboveThreshold = ((totalMinusDc % 10) + 10) % 10 // within [0, 9]
   const totalBelowThreshold = ((totalMinusDc % 10) - 10 + 1) % 10 - 1 // within [-10, -1]
   const critSuccess = totalMinusDc >= 10 || data.flags.pf2e.context.outcome === 'criticalSuccess'
-  const doubleCritSuccess = totalMinusDc >= 10 && chatMessage.roll.terms[0].results[0] === 20
+  const doubleCritSuccess = totalMinusDc >= 10 && chatMessage.roll.terms[0].results[0].result === 20
   const critFail = totalMinusDc < -10 || data.flags.pf2e.context.outcome === 'criticalFailure'
-  const doubleCritFail = totalMinusDc < -10 && chatMessage.roll.terms[0].results[0] === 1
+  const doubleCritFail = totalMinusDc < -10 && chatMessage.roll.terms[0].results[0].result === 1
 
   const positiveConditionsChangedOutcome = existConModsPositive && conModsPositiveTotal > totalAboveThreshold && !critFail && !doubleCritSuccess
   const negativeConditionsChangedOutcome = existConModsNegative && conModsNegativeTotal <= totalBelowThreshold && !critSuccess && !doubleCritFail
@@ -116,19 +124,20 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const oldFlavor = chatMessage.data.flavor
   let newFlavor = oldFlavor
   conMods.forEach(m => {
-    const isNegativeMod = m.modifier < 0
+    const mod = m.modifier
+    const isNegativeMod = mod < 0
     // return (not marking condition modifier at all) if it was absolutely not necessary
     if ((!isNegativeMod && !positiveConditionsChangedOutcome) || (isNegativeMod && !negativeConditionsChangedOutcome))
       return
     // check if this effect was not necessary by itself to improve/worsen the roll
     const wasNeededToImproveResult = !isNegativeMod && positiveConditionsChangedOutcome
-      && conModsPositiveTotal - m.modifier <= totalAboveThreshold
+      && totalAboveThreshold - mod < 0
     const wasNeededToWorsenResult = isNegativeMod && negativeConditionsChangedOutcome
-      && conModsNegativeTotal - m.modifier > totalBelowThreshold
+      && totalBelowThreshold - mod >= 0
     const color = isNegativeMod
       ? (wasNeededToWorsenResult ? NEGATIVE_COLOR : WEAK_NEGATIVE_COLOR)
       : (wasNeededToImproveResult ? POSITIVE_COLOR : WEAK_POSITIVE_COLOR)
-    const modifierValue = (m.modifier < 0 ? '' : '+') + m.modifier
+    const modifierValue = (mod < 0 ? '' : '+') + mod
     const modifierName = game.i18n.localize(m.name)
     newFlavor = newFlavor.replaceAll(
       `<span class="tag tag_alt">${modifierName} ${modifierValue}</span>`,
