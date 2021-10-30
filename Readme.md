@@ -14,10 +14,10 @@ To install, browse for it in the module browser, or [directly copy the manifest 
 
 # Features
 
-## Basic Behavior - Add color to active roller's bonuses/minuses in chat cards
+## Basic Behavior - Add color to active roller's bonuses/penalties in chat cards
 
 By default in the Pathfinder 2e system, when you make an attack roll, saving throw, or other check against a DC, the chat card that shows the result of your
-roll will usually contain a summary of your bonuses and minuses based on your conditions.  Additionally, the card shows
+roll will usually contain a summary of your bonuses and penalties based on your conditions.  Additionally, the card shows
 you if you succeeded or failed (and for GMs, shows exactly by how much).
 
 This module **edits** the chat card to color these bonuses whenever they are relevant to a roll.  In other words, when an effect
@@ -42,8 +42,37 @@ The module will also display similar status effect consequences when they apply 
 This will add new text to the card (a setting exists to show or hide it from players).  For example, it will show up when
 an attack roll of 15 would normally miss the AC 16 goblin, except the goblin was flat-footed and had its AC reduced to 14. 
 
+(also note that this will treat missed attacks and critically missed attacks as usual, meaning sometimes you'll see that a condition 
+turned a miss into a critical miss even when you don't care about it.  This is because some game mechanics may interact with missed
+versus critically missed attacks - for example: Dueling Riposte, Confident Finisher)
+
 Sadly, I've not been able to show how similar status effects change the DC of spells, or the fortitude/reflex/will DCs of creatures.
-This may be an upcoming feature.
+I am also unable to do this with Rule Elements, including some basic ones like cover.
+This will hopefully be an upcoming feature.
+
+## Examples
+Example situation:
+
+![](metadata/example_situation.png)
+
+Ezren is attacking the skeleton with a stick.  They both have a lot of effects on their actors.
+
+![](metadata/example_1.png)
+
+Here you can see that the attack ended up as a critical hit (because total >= DC + 10).  The flat-footed condition that
+was applied to the skeleton has been crucial to get this outcome;  the other three buffs (frightened skeleton, assisting shot, bless)
+were useful but only two of were needed (any two).
+
+![](metadata/example_2.png)
+
+Same as above, but all conditions were necessary to get the crit.
+
+![](metadata/example_3.png)
+
+A miss caused by Ezren's Frightened condition.
+
+Note that Ezren was also Enfeebled, but due to Pathfinder 2e rules, since both of them apply "status"-type penalties 
+one of them is ignored by the system (in this case Enfeebled), and isn't shown on the chat card.
 
 ## Accessibility
 
