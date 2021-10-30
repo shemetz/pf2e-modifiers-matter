@@ -106,6 +106,64 @@ const acConsOfToken = (targetedToken) => {
 
 const acModsFromCons = (acConditions) => acConditions.map(c => c.data.modifiers).deepFlatten().filter(isAcMod)
 
+const DEGREES = Object.freeze({
+  CRIT_SUCC: 'CRIT_SUCC',
+  SUCCESS: 'SUCCESS',
+  FAILURE: 'FAILURE',
+  CRIT_FAIL: 'CRIT_FAIL',
+})
+
+// REMEMBER:  in Pf2e, delta 0-9 means SUCCESS, delta 10+ means CRIT SUCCESS, delta -1-9 is FAIL, delta -10- is CRIT FAIL
+const calcDegreeOfSuccess = (deltaFromDc) => {
+  switch (true) {
+    case deltaFromDc >= 10:
+      return DEGREES.CRIT_SUCC
+    case deltaFromDc <= -10:
+      return DEGREES.CRIT_FAIL
+    case deltaFromDc >= 1:
+      return DEGREES.SUCCESS
+    case deltaFromDc <= -1:
+      return DEGREES.FAILURE
+    case deltaFromDc === 0:
+      return DEGREES.SUCCESS
+  }
+  // impossible
+  console.error(`calcDegreeOfSuccess got wrong number: ${deltaFromDc}`)
+  return DEGREES.CRIT_FAIL
+}
+const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
+  const degree = calcDegreeOfSuccess(deltaFromDc)
+  if (dieRoll === 20) {
+    switch (degree) {
+      case 'CRIT_SUCC':
+        return DEGREES.CRIT_SUCC
+      case 'SUCCESS':
+        return DEGREES.CRIT_SUCC
+      case 'FAILURE':
+        return DEGREES.SUCCESS
+      case 'CRIT_FAIL':
+        return DEGREES.FAILURE
+    }
+  }
+  if (dieRoll === 1) {
+    switch (degree) {
+      case 'CRIT_SUCC':
+        return DEGREES.SUCCESS
+      case 'SUCCESS':
+        return DEGREES.FAILURE
+      case 'FAILURE':
+        return DEGREES.CRIT_FAIL
+      case 'CRIT_FAIL':
+        return DEGREES.CRIT_FAIL
+    }
+  }
+  return degree
+}
+
+const calcOutcomeChangeColor = (modifier) => {
+
+}
+
 const hook_preCreateChatMessage = async (chatMessage, data) => {
   if (!getSetting('module-enabled')) return true
   // continue only if message is a PF2e roll message
@@ -120,10 +178,6 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const conMods = data.flags.pf2e.modifiers
     .filter(m => !IGNORED_MODIFIERS.includes(m.name))
     .filter(m => m.enabled && !m.ignored) // enabled is false for one of the conditions if it can't stack with others
-  const existConModsPositive = conMods.filter(m => m.modifier > 0).length > 0
-    || acModsFromCons(targetAcConditions).filter(valueNegative).length > 0
-  const existConModsNegative = conMods.filter(m => m.modifier < 0).length > 0
-    || acModsFromCons(targetAcConditions).filter(valuePositive).length > 0
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
@@ -131,56 +185,60 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
 
   const rollTotal = parseInt(data.content)
   const rollDc = data.flags.pf2e.context.dc.value
-  const totalMinusDc = rollTotal - rollDc
-  const totalAboveThreshold = ((totalMinusDc % 10) + 10) % 10 // within [0, 9]
-  const totalBelowThreshold = ((totalMinusDc % 10) - 10 + 1) % 10 - 1 // within [-10, -1]
-  const critSuccess = totalMinusDc >= 10 || data.flags.pf2e.context.outcome === 'criticalSuccess'
-  const doubleCritSuccess = totalMinusDc >= 10 && chatMessage.roll.terms[0].results[0].result === 20
-  const critFail = totalMinusDc < -10 || data.flags.pf2e.context.outcome === 'criticalFailure'
-  const doubleCritFail = totalMinusDc < -10 && chatMessage.roll.terms[0].results[0].result === 1
+  const deltaFromDc = rollTotal - rollDc
+  // technically DoS can be higher or lower through nat 1 and nat 20, but it doesn't matter with this calculation
+  const dieRoll = chatMessage.roll.terms[0].results[0].result
+  const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
+  // wouldChangeOutcome(x) returns true if a bonus of x ("penalty" if x is negative) changes the degree of success
+  const wouldChangeOutcome = (extra => calcDegreePlusRoll(deltaFromDc + extra, dieRoll) !== currentDegreeOfSuccess)
+  const positiveConditionsChangedOutcome = wouldChangeOutcome(-conModsPositiveTotal)
+  const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
+  // sum of condition modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
+  const conModsNecessaryPositiveTotal = conMods.filter(m => m > 0 && wouldChangeOutcome(-m.modifier)).reduce(sumReducerMods, 0)
+    - acModsFromCons(targetAcConditions).filter(m => valueNegative(m) && wouldChangeOutcome(m.value)).reduce(sumReducerAcConditions, 0)
+  const conModsNecessaryNegativeTotal = conMods.filter(m => m < 0 && wouldChangeOutcome(-m.modifier)).reduce(sumReducerMods, 0)
+    - acModsFromCons(targetAcConditions).filter(m => valuePositive(m) && wouldChangeOutcome(m.value)).reduce(sumReducerAcConditions, 0)
+// sum of all other condition modifiers.  if this sum's changing does not affect the outcome it means conditions were unnecessary
+  const remainingPositivesChangedOutcome = wouldChangeOutcome(-(conModsPositiveTotal - conModsNecessaryPositiveTotal))
+  const remainingNegativesChangedOutcome = wouldChangeOutcome(-(conModsNegativeTotal - conModsNecessaryNegativeTotal))
 
-  const positiveConditionsChangedOutcome = existConModsPositive && conModsPositiveTotal > totalAboveThreshold && !critFail && !doubleCritSuccess
-  const negativeConditionsChangedOutcome = existConModsNegative && conModsNegativeTotal <= totalBelowThreshold && !critSuccess && !doubleCritFail
+  // utility, because this calculation is done multiple times but requires a bunch of calculated variables
+  const calcOutcomeChangeColor = (modifier) => {
+    const isNegativeMod = modifier < 0
+    const changedOutcome = wouldChangeOutcome(-modifier)
+    // return (not marking condition modifier at all) if this condition modifier was absolutely not necessary
+    if (
+      (!isNegativeMod && !positiveConditionsChangedOutcome)
+      || (isNegativeMod && !negativeConditionsChangedOutcome)
+      || (!isNegativeMod && !remainingPositivesChangedOutcome && !changedOutcome)
+      || (isNegativeMod && !remainingNegativesChangedOutcome && !changedOutcome)
+    )
+      return undefined
+    return isNegativeMod
+      ? (changedOutcome ? NEGATIVE_COLOR : WEAK_NEGATIVE_COLOR)
+      : (changedOutcome ? POSITIVE_COLOR : WEAK_POSITIVE_COLOR)
+  }
 
   const oldFlavor = chatMessage.data.flavor
   let newFlavor = oldFlavor
   conMods.forEach(m => {
     const mod = m.modifier
-    const isNegativeMod = mod < 0
-    // return (not marking condition modifier at all) if it was absolutely not necessary
-    if ((!isNegativeMod && !positiveConditionsChangedOutcome) || (isNegativeMod && !negativeConditionsChangedOutcome))
-      return
-    // check if this effect was not necessary by itself to improve/worsen the roll
-    const wasNeededToImproveResult = !isNegativeMod && positiveConditionsChangedOutcome
-      && totalAboveThreshold - mod < 0
-    const wasNeededToWorsenResult = isNegativeMod && negativeConditionsChangedOutcome
-      && totalBelowThreshold - mod >= 0
-    const color = isNegativeMod
-      ? (wasNeededToWorsenResult ? NEGATIVE_COLOR : WEAK_NEGATIVE_COLOR)
-      : (wasNeededToImproveResult ? POSITIVE_COLOR : WEAK_POSITIVE_COLOR)
+    const outcomeChangeColor = calcOutcomeChangeColor(mod)
+    if (!outcomeChangeColor) return
     const modifierValue = (mod < 0 ? '' : '+') + mod
     const modifierName = game.i18n.localize(m.name)
     newFlavor = newFlavor.replaceAll(
       `<span class="tag tag_alt">${modifierName} ${modifierValue}</span>`,
-      `<span class="tag tag_alt" style="background-color: ${color}">${modifierName} ${modifierValue}</span>`
+      `<span class="tag tag_alt" style="background-color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
     )
   })
   const acFlavorSuffix = targetAcConditions.map(c => {
     const conditionAcMod = c.data.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
-    const isNegativeMod = conditionAcMod < 0
-    // check if this effect was actually not necessary to worsen the roll (but another effect was)
-    const wasNeededToImproveResult = isNegativeMod && positiveConditionsChangedOutcome
-      && totalAboveThreshold + conditionAcMod < 0
-    const wasNeededToWorsenResult = !isNegativeMod && negativeConditionsChangedOutcome
-      && totalBelowThreshold + conditionAcMod >= 0
-    if ((isNegativeMod && !positiveConditionsChangedOutcome) || (!isNegativeMod && !negativeConditionsChangedOutcome))
-      return
-    const color = isNegativeMod
-      ? (wasNeededToImproveResult ? POSITIVE_COLOR : WEAK_POSITIVE_COLOR)
-      : (wasNeededToWorsenResult ? NEGATIVE_COLOR : WEAK_NEGATIVE_COLOR)
-    const modifierValue = (isNegativeMod ? '' : '+') + conditionAcMod
+    const outcomeChangeColor = calcOutcomeChangeColor(-conditionAcMod)
+    if (!outcomeChangeColor) return undefined
+    const modifierValue = (conditionAcMod < 0 ? '' : '+') + conditionAcMod
     const modifierName = c.name
-    return `<span style="color: ${color}">${modifierName} ${modifierValue}</span>`
+    return `<span style="color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
   }).filter(s => s !== undefined)
     .join(', ')
   if (acFlavorSuffix) {
