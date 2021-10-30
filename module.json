@@ -3,7 +3,7 @@
   "title": "PF2e Highlight Status Effect Consequences",
   "description": "Highlights situations where status effects (buffs, debuffs, conditions) change the outcome of a roll.",
   "author": "shem",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "minimumCoreVersion": "0.8.9",
   "compatibleCoreVersion": "0.8.9",
   "esmodules": [
