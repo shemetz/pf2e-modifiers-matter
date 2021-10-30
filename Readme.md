@@ -12,6 +12,8 @@ misses an attack due to the poison it was recently exposed to.
 
 To install, browse for it in the module browser, or [directly copy the manifest link for the latest release](https://github.com/itamarcu/pf2e-highlight-status-effect-consequences/releases/latest/download/module.json).
 
+![](metadata/example_0.png)
+
 # Features
 
 ## Basic Behavior - Add color to active roller's bonuses/penalties in chat cards
