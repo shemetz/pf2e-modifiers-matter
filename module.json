@@ -1,20 +1,20 @@
 {
-  "name": "pf2e-highlight-status-effect-consequences",
-  "title": "PF2e Highlight Status Effect Consequences",
-  "description": "Highlights situations where status effects (buffs, debuffs, conditions) change the outcome of a roll.",
+  "name": "pf2e-modifiers-matter",
+  "title": "PF2e Modifiers Matter",
+  "description": "Highlights situations where status effects (buffs, debuffs, conditions) change the outcome of a roll.  Technically this module is not about modifiers but about all the other things that modify a roll, which happen to not be called modifiers, despite applying modifications.",
   "version": "0.3.0",
   "minimumCoreVersion": "0.8.9",
   "compatibleCoreVersion": "0.8.9",
   "esmodules": [
-    "scripts/pf2e-highlight-status-effect-consequences.js"
+    "scripts/pf2e-modifiers-matter.js"
   ],
-  "url": "https://github.com/itamarcu/pf2e-highlight-status-effect-consequences",
-  "manifest": "https://github.com/itamarcu/pf2e-highlight-status-effect-consequences/raw/master/module.json",
-  "download": "https://github.com/itamarcu/pf2e-highlight-status-effect-consequences/archive/master.zip",
-  "readme": "https://github.com/itamarcu/pf2e-highlight-status-effect-consequences/blob/master/Readme.md",
-  "changelog": "https://github.com/itamarcu/pf2e-highlight-status-effect-consequences/blob/master/Changelog.md",
-  "license": "https://github.com/itamarcu/pf2e-highlight-status-effect-consequences/blob/master/License.txt",
-  "bugs": "https://github.com/itamarcu/pf2e-highlight-status-effect-consequences/issues",
+  "url": "https://github.com/itamarcu/pf2e-modifiers-matter",
+  "manifest": "https://github.com/itamarcu/pf2e-modifiers-matter/raw/master/module.json",
+  "download": "https://github.com/itamarcu/pf2e-modifiers-matter/archive/master.zip",
+  "readme": "https://github.com/itamarcu/pf2e-modifiers-matter/blob/master/Readme.md",
+  "changelog": "https://github.com/itamarcu/pf2e-modifiers-matter/blob/master/Changelog.md",
+  "license": "https://github.com/itamarcu/pf2e-modifiers-matter/blob/master/License.txt",
+  "bugs": "https://github.com/itamarcu/pf2e-modifiers-matter/issues",
   "authors": [
     {
       "name": "shem",
@@ -27,13 +27,13 @@
   "media": [
     {
       "type": "icon",
-      "url": "https://raw.githubusercontent.com/itamarcu/pf2e-highlight-status-effect-consequences/master/metadata/icon.png",
-      "caption": "PF2e Highlight Status Effect Consequences"
+      "url": "https://raw.githubusercontent.com/itamarcu/pf2e-modifiers-matter/master/metadata/icon.png",
+      "caption": "PF2e Modifiers Matter"
     },
     {
       "type": "cover",
-      "url": "https://raw.githubusercontent.com/itamarcu/pf2e-highlight-status-effect-consequences/master/metadata/cover.png",
-      "caption": "PF2e Highlight Status Effect Consequences"
+      "url": "https://raw.githubusercontent.com/itamarcu/pf2e-modifiers-matter/master/metadata/cover.png",
+      "caption": "PF2e Modifiers Matter"
     }
   ]
 }

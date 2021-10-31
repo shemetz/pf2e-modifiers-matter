@@ -1,8 +1,8 @@
-# [PF2e Highlight Status Effect Consequences](https://foundryvtt.com/packages/pf2e-highlight-status-effect-consequences/)
+# [PF2e Modifiers Matter](https://foundryvtt.com/packages/pf2e-modifiers-matter/)
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/itamarcu/pf2e-highlight-status-effect-consequences?style=for-the-badge) 
-![GitHub Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-highlight-status-effect-consequences/latest/total?style=for-the-badge) 
-![GitHub All Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-highlight-status-effect-consequences/total?style=for-the-badge&label=Downloads+total)  
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/itamarcu/pf2e-modifiers-matter?style=for-the-badge) 
+![GitHub Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-modifiers-matter/latest/total?style=for-the-badge) 
+![GitHub All Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-modifiers-matter/total?style=for-the-badge&label=Downloads+total)  
 
 FoundryVTT module for the PF2e system, which highlights situations where status effects (buffs, debuffs, conditions) change the outcome of a roll.
 
@@ -10,9 +10,12 @@ With this module, the players or Gamemaster can notice when one character helped
 For example, if the Fighter got a critical hit against a goblin only thanks to the Druid frightening the goblin, or when the Fighter
 misses an attack due to the poison it was recently exposed to.
 
-To install, browse for it in the module browser, or [directly copy the manifest link for the latest release](https://github.com/itamarcu/pf2e-highlight-status-effect-consequences/releases/latest/download/module.json).
+To install, browse for it in the module browser, or [directly copy the manifest link for the latest release](https://github.com/itamarcu/pf2e-modifiers-matter/releases/latest/download/module.json).
 
 ![](metadata/example_0.png)
+
+Yes, technically this module is not about modifiers but about all the other things that modify a roll, which happen 
+to not be called modifiers, despite applying modifications.  But "PF2e Highlight Status Effect Consequences" was too long.
 
 # Features
 
@@ -84,6 +87,10 @@ result.  In a way, all of these status effects were equally important here.
 
 In this example, the attack failed because the skeleton had greater cover (+4 to AC).  Even though Ezren is also frightened
 the frightened condition modifier on this card will not be highlighted because it did not affect the outcome whatsoever.
+
+## Credits
+
+Thanks Sionth#5174 for coming up with a name for this!
 
 ## Accessibility
 
