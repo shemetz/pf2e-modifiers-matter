@@ -86,7 +86,12 @@ const convertAcConditionsWithRuleElements = i => {
   }
 }
 const acConsOfToken = (targetedToken) => {
-  return targetedToken.data.actorData.items
+  const items = [
+    ...(targetedToken.data.actorData.items || []),
+    ...(targetedToken.actor.items.map(i => i.data) || [])
+  ]
+  return items
+    .filter(i => i.type === 'condition' || i.type === 'effect')
     .map(convertAcConditionsWithValuedValues)
     .map(convertAcConditionsWithRuleElements)
     .filter(i => acModOfCon(i) !== undefined)
