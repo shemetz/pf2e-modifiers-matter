@@ -15,6 +15,7 @@
   "changelog": "https://github.com/itamarcu/pf2e-modifiers-matter/blob/master/Changelog.md",
   "license": "https://github.com/itamarcu/pf2e-modifiers-matter/blob/master/License.txt",
   "bugs": "https://github.com/itamarcu/pf2e-modifiers-matter/issues",
+  "system": ["pf2e"],
   "authors": [
     {
       "name": "shem",
