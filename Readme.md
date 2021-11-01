@@ -26,7 +26,8 @@ not be called modifiers, despite applying modifications. But "PF2e Highlight Sta
 
 By default in the Pathfinder 2e system, when you make an attack roll, saving throw, or other check against a DC, the
 chat card that shows the result of your roll will usually contain a summary of your bonuses and penalties based on your
-conditions. Additionally, the card shows you if you succeeded or failed (and for GMs, shows exactly by how much).
+conditions. Additionally, the card shows you if you succeeded or failed (and for GMs, shows exactly by how much). (This 
+behavior is controlled in the PF2E system settings, under Metagame Information -> Show results on attacks and saves)
 
 This module **edits** the chat card to color these bonuses whenever they are relevant to a roll. In other words, when an
 effect causes the outcome to change (by one or more degrees of success), the effect's bonus text on the card will be
