@@ -241,14 +241,14 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     if (getSetting('show-defense-highlights-to-everyone'))
       // placed below GM-only visibility area
       newFlavor = newFlavor.replaceAll(
-        `</b></div><div data-visibility="all"`,
-        `</b></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="all"`
+        `</b></div><div data-visibility="`,
+        `</b></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="`
       )
     else
       // placed inside GM-only visibility area
       newFlavor = newFlavor.replaceAll(
-        `</b></div><div data-visibility="all"`,
-        ` (${acFlavorSuffix})</b></div><div data-visibility="all"`
+        `</b></div><div data-visibility="`,
+        ` (${acFlavorSuffix})</b></div><div data-visibility="`
       )
   }
 
