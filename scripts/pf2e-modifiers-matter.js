@@ -42,6 +42,8 @@ const IGNORED_MODIFIERS = [
   'PF2E.AbilityCha',
   'PF2E.PotencyRuneLabel',
   'Attack Potency', // from Advanced Bonus Progression
+  'Devise a Stratagem',
+  'Wild Shape'
 ]
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
 const sumReducerAcConditions = (accumulator, curr) => accumulator + curr.value
@@ -258,6 +260,9 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   }
 
   if (newFlavor !== oldFlavor) {
+    console.info(`${MODULE_ID} | altered chat message description.`)
+    console.debug(`${MODULE_ID} | from: ${oldFlavor}`)
+    console.debug(`${MODULE_ID} |   to: ${newFlavor}`)
     data.flavor = newFlavor
     await chatMessage.data.update({ 'flavor': newFlavor })
   }
@@ -287,5 +292,5 @@ Hooks.on('init', function () {
 
 Hooks.once('setup', function () {
   Hooks.on('preCreateChatMessage', hook_preCreateChatMessage)
-  console.log(`${MODULE_ID} | initialized`)
+  console.info(`${MODULE_ID} | initialized`)
 })
