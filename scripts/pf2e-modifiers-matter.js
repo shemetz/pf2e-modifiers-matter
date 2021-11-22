@@ -26,7 +26,7 @@ const POSITIVE_COLOR = '#008000'
 const WEAK_POSITIVE_COLOR = '#91a82a'
 const NEGATIVE_COLOR = '#ff0000'
 const WEAK_NEGATIVE_COLOR = '#ff852f'
-const IGNORED_MODIFIERS = [
+let IGNORED_MODIFIERS = [
   'PF2E.BaseModifier',
   'PF2E.MultipleAttackPenalty',
   'PF2E.ProficiencyLevel0',
@@ -41,10 +41,18 @@ const IGNORED_MODIFIERS = [
   'PF2E.AbilityWis',
   'PF2E.AbilityCha',
   'PF2E.PotencyRuneLabel',
-  'Attack Potency', // from Advanced Bonus Progression
-  'Devise a Stratagem',
-  'Wild Shape'
 ]
+const setupIgnoredModifiers = () => {
+  IGNORED_MODIFIERS = IGNORED_MODIFIERS.concat(...[
+    game.i18n.translations.PF2E.AutomaticBonusProgression.attackPotency,
+    game.i18n.translations.PF2E.AutomaticBonusProgression.defensePotency,
+    game.i18n.translations.PF2E.AutomaticBonusProgression.savePotency,
+    game.i18n.translations.PF2E.AutomaticBonusProgression.perceptionPotency,
+    'Devise a Stratagem', // Investigator
+    'Wild Shape', // Druid
+    'Hunter\'s Edge: Flurry', // Ranger
+  ])
+}
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
 const sumReducerAcConditions = (accumulator, curr) => accumulator + curr.value
 const isAcMod = m => m.group === 'ac' || m.group === 'all'
@@ -292,5 +300,6 @@ Hooks.on('init', function () {
 
 Hooks.once('setup', function () {
   Hooks.on('preCreateChatMessage', hook_preCreateChatMessage)
+  setupIgnoredModifiers()
   console.info(`${MODULE_ID} | initialized`)
 })
