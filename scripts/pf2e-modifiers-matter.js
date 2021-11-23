@@ -41,18 +41,15 @@ let IGNORED_MODIFIERS = [
   'PF2E.AbilityWis',
   'PF2E.AbilityCha',
   'PF2E.PotencyRuneLabel',
+  'Attack Potency',
+  'Defense Potency',
+  'Save Potency',
+  'Perception Potency',
+  'Devise a Stratagem', // Investigator
+  'Wild Shape', // Druid
+  'Hunter\'s Edge: Flurry', // Ranger
 ]
-const setupIgnoredModifiers = () => {
-  IGNORED_MODIFIERS = IGNORED_MODIFIERS.concat(...[
-    game.i18n.translations.PF2E.AutomaticBonusProgression.attackPotency,
-    game.i18n.translations.PF2E.AutomaticBonusProgression.defensePotency,
-    game.i18n.translations.PF2E.AutomaticBonusProgression.savePotency,
-    game.i18n.translations.PF2E.AutomaticBonusProgression.perceptionPotency,
-    'Devise a Stratagem', // Investigator
-    'Wild Shape', // Druid
-    'Hunter\'s Edge: Flurry', // Ranger
-  ])
-}
+
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
 const sumReducerAcConditions = (accumulator, curr) => accumulator + curr.value
 const isAcMod = m => m.group === 'ac' || m.group === 'all'
@@ -178,7 +175,13 @@ const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
 const hook_preCreateChatMessage = async (chatMessage, data) => {
   if (!getSetting('module-enabled')) return true
   // continue only if message is a PF2e roll message
-  if (!data.flags || !data.flags.pf2e || data.flags.pf2e.modifiers === undefined || data.flags.pf2e.context.dc === undefined) return true
+  if (
+    !data.flags
+    || !data.flags.pf2e
+    || data.flags.pf2e.modifiers === undefined
+    || data.flags.pf2e.context.dc === undefined
+    || data.flags.pf2e.context.dc === null
+  ) return true
 
   // potentially include modifiers that apply to enemy AC (it's hard to do the same with ability/spell DCs though)
   const targetedToken = Array.from(game.user.targets)[0]
@@ -194,7 +197,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valuePositive).reduce(sumReducerAcConditions, 0)
 
-  const rollTotal = parseInt(data.content)
+  const rollTotal = parseInt(data.content || chatMessage.roll.total.toString())
   const rollDc = data.flags.pf2e.context.dc.value
   const deltaFromDc = rollTotal - rollDc
   // technically DoS can be higher or lower through nat 1 and nat 20, but it doesn't matter with this calculation
@@ -300,6 +303,5 @@ Hooks.on('init', function () {
 
 Hooks.once('setup', function () {
   Hooks.on('preCreateChatMessage', hook_preCreateChatMessage)
-  setupIgnoredModifiers()
   console.info(`${MODULE_ID} | initialized`)
 })
