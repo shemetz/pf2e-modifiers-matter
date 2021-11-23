@@ -172,6 +172,41 @@ const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
   return degree
 }
 
+const insertAcFlavorSuffix = (oldFlavor, acFlavorSuffix) => {
+  if (oldFlavor.includes(`</b></div><div data-visibility="`)) {
+    if (getSetting('show-defense-highlights-to-everyone'))
+      // placed below GM-only visibility area
+      return oldFlavor.replaceAll(
+        `</b></div><div data-visibility="`,
+        `</b></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="`
+      )
+    else
+      // placed inside GM-only visibility area
+      return oldFlavor.replaceAll(
+        `</b></div><div data-visibility="`,
+        ` (${acFlavorSuffix})</b></div><div data-visibility="`
+      )
+  } else if (oldFlavor.includes(`</span></b> </div><div class="tags"`)) {
+    // compatibility fix for Pf2e Tweaks by Ustin
+    if (getSetting('show-defense-highlights-to-everyone'))
+      // placed below GM-only visibility area
+      return oldFlavor.replaceAll(
+        `</span></b> </div><div class="tags"`,
+        `</span></b> </div><b>(${acFlavorSuffix})</b><div class="tags"`
+      )
+    else
+      // placed inside GM-only visibility area
+      return oldFlavor.replaceAll(
+        `</span></b> </div><div class="tags"`,
+        `</span> (${acFlavorSuffix})</b> </div><div class="tags"`
+      )
+  } else {
+    console.warn(`${MODULE_ID} | failed parsing chat message flavor text! please report this bug.`)
+    console.info(`${MODULE_ID} | printing oldFlavor in debug/verbose level...`)
+    console.debug(oldFlavor)
+  }
+}
+
 const hook_preCreateChatMessage = async (chatMessage, data) => {
   if (!getSetting('module-enabled')) return true
   // continue only if message is a PF2e roll message
@@ -256,18 +291,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   }).filter(s => s !== undefined)
     .join(', ')
   if (acFlavorSuffix) {
-    if (getSetting('show-defense-highlights-to-everyone'))
-      // placed below GM-only visibility area
-      newFlavor = newFlavor.replaceAll(
-        `</b></div><div data-visibility="`,
-        `</b></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="`
-      )
-    else
-      // placed inside GM-only visibility area
-      newFlavor = newFlavor.replaceAll(
-        `</b></div><div data-visibility="`,
-        ` (${acFlavorSuffix})</b></div><div data-visibility="`
-      )
+    newFlavor = insertAcFlavorSuffix(newFlavor, acFlavorSuffix)
   }
 
   if (newFlavor !== oldFlavor) {
