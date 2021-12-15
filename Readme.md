@@ -1,4 +1,4 @@
-# [PF2e Modifiers Matter](https://foundryvtt.com/packages/pf2e-modifiers-matter/)
+# [Pf2E Modifiers Matter](https://foundryvtt.com/packages/pf2e-modifiers-matter/)
 
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/itamarcu/pf2e-modifiers-matter?style=for-the-badge)
 ![GitHub Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-modifiers-matter/latest/total?style=for-the-badge)
@@ -18,7 +18,7 @@ or [directly copy the manifest link for the latest release](https://github.com/i
 ![](metadata/example_0.png)
 
 Yes, technically this module is not about modifiers but about all the other things that modify a roll, which happen to
-not be called modifiers, despite applying modifications. But "PF2e Highlight Status Effect Consequences" was too long.
+not be called modifiers, despite applying modifications. But "Pathfinder 2nd Edition Highlight Status Effect Consequences" was too long.
 
 # Features
 
