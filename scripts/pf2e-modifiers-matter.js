@@ -45,6 +45,9 @@ let IGNORED_MODIFIERS = [
   'Defense Potency',
   'Save Potency',
   'Perception Potency',
+  'PF2E.NPC.Adjustment.EliteLabel',
+  'PF2E.NPC.Adjustment.WeakLabel',
+  'Handwraps of Mighty Blows', // Item, includes potency-like bonus
   'Devise a Stratagem', // Investigator
   'Wild Shape', // Druid
   'Hunter\'s Edge: Flurry', // Ranger
@@ -65,13 +68,14 @@ const convertAcConditionsWithValuedValues = i => {
   return {
     name: i.name,
     data: {
-      modifiers: [{
-        group: m.group,
-        type: m.type,
-        // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
-        value: -i.data.value.value
-      }]
-    }
+      modifiers: [
+        {
+          group: m.group,
+          type: m.type,
+          // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
+          value: -i.data.value.value,
+        }],
+    },
   }
 }
 const isAcSelector = m => m.selector === 'ac' || m.selector === 'all'
@@ -83,25 +87,25 @@ const convertAcConditionsWithRuleElements = i => {
   return {
     name: i.name,
     data: {
-      modifiers: [{
-        group: acRule.selector,
-        type: acRule.type,
-        // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
-        value: acRule.value
-      }]
-    }
+      modifiers: [
+        {
+          group: acRule.selector,
+          type: acRule.type,
+          // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
+          value: acRule.value,
+        }],
+    },
   }
 }
 const acConsOfToken = (targetedToken) => {
   const items = [
     ...(targetedToken.data.actorData.items || []),
-    ...(targetedToken.actor.items.map(i => i.data) || [])
+    ...(targetedToken.actor.items.map(i => i.data) || []),
   ]
-  return items
-    .filter(i => i.type === 'condition' || i.type === 'effect')
-    .map(convertAcConditionsWithValuedValues)
-    .map(convertAcConditionsWithRuleElements)
-    .filter(i => acModOfCon(i) !== undefined)
+  return items.filter(i => i.type === 'condition' || i.type === 'effect').
+    map(convertAcConditionsWithValuedValues).
+    map(convertAcConditionsWithRuleElements).
+    filter(i => acModOfCon(i) !== undefined)
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
     // remove items where condition can't stack;  by checking if another item has equal/higher mods of same type
@@ -111,7 +115,8 @@ const acConsOfToken = (targetedToken) => {
       return a.findIndex(i2 => {
         const m2 = acModOfCon(i2)
         // status -1 and status -2 don't stack, but status -1 and status +2 do stack
-        return m2.type === m1.type && Math.sign(m2.value) === Math.sign(m1.value) && Math.abs(m2.value) >= Math.abs(m1.value)
+        return m2.type === m1.type && Math.sign(m2.value) === Math.sign(m1.value) && Math.abs(m2.value) >=
+          Math.abs(m1.value)
       }) === idx
     })
 }
@@ -178,13 +183,13 @@ const insertAcFlavorSuffix = (oldFlavor, acFlavorSuffix) => {
       // placed below GM-only visibility area
       return oldFlavor.replaceAll(
         `</b></div><div data-visibility="`,
-        `</b></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="`
+        `</b></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="`,
       )
     else
       // placed inside GM-only visibility area
       return oldFlavor.replaceAll(
         `</b></div><div data-visibility="`,
-        ` (${acFlavorSuffix})</b></div><div data-visibility="`
+        ` (${acFlavorSuffix})</b></div><div data-visibility="`,
       )
   } else if (oldFlavor.includes(`</span></b> </div><div class="tags"`)) {
     // compatibility fix for Pf2e Tweaks by Ustin
@@ -192,13 +197,13 @@ const insertAcFlavorSuffix = (oldFlavor, acFlavorSuffix) => {
       // placed below GM-only visibility area
       return oldFlavor.replaceAll(
         `</span></b> </div><div class="tags"`,
-        `</span></b> </div><b>(${acFlavorSuffix})</b><div class="tags"`
+        `</span></b> </div><b>(${acFlavorSuffix})</b><div class="tags"`,
       )
     else
       // placed inside GM-only visibility area
       return oldFlavor.replaceAll(
         `</span></b> </div><div class="tags"`,
-        `</span> (${acFlavorSuffix})</b> </div><div class="tags"`
+        `</span> (${acFlavorSuffix})</b> </div><div class="tags"`,
       )
   } else {
     console.warn(`${MODULE_ID} | failed parsing chat message flavor text! please report this bug.`)
@@ -224,9 +229,8 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const attackIsAgainstAc = dcLabel.includes('AC:')
   const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken) : []
 
-  const conMods = data.flags.pf2e.modifiers
-    .filter(m => !IGNORED_MODIFIERS.includes(m.name))
-    .filter(m => m.enabled && !m.ignored) // enabled is false for one of the conditions if it can't stack with others
+  const conMods = data.flags.pf2e.modifiers.filter(m => !IGNORED_MODIFIERS.includes(m.name)).
+    filter(m => m.enabled && !m.ignored) // enabled is false for one of the conditions if it can't stack with others
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
@@ -243,10 +247,16 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const positiveConditionsChangedOutcome = wouldChangeOutcome(-conModsPositiveTotal)
   const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
   // sum of condition modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
-  const conModsNecessaryPositiveTotal = conMods.filter(m => m > 0 && wouldChangeOutcome(-m.modifier)).reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions).filter(m => valueNegative(m) && wouldChangeOutcome(m.value)).reduce(sumReducerAcConditions, 0)
-  const conModsNecessaryNegativeTotal = conMods.filter(m => m < 0 && wouldChangeOutcome(-m.modifier)).reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions).filter(m => valuePositive(m) && wouldChangeOutcome(m.value)).reduce(sumReducerAcConditions, 0)
+  const conModsNecessaryPositiveTotal = conMods.filter(m => m > 0 && wouldChangeOutcome(-m.modifier)).
+      reduce(sumReducerMods, 0)
+    - acModsFromCons(targetAcConditions).
+      filter(m => valueNegative(m) && wouldChangeOutcome(m.value)).
+      reduce(sumReducerAcConditions, 0)
+  const conModsNecessaryNegativeTotal = conMods.filter(m => m < 0 && wouldChangeOutcome(-m.modifier)).
+      reduce(sumReducerMods, 0)
+    - acModsFromCons(targetAcConditions).
+      filter(m => valuePositive(m) && wouldChangeOutcome(m.value)).
+      reduce(sumReducerAcConditions, 0)
 // sum of all other condition modifiers.  if this sum's changing does not affect the outcome it means conditions were unnecessary
   const remainingPositivesChangedOutcome = wouldChangeOutcome(-(conModsPositiveTotal - conModsNecessaryPositiveTotal))
   const remainingNegativesChangedOutcome = wouldChangeOutcome(-(conModsNegativeTotal - conModsNecessaryNegativeTotal))
@@ -278,7 +288,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     const modifierName = game.i18n.localize(m.name)
     newFlavor = newFlavor.replaceAll(
       `<span class="tag tag_alt">${modifierName} ${modifierValue}</span>`,
-      `<span class="tag tag_alt" style="background-color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
+      `<span class="tag tag_alt" style="background-color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`,
     )
   })
   const acFlavorSuffix = targetAcConditions.map(c => {
@@ -288,8 +298,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     const modifierValue = (conditionAcMod < 0 ? '' : '+') + conditionAcMod
     const modifierName = c.name
     return `<span style="color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
-  }).filter(s => s !== undefined)
-    .join(', ')
+  }).filter(s => s !== undefined).join(', ')
   if (acFlavorSuffix) {
     newFlavor = insertAcFlavorSuffix(newFlavor, acFlavorSuffix)
   }
