@@ -26,7 +26,7 @@ const POSITIVE_COLOR = '#008000'
 const WEAK_POSITIVE_COLOR = '#91a82a'
 const NEGATIVE_COLOR = '#ff0000'
 const WEAK_NEGATIVE_COLOR = '#ff852f'
-let IGNORED_MODIFIERS = [
+const IGNORED_MODIFIERS = [
   'PF2E.BaseModifier',
   'PF2E.MultipleAttackPenalty',
   'PF2E.ProficiencyLevel0',
@@ -213,7 +213,6 @@ const insertAcFlavorSuffix = (oldFlavor, acFlavorSuffix) => {
 }
 
 const hook_preCreateChatMessage = async (chatMessage, data) => {
-  if (!getSetting('module-enabled')) return true
   // continue only if message is a PF2e roll message
   if (
     !data.flags
@@ -304,9 +303,6 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   }
 
   if (newFlavor !== oldFlavor) {
-    console.info(`${MODULE_ID} | altered chat message description.`)
-    console.debug(`${MODULE_ID} | from: ${oldFlavor}`)
-    console.debug(`${MODULE_ID} |   to: ${newFlavor}`)
     data.flavor = newFlavor
     await chatMessage.data.update({ 'flavor': newFlavor })
   }
@@ -316,14 +312,6 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
 const getSetting = (settingName) => game.settings.get(MODULE_ID, settingName)
 
 Hooks.on('init', function () {
-  game.settings.register(MODULE_ID, 'module-enabled', {
-    name: 'Enable module',
-    hint: 'Highlight situations when status effects (buffs, debuffs, conditions) change the outcome of a roll.',
-    scope: 'world',
-    config: true,
-    default: true,
-    type: Boolean,
-  })
   game.settings.register(MODULE_ID, 'show-defense-highlights-to-everyone', {
     name: 'Show defense highlights to everyone',
     hint: 'If set to true, defense highlights such as "Flat-footed -2" will be shown to everyone, not just GM.',
