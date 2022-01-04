@@ -3,6 +3,7 @@
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/itamarcu/pf2e-modifiers-matter?style=for-the-badge)
 ![GitHub Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-modifiers-matter/latest/total?style=for-the-badge)
 ![GitHub All Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-modifiers-matter/total?style=for-the-badge&label=Downloads+total)
+![Latest Supported Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/itamarcu/pf2e-modifiers-matter/raw/master/module.json)
 
 FoundryVTT module for the PF2e system, which highlights situations where status effects (buffs, debuffs, conditions)
 change the outcome of a roll.
