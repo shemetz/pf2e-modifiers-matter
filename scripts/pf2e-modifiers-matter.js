@@ -27,30 +27,36 @@ const WEAK_POSITIVE_COLOR = '#91a82a'
 const NEGATIVE_COLOR = '#ff0000'
 const WEAK_NEGATIVE_COLOR = '#ff852f'
 const IGNORED_MODIFIERS = [
-  'PF2E.BaseModifier',
-  'PF2E.MultipleAttackPenalty',
-  'PF2E.ProficiencyLevel0',
-  'PF2E.ProficiencyLevel1',
-  'PF2E.ProficiencyLevel2',
-  'PF2E.ProficiencyLevel3',
-  'PF2E.ProficiencyLevel4',
-  'PF2E.AbilityStr',
-  'PF2E.AbilityCon',
-  'PF2E.AbilityDex',
-  'PF2E.AbilityInt',
-  'PF2E.AbilityWis',
-  'PF2E.AbilityCha',
-  'PF2E.PotencyRuneLabel',
-  'Attack Potency',
-  'Defense Potency',
-  'Save Potency',
-  'Perception Potency',
-  'PF2E.NPC.Adjustment.EliteLabel',
-  'PF2E.NPC.Adjustment.WeakLabel',
-  'Handwraps of Mighty Blows', // Item, includes potency-like bonus
-  'Devise a Stratagem', // Investigator
-  'Wild Shape', // Druid
-  'Hunter\'s Edge: Flurry', // Ranger
+  'base-modifier',
+  'multiple-attack-penalty',
+  'untrained',
+  'trained',
+  'expert',
+  'master',
+  'legendary',
+  'strength',
+  'constitution',
+  'dexterity',
+  'intelligence',
+  'wisdom',
+  'charisma',
+  'pf2e-ability-str',
+  'pf2e-ability-con',
+  'pf2e-ability-dex',
+  'pf2e-ability-int',
+  'pf2e-ability-wis',
+  'charisma',
+  'potency-rune',
+  'attack-potency',
+  'defense-potency',
+  'save-potency',
+  'perception-potency',
+  'elite',
+  'weak',
+  'handwraps-of-mighty-blows', // Item, includes potency-like bonus.  possibly unnecessary?
+  'devise-a-stratagem', // Investigator
+  'wild-shape', // Druid
+  'hunters-edge-flurry', // Ranger
 ]
 
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
@@ -102,10 +108,10 @@ const acConsOfToken = (targetedToken) => {
     ...(targetedToken.data.actorData.items || []),
     ...(targetedToken.actor.items.map(i => i.data) || []),
   ]
-  return items.filter(i => i.type === 'condition' || i.type === 'effect').
-    map(convertAcConditionsWithValuedValues).
-    map(convertAcConditionsWithRuleElements).
-    filter(i => acModOfCon(i) !== undefined)
+  return items.filter(i => i.type === 'condition' || i.type === 'effect')
+    .map(convertAcConditionsWithValuedValues)
+    .map(convertAcConditionsWithRuleElements)
+    .filter(i => acModOfCon(i) !== undefined)
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
     // remove items where condition can't stack;  by checking if another item has equal/higher mods of same type
@@ -228,8 +234,9 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const attackIsAgainstAc = dcLabel.includes('AC:')
   const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken) : []
 
-  const conMods = data.flags.pf2e.modifiers.filter(m => !IGNORED_MODIFIERS.includes(m.name)).
-    filter(m => m.enabled && !m.ignored) // enabled is false for one of the conditions if it can't stack with others
+  const conMods = data.flags.pf2e.modifiers
+    // enabled is false for one of the conditions if it can't stack with others
+    .filter(m => m.enabled && !m.ignored && !IGNORED_MODIFIERS.includes(m.slug))
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
@@ -246,16 +253,18 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const positiveConditionsChangedOutcome = wouldChangeOutcome(-conModsPositiveTotal)
   const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
   // sum of condition modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
-  const conModsNecessaryPositiveTotal = conMods.filter(m => m > 0 && wouldChangeOutcome(-m.modifier)).
-      reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions).
-      filter(m => valueNegative(m) && wouldChangeOutcome(m.value)).
-      reduce(sumReducerAcConditions, 0)
-  const conModsNecessaryNegativeTotal = conMods.filter(m => m < 0 && wouldChangeOutcome(-m.modifier)).
-      reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions).
-      filter(m => valuePositive(m) && wouldChangeOutcome(m.value)).
-      reduce(sumReducerAcConditions, 0)
+  const conModsNecessaryPositiveTotal = conMods
+      .filter(m => m > 0 && wouldChangeOutcome(-m.modifier))
+      .reduce(sumReducerMods, 0)
+    - acModsFromCons(targetAcConditions)
+      .filter(m => valueNegative(m) && wouldChangeOutcome(m.value))
+      .reduce(sumReducerAcConditions, 0)
+  const conModsNecessaryNegativeTotal = conMods
+      .filter(m => m < 0 && wouldChangeOutcome(-m.modifier))
+      .reduce(sumReducerMods, 0)
+    - acModsFromCons(targetAcConditions)
+      .filter(m => valuePositive(m) && wouldChangeOutcome(m.value))
+      .reduce(sumReducerAcConditions, 0)
 // sum of all other condition modifiers.  if this sum's changing does not affect the outcome it means conditions were unnecessary
   const remainingPositivesChangedOutcome = wouldChangeOutcome(-(conModsPositiveTotal - conModsNecessaryPositiveTotal))
   const remainingNegativesChangedOutcome = wouldChangeOutcome(-(conModsNegativeTotal - conModsNecessaryNegativeTotal))
@@ -284,10 +293,9 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     const outcomeChangeColor = calcOutcomeChangeColor(mod)
     if (!outcomeChangeColor) return
     const modifierValue = (mod < 0 ? '' : '+') + mod
-    const modifierName = game.i18n.localize(m.name)
     newFlavor = newFlavor.replaceAll(
-      `<span class="tag tag_alt">${modifierName} ${modifierValue}</span>`,
-      `<span class="tag tag_alt" style="background-color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`,
+      `<span class="tag tag_alt">${m.label} ${modifierValue}</span>`,
+      `<span class="tag tag_alt" style="background-color: ${outcomeChangeColor}">${m.label} ${modifierValue}</span>`,
     )
   })
   const acFlavorSuffix = targetAcConditions.map(c => {
@@ -326,3 +334,4 @@ Hooks.once('setup', function () {
   Hooks.on('preCreateChatMessage', hook_preCreateChatMessage)
   console.info(`${MODULE_ID} | initialized`)
 })
+
