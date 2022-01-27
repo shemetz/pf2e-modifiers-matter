@@ -242,6 +242,19 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valuePositive).reduce(sumReducerAcConditions, 0)
 
+  const shouldIgnoreThisDegreeOfSuccess = (oldDOS, newDOS) => {
+    // only ignore in this somewhat common edge case:
+    return (
+      // fail changed to crit fail, or vice versa
+      ((oldDOS === DEGREES.FAILURE && newDOS === DEGREES.CRIT_FAIL)
+        || (oldDOS === DEGREES.CRIT_FAIL && newDOS === DEGREES.FAILURE))
+      // and this game setting is enabled
+      && getSetting('ignore-crit-fail-over-fail-on-attacks')
+      // and it was a Strike attack
+      && data.flavor.includes('Strike:')
+    )
+  }
+
   const rollTotal = parseInt(data.content || chatMessage.roll.total.toString())
   const rollDc = data.flags.pf2e.context.dc.value
   const deltaFromDc = rollTotal - rollDc
@@ -249,7 +262,11 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const dieRoll = chatMessage.roll.terms[0].results[0].result
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
   // wouldChangeOutcome(x) returns true if a bonus of x ("penalty" if x is negative) changes the degree of success
-  const wouldChangeOutcome = (extra => calcDegreePlusRoll(deltaFromDc + extra, dieRoll) !== currentDegreeOfSuccess)
+  const wouldChangeOutcome = (extra) => {
+    const newDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc + extra, dieRoll)
+    return newDegreeOfSuccess !== currentDegreeOfSuccess &&
+      !shouldIgnoreThisDegreeOfSuccess(currentDegreeOfSuccess, newDegreeOfSuccess)
+  }
   const positiveConditionsChangedOutcome = wouldChangeOutcome(-conModsPositiveTotal)
   const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
   // sum of condition modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
@@ -326,6 +343,16 @@ Hooks.on('init', function () {
     scope: 'world',
     config: true,
     default: true,
+    type: Boolean,
+  })
+  game.settings.register(MODULE_ID, 'ignore-crit-fail-over-fail-on-attacks', {
+    name: 'Ignore Crit Fail over Fail on Attacks',
+    hint: 'If set to true, the module will not highlight changes that changed an attack from a fail to a crit fail or vice versa.' +
+      ' This is helpful because usually there\'s no difference between the two cases on attacks;  however, there are some' +
+      ' exceptions to this rule, such as Confident Finisher.',
+    scope: 'client',
+    config: true,
+    default: false,
     type: Boolean,
   })
 })
