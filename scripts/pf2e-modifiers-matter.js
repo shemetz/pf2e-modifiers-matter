@@ -50,6 +50,7 @@ const IGNORED_MODIFIERS = [
   'attack-potency',
   'defense-potency',
   'save-potency',
+  'skill-potency',
   'perception-potency',
   'elite',
   'weak',
@@ -57,6 +58,8 @@ const IGNORED_MODIFIERS = [
   'devise-a-stratagem', // Investigator
   'wild-shape', // Druid
   'hunters-edge-flurry', // Ranger
+  'flurry', // Ranger again, but newer version?
+  'effect-hunters-edge-flurry', // Ranger's companion
 ]
 
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
