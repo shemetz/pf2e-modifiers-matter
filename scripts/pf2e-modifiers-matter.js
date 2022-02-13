@@ -106,11 +106,11 @@ const convertAcConditionsWithRuleElements = i => {
     },
   }
 }
-const acConsOfToken = (targetedToken) => {
+const acConsOfToken = (targetedToken, isFlanking) => {
   const items = [
     ...(targetedToken.data.actorData.items || []),
     ...(targetedToken.actor.items.map(i => i.data) || []),
-  ]
+  ] + isFlanking ? [game.pf2e.ConditionManager.getCondition('flat-footed')] : []
   return items.filter(i => i.type === 'condition' || i.type === 'effect')
     .map(convertAcConditionsWithValuedValues)
     .map(convertAcConditionsWithRuleElements)
@@ -214,10 +214,25 @@ const insertAcFlavorSuffix = (oldFlavor, acFlavorSuffix) => {
         `</span></b> </div><div class="tags"`,
         `</span> (${acFlavorSuffix})</b> </div><div class="tags"`,
       )
+  } else if (oldFlavor.includes(`</span></div><div data-visibility="`)) {
+    // compatibility with Pf2e system 3.4.0 which added auto-flatfooted
+    if (getSetting('show-defense-highlights-to-everyone'))
+      // placed below GM-only visibility area
+      return oldFlavor.replaceAll(
+        `</span></div><div data-visibility="`,
+        `</span></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="`,
+      )
+    else
+      // placed inside GM-only visibility area
+      return oldFlavor.replaceAll(
+        `</span></div><div data-visibility="`,
+        `</span> (${acFlavorSuffix})</div><div data-visibility="`,
+      )
   } else {
     console.warn(`${MODULE_ID} | failed parsing chat message flavor text! please report this bug.`)
-    console.info(`${MODULE_ID} | printing oldFlavor in debug/verbose level...`)
-    console.debug(oldFlavor)
+    console.warn(`${MODULE_ID} | printing oldFlavor...`)
+    console.warn(oldFlavor)
+    return oldFlavor
   }
 }
 
@@ -233,9 +248,10 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
 
   // potentially include modifiers that apply to enemy AC (it's hard to do the same with ability/spell DCs though)
   const targetedToken = Array.from(game.user.targets)[0]
-  const dcLabel = data.flags.pf2e.context.dc.label || ''
-  const attackIsAgainstAc = dcLabel.includes('AC:')
-  const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken) : []
+  const dcLabel = data.flags.pf2e.context.dc.label || '' // 'PF2E.Check.AC' as of PF2e v3.4.0
+  const attackIsAgainstAc = dcLabel.includes('AC')
+  const isFlanking = chatMessage.data.flags.pf2e.context.options.includes('self:flanking')
+  const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken, isFlanking) : []
 
   const conMods = data.flags.pf2e.modifiers
     // enabled is false for one of the conditions if it can't stack with others
