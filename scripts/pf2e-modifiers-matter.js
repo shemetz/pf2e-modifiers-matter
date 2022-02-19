@@ -108,7 +108,9 @@ const acConsOfToken = (targetedToken, isFlanking) => {
   const items = [
     ...(targetedToken.data.actorData.items || []),
     ...(targetedToken.actor.items.map(i => i.data) || []),
-  ] + isFlanking ? [game.pf2e.ConditionManager.getCondition('flat-footed')] : []
+  ]
+    // flanking - calculated by the system
+    .concat(isFlanking ? [game.pf2e.ConditionManager.getCondition('flat-footed')] : [])
   return items.filter(i => i.type === 'condition' || i.type === 'effect')
     .map(convertAcConditionsWithValuedValues)
     .map(convertAcConditionsWithRuleElements)
