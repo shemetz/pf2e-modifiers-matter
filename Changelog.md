@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2022-02-20
+- Added support for different languages (mostly)
+- Fixed wrong flat-footed check (#6)
+- Added support for Raise a Shield and for feats/items with rule elements (e.g. Nimble Dodge)
+- Re-added support for Cover
+- Fixed handling of multiple modifiers of the same type
+
 ## [1.1.2] - 2022-02-13
 - Fixed compatibility with new automatic flanking (PF2e system 3.4.0)
 - Improved behavior in case of future AC format errors
@@ -54,7 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## See also: [Unreleased]
 
-[Unreleased]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.1.2...HEAD
 [0.2.0]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/0.1.0...0.2.0
 [0.3.1]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/0.2.0...0.3.1
 [0.3.2]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/0.3.1...0.3.2
@@ -68,3 +74,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.1.0]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.0.7...1.1.0
 [1.1.1]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.1.0...1.1.1
 [1.1.2]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.1.1...1.1.2
+[1.2.0]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.1.2...1.2.0
+[Unreleased]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.2.0...HEAD
