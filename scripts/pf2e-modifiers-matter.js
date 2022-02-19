@@ -26,41 +26,39 @@ const POSITIVE_COLOR = '#008000'
 const WEAK_POSITIVE_COLOR = '#91a82a'
 const NEGATIVE_COLOR = '#ff0000'
 const WEAK_NEGATIVE_COLOR = '#ff852f'
-const IGNORED_MODIFIERS = [
-  'base-modifier',
-  'multiple-attack-penalty',
-  'untrained',
-  'trained',
-  'expert',
-  'master',
-  'legendary',
-  'strength',
-  'constitution',
-  'dexterity',
-  'intelligence',
-  'wisdom',
-  'charisma',
-  'pf2e-ability-str',
-  'pf2e-ability-con',
-  'pf2e-ability-dex',
-  'pf2e-ability-int',
-  'pf2e-ability-wis',
-  'charisma',
-  'potency-rune',
-  'attack-potency',
-  'defense-potency',
-  'save-potency',
-  'skill-potency',
-  'perception-potency',
-  'elite',
-  'weak',
-  'handwraps-of-mighty-blows', // Item, includes potency-like bonus.  possibly unnecessary?
-  'devise-a-stratagem', // Investigator
-  'wild-shape', // Druid
-  'hunters-edge-flurry', // Ranger
-  'flurry', // Ranger again, but newer version?
-  'effect-hunters-edge-flurry', // Ranger's companion
-]
+let IGNORED_MODIFIER_LABELS = []
+
+const initializeIgnoredModifiers = () => {
+  const IGNORED_MODIFIERS_I18N = [
+    'PF2E.BaseModifier',
+    'PF2E.MultipleAttackPenalty',
+    'PF2E.ProficiencyLevel0',
+    'PF2E.ProficiencyLevel1',
+    'PF2E.ProficiencyLevel2',
+    'PF2E.ProficiencyLevel3',
+    'PF2E.ProficiencyLevel4',
+    'PF2E.AbilityStr',
+    'PF2E.AbilityCon',
+    'PF2E.AbilityDex',
+    'PF2E.AbilityInt',
+    'PF2E.AbilityWis',
+    'PF2E.AbilityCha',
+    'PF2E.PotencyRuneLabel',
+    'PF2E.AutomaticBonusProgression.attackPotency',
+    'PF2E.AutomaticBonusProgression.defensePotency',
+    'PF2E.AutomaticBonusProgression.savePotency',
+    'PF2E.AutomaticBonusProgression.skillPotency',
+    'PF2E.AutomaticBonusProgression.perceptionPotency',
+    'PF2E.NPC.Adjustment.EliteLabel',
+    'PF2E.NPC.Adjustment.WeakLabel',
+    'Devise a Stratagem', // Investigator
+    'Wild Shape', // Druid
+    'Hunter\'s Edge: Flurry', // Ranger, replaces multiple attack penalty
+    'Flurry', // same
+    'Effect: Hunter\'s Edge, Flurry', // Ranger's companion
+  ]
+  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => game.i18n.localize(str))
+}
 
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
 const sumReducerAcConditions = (accumulator, curr) => accumulator + curr.value
@@ -255,7 +253,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
 
   const conMods = data.flags.pf2e.modifiers
     // enabled is false for one of the conditions if it can't stack with others
-    .filter(m => m.enabled && !m.ignored && !IGNORED_MODIFIERS.includes(m.slug))
+    .filter(m => m.enabled && !m.ignored && !IGNORED_MODIFIER_LABELS.includes(m.label))
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
@@ -378,6 +376,7 @@ Hooks.on('init', function () {
 
 Hooks.once('setup', function () {
   Hooks.on('preCreateChatMessage', hook_preCreateChatMessage)
+  initializeIgnoredModifiers()
   console.info(`${MODULE_ID} | initialized`)
 })
 
