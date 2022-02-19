@@ -104,6 +104,22 @@ const convertAcConditionsWithRuleElements = i => {
     },
   }
 }
+
+const getShieldAcCondition = (targetedToken) => {
+  const raisedShieldModifier = targetedToken.actor.getShieldBonus()
+  if (raisedShieldModifier) return {
+    name: raisedShieldModifier.label,
+    data: {
+      modifiers: [
+        {
+          group: 'ac',
+          type: raisedShieldModifier.type,
+          value: raisedShieldModifier.modifier,
+        }],
+    },
+  }
+}
+
 const acConsOfToken = (targetedToken, isFlanking) => {
   const items = [
     ...(targetedToken.data.actorData.items || []),
@@ -111,9 +127,11 @@ const acConsOfToken = (targetedToken, isFlanking) => {
   ]
     // flanking - calculated by the system
     .concat(isFlanking ? [game.pf2e.ConditionManager.getCondition('flat-footed')] : [])
-  return items.filter(i => i.type === 'condition' || i.type === 'effect')
+  return items
     .map(convertAcConditionsWithValuedValues)
     .map(convertAcConditionsWithRuleElements)
+    // shield - calculated by the system. a 'effect-raise-a-shield' condition will also exist on the token but get filtered out
+    .concat(targetedToken.actor.getShieldBonus() ? [getShieldAcCondition(targetedToken)] : [])
     .filter(i => acModOfCon(i) !== undefined)
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
