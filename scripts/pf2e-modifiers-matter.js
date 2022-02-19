@@ -145,15 +145,25 @@ const acConsOfToken = (targetedToken, isFlanking) => {
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
     // remove items where condition can't stack;  by checking if another item has equal/higher mods of same type
-    .filter((i1, idx, a) => {
+    .filter((i1, idx1, a) => {
       const m1 = acModOfCon(i1)
       if (m1.type === 'untyped') return true // untyped always stacks
-      return a.findIndex(i2 => {
+      // keeping if there isn't another mod item that this won't stack with
+      return a.find((i2, idx2) => {
         const m2 = acModOfCon(i2)
-        // status -1 and status -2 don't stack, but status -1 and status +2 do stack
-        return m2.type === m1.type && Math.sign(m2.value) === Math.sign(m1.value) && Math.abs(m2.value) >=
-          Math.abs(m1.value)
-      }) === idx
+        // looking for something with a different index
+        return i1 !== i2
+          // of the same type
+          && m2.type === m1.type
+          // with the same sign (-1 and -2 don't stack, but -1 and +2 do)
+          && Math.sign(m2.value) === Math.sign(m1.value)
+          && (
+            // with higher value (if higher index)
+            (Math.abs(m2.value) >= Math.abs(m1.value) && idx1 > idx2)
+            // or equal-to-higher value (if lower index)
+            || (Math.abs(m2.value) > Math.abs(m1.value) && idx1 < idx2)
+          )
+      }) === undefined
     })
 }
 
