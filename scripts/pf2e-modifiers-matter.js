@@ -67,7 +67,7 @@ const valuePositive = m => m.value > 0
 const valueNegative = m => m.value < 0
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
-const acModOfCon = i => i.data.modifiers && i.data.modifiers.find(isAcMod)
+const acModOfCon = i => i.data?.modifiers?.find(isAcMod)
 const convertAcConditionsWithValuedValues = i => {
   if (!i.data.value || !i.data.value.isValued) return i
   const m = acModOfCon(i)
@@ -91,6 +91,15 @@ const convertAcConditionsWithRuleElements = i => {
   const acRule = i.data.rules.find(isAcSelector)
   if (!acRule) return i
   if (acRule.key !== 'FlatModifier') return i
+  let value = acRule.value
+  if (typeof value === 'string') {
+    // e.g. Greater Cover, where i.data.value = @item.data.flags.pf2e.rulesSelections.cover
+    value = getProperty(i, value.replace('@item.data.', ''))
+    if (!value) {
+      console.error(`pf2e-mm: weird value for ${i.name}: ${acRule.value}`)
+      return i
+    }
+  }
   return {
     name: i.name,
     data: {
@@ -99,7 +108,7 @@ const convertAcConditionsWithRuleElements = i => {
           group: acRule.selector,
           type: acRule.type,
           // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
-          value: acRule.value,
+          value: value,
         }],
     },
   }
