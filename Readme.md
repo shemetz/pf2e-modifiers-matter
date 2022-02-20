@@ -81,10 +81,10 @@ Same as above, but all conditions were necessary to get the crit.
 
 ![](metadata/example_3.png)
 
-A miss caused by Ezren's Frightened condition.
+A miss caused by Ezren's Enfeebled condition.
 
-Note that Ezren was also Enfeebled, but due to Pathfinder 2e rules, since both of them apply "status"-type penalties one
-of them is ignored by the system (in this case Enfeebled), and isn't shown on the chat card.
+Note that Ezren was also Frightened, but due to Pathfinder 2e rules, since both of them apply "status"-type penalties one
+of them is ignored by the system (in this case Frightened), and isn't shown on the chat card.
 
 ![](metadata/example_4.png)
 
@@ -95,7 +95,7 @@ result. In a way, all of these status effects were equally important here.
 ![](metadata/example_5.png)
 
 In this example, the attack failed because the skeleton had greater cover (+4 to AC). Even though Ezren is also
-frightened the frightened condition modifier on this card will not be highlighted because it did not affect the outcome
+Enfeebled the Enfeebled condition modifier on this card will not be highlighted because it did not affect the outcome
 whatsoever.
 
 ## Credits
