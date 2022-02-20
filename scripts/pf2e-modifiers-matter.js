@@ -94,7 +94,7 @@ const convertAcConditionsWithRuleElements = i => {
   let value = acRule.value
   if (typeof value === 'string') {
     // e.g. Greater Cover, where i.data.value = @item.data.flags.pf2e.rulesSelections.cover
-    value = getProperty(i, value.replace('@item.data.', ''))
+    value = i.data.rules[0].selection
     if (!value) {
       console.error(`pf2e-mm: weird value for ${i.name}: ${acRule.value}`)
       return i
