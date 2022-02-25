@@ -1,0 +1,24 @@
+{
+  "pf2e-modifiers-matter": {
+    "Settings": {
+      "show-defense-highlights-to-everyone": {
+        "name": "Montrer le soulignement défensif à tous",
+        "hint": "S'il est réglé sur vrai, le soulignement défensif comme\"Pris au dépourvu -2\" sera montré à tous, pas seulement au MJ."
+      },
+      "ignore-crit-fail-over-fail-on-attacks": {
+        "name": "Ignorer l'échec critique lors des Attaques",
+        "hint": "S'il est réglé sur vrai, le module ne soulignera pas les changements qui ont changé un échec simple en échec critique ou vice versa. C'est utile car il n'y a pas de différence entre les deux cas lors des attaques ;  cependant, il peut y avoir des exceptions à cette règle, comme avec Coup final assuré."
+      }
+    },
+    "Message": {
+      "TargetHas": "La cible a :"
+    },
+    "IgnoredModifiers": {
+      "DeviseAStratagem": "Concevoir un Stratagème",
+      "WildShape": "Morphologie sauvage",
+      "HuntersEdgeFlurry1": "Spécialisation du chasseur : Déluge",
+      "HuntersEdgeFlurry2": "Déluge",
+      "HuntersEdgeFlurry3": "Effet : Spécialisation du chasseur, déluge"
+    }
+  }
+}

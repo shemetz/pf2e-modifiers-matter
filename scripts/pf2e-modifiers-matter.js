@@ -51,11 +51,11 @@ const initializeIgnoredModifiers = () => {
     'PF2E.AutomaticBonusProgression.perceptionPotency',
     'PF2E.NPC.Adjustment.EliteLabel',
     'PF2E.NPC.Adjustment.WeakLabel',
-    'Devise a Stratagem', // Investigator
-    'Wild Shape', // Druid
-    'Hunter\'s Edge: Flurry', // Ranger, replaces multiple attack penalty
-    'Flurry', // same
-    'Effect: Hunter\'s Edge, Flurry', // Ranger's companion
+    `${MODULE_ID}.IgnoredModifiers.DeviseAStratagem`, // Investigator
+    `${MODULE_ID}.IgnoredModifiers.WildShape`, // Druid
+    `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry1`, // Ranger, replaces multiple attack penalty
+    `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
+    `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry3`, // same, Ranger's companion
   ]
   IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => game.i18n.localize(str))
 }
@@ -96,7 +96,7 @@ const convertAcConditionsWithRuleElements = i => {
     // e.g. Greater Cover, where i.data.value = @item.data.flags.pf2e.rulesSelections.cover
     value = i.data.rules[0].selection
     if (!value) {
-      console.error(`pf2e-mm: weird value for ${i.name}: ${acRule.value}`)
+      console.error(`${MODULE_ID} | weird value for ${i.name}: ${acRule.value}`)
       return i
     }
   }
@@ -191,7 +191,7 @@ const calcDegreeOfSuccess = (deltaFromDc) => {
       return DEGREES.SUCCESS
   }
   // impossible
-  console.error(`calcDegreeOfSuccess got wrong number: ${deltaFromDc}`)
+  console.error(`${MODULE_ID} | calcDegreeOfSuccess got wrong number: ${deltaFromDc}`)
   return DEGREES.CRIT_FAIL
 }
 const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
@@ -223,54 +223,17 @@ const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
   return degree
 }
 
-const insertAcFlavorSuffix = (oldFlavor, acFlavorSuffix) => {
-  if (oldFlavor.includes(`</b></div><div data-visibility="`)) {
-    if (getSetting('show-defense-highlights-to-everyone'))
-      // placed below GM-only visibility area
-      return oldFlavor.replaceAll(
-        `</b></div><div data-visibility="`,
-        `</b></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="`,
-      )
-    else
-      // placed inside GM-only visibility area
-      return oldFlavor.replaceAll(
-        `</b></div><div data-visibility="`,
-        ` (${acFlavorSuffix})</b></div><div data-visibility="`,
-      )
-  } else if (oldFlavor.includes(`</span></b> </div><div class="tags"`)) {
-    // compatibility fix for Pf2e Tweaks by Ustin
-    if (getSetting('show-defense-highlights-to-everyone'))
-      // placed below GM-only visibility area
-      return oldFlavor.replaceAll(
-        `</span></b> </div><div class="tags"`,
-        `</span></b> </div><b>(${acFlavorSuffix})</b><div class="tags"`,
-      )
-    else
-      // placed inside GM-only visibility area
-      return oldFlavor.replaceAll(
-        `</span></b> </div><div class="tags"`,
-        `</span> (${acFlavorSuffix})</b> </div><div class="tags"`,
-      )
-  } else if (oldFlavor.includes(`</span></div><div data-visibility="`)) {
-    // compatibility with Pf2e system 3.4.0 which added auto-flatfooted
-    if (getSetting('show-defense-highlights-to-everyone'))
-      // placed below GM-only visibility area
-      return oldFlavor.replaceAll(
-        `</span></div><div data-visibility="`,
-        `</span></div><div><b>(${acFlavorSuffix})</b></div><div data-visibility="`,
-      )
-    else
-      // placed inside GM-only visibility area
-      return oldFlavor.replaceAll(
-        `</span></div><div data-visibility="`,
-        `</span> (${acFlavorSuffix})</div><div data-visibility="`,
-      )
-  } else {
-    console.warn(`${MODULE_ID} | failed parsing chat message flavor text! please report this bug.`)
-    console.warn(`${MODULE_ID} | printing oldFlavor...`)
-    console.warn(oldFlavor)
-    return oldFlavor
-  }
+/**
+ * acFlavorSuffix will be e.g. 'Flatfooted -2, Frightened -1'
+ */
+const insertAcFlavorSuffix = ($flavorText, acFlavorSuffix) => {
+  const showDefenseHighlightsToEveryone = getSetting('show-defense-highlights-to-everyone')
+  const dataVisibility = showDefenseHighlightsToEveryone ? 'all' : 'gm'
+  $flavorText.find('div.degree-of-success')
+    .before(
+      `<div data-visibility="${dataVisibility}">
+${game.i18n.localize(`${MODULE_ID}.Message.TargetHas`)} <b>(${acFlavorSuffix})</b>
+</div>`)
 }
 
 const hook_preCreateChatMessage = async (chatMessage, data) => {
@@ -286,7 +249,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   // potentially include modifiers that apply to enemy AC (it's hard to do the same with ability/spell DCs though)
   const targetedToken = Array.from(game.user.targets)[0]
   const dcLabel = data.flags.pf2e.context.dc.label || '' // 'PF2E.Check.AC' as of PF2e v3.4.0
-  const attackIsAgainstAc = dcLabel.includes('AC')
+  const attackIsAgainstAc = dcLabel.includes(game.i18n.localize('PF2E.Check.AC').replace('{dc}', ''))
   const isFlanking = chatMessage.data.flags.pf2e.context.options.includes('self:flanking')
   const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken, isFlanking) : []
 
@@ -307,7 +270,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       // and this game setting is enabled
       && getSetting('ignore-crit-fail-over-fail-on-attacks')
       // and it was a Strike attack
-      && data.flavor.includes('Strike:')
+      && data.flavor.includes(`${game.i18n.localize('PF2E.WeaponStrikeLabel')}:`)
     )
   }
 
@@ -380,7 +343,9 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     return `<span style="color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
   }).filter(s => s !== undefined).join(', ')
   if (acFlavorSuffix) {
-    newFlavor = insertAcFlavorSuffix(newFlavor, acFlavorSuffix)
+    const $flavorText = $(`<div>${oldFlavor}</div>`) // adding an artificial div to have a single parent element
+    insertAcFlavorSuffix($flavorText, acFlavorSuffix)
+    newFlavor = $flavorText.html()  // will be inner HTML without the artificial div
   }
 
   if (newFlavor !== oldFlavor) {
@@ -394,18 +359,16 @@ const getSetting = (settingName) => game.settings.get(MODULE_ID, settingName)
 
 Hooks.on('init', function () {
   game.settings.register(MODULE_ID, 'show-defense-highlights-to-everyone', {
-    name: 'Show defense highlights to everyone',
-    hint: 'If set to true, defense highlights such as "Flat-footed -2" will be shown to everyone, not just GM.',
+    name: `${MODULE_ID}.Settings.show-defense-highlights-to-everyone.name`,
+    hint: `${MODULE_ID}.Settings.show-defense-highlights-to-everyone.hint`,
     scope: 'world',
     config: true,
     default: true,
     type: Boolean,
   })
   game.settings.register(MODULE_ID, 'ignore-crit-fail-over-fail-on-attacks', {
-    name: 'Ignore Crit Fail over Fail on Attacks',
-    hint: 'If set to true, the module will not highlight changes that changed an attack from a fail to a crit fail or vice versa.' +
-      ' This is helpful because usually there\'s no difference between the two cases on attacks;  however, there are some' +
-      ' exceptions to this rule, such as Confident Finisher.',
+    name: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.name`,
+    hint: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.name`,
     scope: 'client',
     config: true,
     default: false,
