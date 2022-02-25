@@ -100,7 +100,8 @@ whatsoever.
 
 ## Credits
 
-Thanks Sionth#5174 for coming up with a name for this!
+- Thanks Sionth#5174 for coming up with a name for this!
+- Thanks rectulo#4697 for adding french localization!
 
 ## Accessibility
 
