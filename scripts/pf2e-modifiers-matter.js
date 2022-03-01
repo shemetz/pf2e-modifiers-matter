@@ -28,6 +28,19 @@ const NEGATIVE_COLOR = '#ff0000'
 const WEAK_NEGATIVE_COLOR = '#ff852f'
 let IGNORED_MODIFIER_LABELS = []
 
+let warnedAboutLocalization = false
+const tryLocalize = (key, defaultValue) => {
+  const localized = game.i18n.localize(key)
+  if (localized === key) {
+    if (!warnedAboutLocalization) {
+      console.warn(`${MODULE_ID}: failed to localize ${key}`)
+      warnedAboutLocalization = true
+    }
+    return defaultValue
+  }
+  return localized
+}
+
 const initializeIgnoredModifiers = () => {
   const IGNORED_MODIFIERS_I18N = [
     'PF2E.BaseModifier',
@@ -57,7 +70,7 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry3`, // same, Ranger's companion
   ]
-  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => game.i18n.localize(str))
+  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
 }
 
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
@@ -232,7 +245,7 @@ const insertAcFlavorSuffix = ($flavorText, acFlavorSuffix) => {
   $flavorText.find('div.degree-of-success')
     .before(
       `<div data-visibility="${dataVisibility}">
-${game.i18n.localize(`${MODULE_ID}.Message.TargetHas`)} <b>(${acFlavorSuffix})</b>
+${tryLocalize(`${MODULE_ID}.Message.TargetHas`, 'Target has:')} <b>(${acFlavorSuffix})</b>
 </div>`)
 }
 
@@ -249,7 +262,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   // potentially include modifiers that apply to enemy AC (it's hard to do the same with ability/spell DCs though)
   const targetedToken = Array.from(game.user.targets)[0]
   const dcLabel = data.flags.pf2e.context.dc.label || '' // 'PF2E.Check.AC' as of PF2e v3.4.0
-  const attackIsAgainstAc = dcLabel.includes(game.i18n.localize('PF2E.Check.AC').replace('{dc}', ''))
+  const attackIsAgainstAc = dcLabel.includes(tryLocalize('PF2E.Check.AC', 'AC').replace('{dc}', ''))
   const isFlanking = chatMessage.data.flags.pf2e.context.options.includes('self:flanking')
   const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken, isFlanking) : []
 
@@ -270,7 +283,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       // and this game setting is enabled
       && getSetting('ignore-crit-fail-over-fail-on-attacks')
       // and it was a Strike attack
-      && data.flavor.includes(`${game.i18n.localize('PF2E.WeaponStrikeLabel')}:`)
+      && data.flavor.includes(`${tryLocalize('PF2E.WeaponStrikeLabel', 'Strike')}:`)
     )
   }
 
