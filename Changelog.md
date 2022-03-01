@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.3.0] - 2022-02-25
 - Added localization support for French
 - Simplified AC modifier styling and changed it to say "Target has: (<conditions>)"
+- 1.3.1 Fixed build
 
 ## [1.2.1] - 2022-02-20
 - Fixed cover calculation for NPCs
