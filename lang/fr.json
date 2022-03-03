@@ -8,6 +8,10 @@
       "ignore-crit-fail-over-fail-on-attacks": {
         "name": "Ignorer l'échec critique lors des Attaques",
         "hint": "S'il est réglé sur vrai, le module ne soulignera pas les changements qui ont changé un échec simple en échec critique ou vice versa. C'est utile car il n'y a pas de différence entre les deux cas lors des attaques ;  cependant, il peut y avoir des exceptions à cette règle, comme avec Coup final assuré."
+      },
+      "additional-ignored-labels": {
+        "name": "Libellés ignorés supplémentaires",
+        "hint": "Insérez le texte séparé par des points-virgules (;). Chacun des libellés de modificateur sera ignoré. Si vous pensez qu'un modificateur existant dans les règles doit être ignoré par défaut, vous pouvez le suggérer sur Github/Discord."
       }
     },
     "Message": {

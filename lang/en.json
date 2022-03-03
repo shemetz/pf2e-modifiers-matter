@@ -8,6 +8,10 @@
       "ignore-crit-fail-over-fail-on-attacks": {
         "name": "Ignore Crit Fail over Fail on Attacks",
         "hint": "If set to true, the module will not highlight changes that changed an attack from a fail to a crit fail or vice versa. This is helpful because usually there's no difference between the two cases on attacks;  however, there are some exceptions to this rule, such as Confident Finisher."
+      },
+      "additional-ignored-labels": {
+        "name": "Additional ignored labels",
+        "hint": "Insert text separated by semicolons (;).  Each of these modifier labels will be ignored.  If you feel an existing modifier in the rules should be ignored by default, please suggest it on Github/Discord."
       }
     },
     "Message": {

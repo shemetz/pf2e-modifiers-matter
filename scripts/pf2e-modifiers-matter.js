@@ -72,9 +72,8 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry3`, // same, Ranger's companion
   ]
-  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).concat([
-    'Skill Potency',  // I use in my group's games, it requires manual addition
-  ])
+  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
+    .concat(getSetting('additional-ignored-labels').split(';'))
 }
 
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
@@ -182,6 +181,7 @@ const acConsOfToken = (targetedToken, isFlanking) => {
           )
       }) === undefined
     })
+    .filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name))
 }
 
 const acModsFromCons = (acConditions) => acConditions.map(c => c.data.modifiers).deepFlatten().filter(isAcMod)
@@ -385,11 +385,20 @@ Hooks.on('init', function () {
   })
   game.settings.register(MODULE_ID, 'ignore-crit-fail-over-fail-on-attacks', {
     name: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.name`,
-    hint: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.name`,
+    hint: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.hint`,
     scope: 'client',
     config: true,
     default: false,
     type: Boolean,
+  })
+  game.settings.register(MODULE_ID, 'additional-ignored-labels', {
+    name: `${MODULE_ID}.Settings.additional-ignored-labels.name`,
+    hint: `${MODULE_ID}.Settings.additional-ignored-labels.hint`,
+    scope: 'world',
+    config: true,
+    default: 'Example;Skill Potency',
+    type: String,
+    onChange: initializeIgnoredModifiers,
   })
 })
 
