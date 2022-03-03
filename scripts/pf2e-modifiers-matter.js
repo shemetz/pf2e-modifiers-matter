@@ -60,7 +60,6 @@ const initializeIgnoredModifiers = () => {
     'PF2E.AutomaticBonusProgression.attackPotency',
     'PF2E.AutomaticBonusProgression.defensePotency',
     'PF2E.AutomaticBonusProgression.savePotency',
-    'PF2E.AutomaticBonusProgression.skillPotency',
     'PF2E.AutomaticBonusProgression.perceptionPotency',
     'PF2E.NPC.Adjustment.EliteLabel',
     'PF2E.NPC.Adjustment.WeakLabel',
@@ -70,7 +69,9 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry3`, // same, Ranger's companion
   ]
-  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
+  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).concat([
+    'Skill Potency',  // I use in my group's games, it requires manual addition
+  ])
 }
 
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
@@ -261,8 +262,8 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
 
   // potentially include modifiers that apply to enemy AC (it's hard to do the same with ability/spell DCs though)
   const targetedToken = Array.from(game.user.targets)[0]
-  const dcLabel = data.flags.pf2e.context.dc.label || '' // 'PF2E.Check.AC' as of PF2e v3.4.0
-  const attackIsAgainstAc = dcLabel.includes(tryLocalize('PF2E.Check.AC', 'AC').replace('{dc}', ''))
+  const dcObj = data.flags.pf2e.context.dc
+  const attackIsAgainstAc = dcObj.slug === 'ac'
   const isFlanking = chatMessage.data.flags.pf2e.context.options.includes('self:flanking')
   const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken, isFlanking) : []
 
