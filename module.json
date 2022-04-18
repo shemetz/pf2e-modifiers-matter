@@ -2,7 +2,7 @@
   "name": "pf2e-modifiers-matter",
   "title": "Pf2E Modifiers Matter",
   "description": "Highlights situations where status effects (buffs, debuffs, conditions) change the outcome of a roll.  Technically this module is not about modifiers but about all the other things that modify a roll, which happen to not be called modifiers, despite applying modifications.",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "minimumCoreVersion": "9",
   "compatibleCoreVersion": "9",
   "esmodules": [
