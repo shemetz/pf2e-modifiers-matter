@@ -101,27 +101,32 @@ const convertAcConditionsWithValuedValues = i => {
     },
   }
 }
-const isAcSelector = m => m.selector === 'ac' || m.selector === 'all'
+const isAcSelector = m => m.data.selector === 'ac' || m.data.selector === 'all'
 const convertAcConditionsWithRuleElements = i => {
-  if (!i.data.rules) return i
-  const acRule = i.data.rules.find(isAcSelector)
+  if (!i?.document?.rules) return i
+  const acRule = i.document.rules.find(isAcSelector)
   if (!acRule) return i
   if (acRule.key !== 'FlatModifier') return i
-  let value = acRule.value
+  let value = acRule.data.value
   if (typeof value === 'string') {
     // e.g. Greater Cover, where i.data.value = @item.data.flags.pf2e.rulesSelections.cover
     value = i.data.rules[0].selection
     if (!value) {
-      console.error(`${MODULE_ID} | weird value for ${i.name}: ${acRule.value}`)
+      console.error(`${MODULE_ID} | weird value for ${i.name}: ${value}`)
       return i
     }
+  }
+  if (acRule.predicate) {
+    const rollOptions = i.document.parent.getRollOptions(['ac', 'all'])
+    const predicateTest = acRule.predicate.test(rollOptions)
+    if (!predicateTest) return i
   }
   return {
     name: i.name,
     data: {
       modifiers: [
         {
-          group: acRule.selector,
+          group: acRule.data.selector,
           type: acRule.type,
           // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
           value: value,
