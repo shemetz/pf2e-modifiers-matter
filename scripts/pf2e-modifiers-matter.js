@@ -24,6 +24,7 @@ CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D2
 // note, by the way, that in case of multiple non-stacking conditions, PF2e hides some of them from the chat card.
 const POSITIVE_COLOR = '#008000'
 const WEAK_POSITIVE_COLOR = '#91a82a'
+const NO_CHANGE_COLOR = '#000000'
 const NEGATIVE_COLOR = '#ff0000'
 const WEAK_NEGATIVE_COLOR = '#ff852f'
 let IGNORED_MODIFIER_LABELS = []
@@ -358,8 +359,14 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   })
   const acFlavorSuffix = targetAcConditions.map(c => {
     const conditionAcMod = c.data.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
-    const outcomeChangeColor = calcOutcomeChangeColor(-conditionAcMod)
-    if (!outcomeChangeColor) return undefined
+    let outcomeChangeColor = calcOutcomeChangeColor(-conditionAcMod)
+    if (!outcomeChangeColor) {
+      if (getSetting('always-show-defense-conditions', false)) {
+        outcomeChangeColor = NO_CHANGE_COLOR
+      } else {
+        return undefined
+      }
+    }
     const modifierValue = (conditionAcMod < 0 ? '' : '+') + conditionAcMod
     const modifierName = c.name
     return `<span style="color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
@@ -404,6 +411,14 @@ Hooks.on('init', function () {
     default: 'Example;Skill Potency',
     type: String,
     onChange: initializeIgnoredModifiers,
+  })
+  game.settings.register(MODULE_ID, 'always-show-defense-conditions', {
+    name: `${MODULE_ID}.Settings.always-show-defense-conditions.name`,
+    hint: `${MODULE_ID}.Settings.always-show-defense-conditions.hint`,
+    scope: 'world',
+    config: true,
+    default: false,
+    type: Boolean,
   })
 })
 

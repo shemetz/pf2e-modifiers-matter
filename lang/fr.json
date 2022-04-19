@@ -5,6 +5,10 @@
         "name": "Montrer le soulignement défensif à tous",
         "hint": "S'il est réglé sur vrai, le soulignement défensif comme\"Pris au dépourvu -2\" sera montré à tous, pas seulement au MJ."
       },
+      "always-show-defense-conditions": {
+        "name": "Montrer le soulignement défensif tout le temps",
+        "hint": "S'il est défini sur vrai, les faits saillants de la défense seront affichés en permanence, même s'ils n'ont pas d'importance."
+      },
       "ignore-crit-fail-over-fail-on-attacks": {
         "name": "Ignorer l'échec critique lors des Attaques",
         "hint": "S'il est réglé sur vrai, le module ne soulignera pas les changements qui ont changé un échec simple en échec critique ou vice versa. C'est utile car il n'y a pas de différence entre les deux cas lors des attaques ;  cependant, il peut y avoir des exceptions à cette règle, comme avec Coup final assuré."
