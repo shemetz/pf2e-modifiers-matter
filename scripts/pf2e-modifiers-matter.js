@@ -68,7 +68,6 @@ const initializeIgnoredModifiers = () => {
     'PF2E.MasterSavingThrow.reflex',
     'PF2E.MasterSavingThrow.will',
     `${MODULE_ID}.IgnoredModifiers.DeviseAStratagem`, // Investigator
-    `${MODULE_ID}.IgnoredModifiers.WildShape`, // Druid
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry1`, // Ranger, replaces multiple attack penalty
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry3`, // same, Ranger's companion
