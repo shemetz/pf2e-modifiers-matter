@@ -312,13 +312,13 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
   // sum of condition modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
   const conModsNecessaryPositiveTotal = conMods
-      .filter(m => m > 0 && wouldChangeOutcome(-m.modifier))
+      .filter(m => modifierPositive(m) && wouldChangeOutcome(-m.modifier))
       .reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions)
       .filter(m => valueNegative(m) && wouldChangeOutcome(m.value))
       .reduce(sumReducerAcConditions, 0)
   const conModsNecessaryNegativeTotal = conMods
-      .filter(m => m < 0 && wouldChangeOutcome(-m.modifier))
+      .filter(m => modifierNegative(m) && wouldChangeOutcome(-m.modifier))
       .reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions)
       .filter(m => valuePositive(m) && wouldChangeOutcome(m.value))
