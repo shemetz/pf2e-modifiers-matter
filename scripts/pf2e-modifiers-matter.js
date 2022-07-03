@@ -366,16 +366,20 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   }
 
   const oldFlavor = chatMessage.data.flavor
-  let newFlavor = oldFlavor
+  // adding an artificial div to have a single parent element, enabling nicer editing of html
+  const $editedFlavor = $(`<div>${oldFlavor}</div>`)
   conMods.forEach(m => {
     const mod = m.modifier
     const outcomeChangeColor = calcOutcomeChangeColor(mod)
     if (!outcomeChangeColor) return
     const modifierValue = (mod < 0 ? '' : '+') + mod
-    newFlavor = newFlavor.replaceAll(
-      `<span class="tag tag_alt">${m.label} ${modifierValue}</span>`,
-      `<span class="tag tag_alt" style="background-color: ${outcomeChangeColor}">${m.label} ${modifierValue}</span>`,
-    )
+    // edit background color for full tags
+    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValue}).tag_alt`)
+      .css('background-color', outcomeChangeColor)
+    // edit background+text colors for transparent tags, which have dark text by default
+    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValue}).tag_transparent`)
+      .css('color', outcomeChangeColor)
+      .css('font-weight', 'bold')
   })
   const acFlavorSuffix = targetAcConditions.map(c => {
     const conditionAcMod = c.data.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
@@ -392,11 +396,10 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     return `<span style="color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
   }).filter(s => s !== undefined).join(', ')
   if (acFlavorSuffix) {
-    const $flavorText = $(`<div>${oldFlavor}</div>`) // adding an artificial div to have a single parent element
-    insertAcFlavorSuffix($flavorText, acFlavorSuffix)
-    newFlavor = $flavorText.html()  // will be inner HTML without the artificial div
+    insertAcFlavorSuffix($editedFlavor, acFlavorSuffix)
   }
-
+  // newFlavor will be the inner HTML without the artificial div
+  const newFlavor = $editedFlavor.html()
   if (newFlavor !== oldFlavor) {
     data.flavor = newFlavor
     await chatMessage.data.update({ 'flavor': newFlavor })

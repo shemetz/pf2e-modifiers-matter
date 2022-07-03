@@ -98,6 +98,14 @@ In this example, the attack failed because the skeleton had greater cover (+4 to
 Enfeebled the Enfeebled condition modifier on this card will not be highlighted because it did not affect the outcome
 whatsoever.
 
+## Did the UI change?
+
+The PF2e UI is changing often (which is a good thing!) and that means the screenshots above are incorrect.
+
+Here's what the UI looks like, as of v1.4.5:
+
+![](metadata/v1_4_5_example.png)
+
 ## Credits
 
 - Thanks Sionth#5174 for coming up with a name for this!
