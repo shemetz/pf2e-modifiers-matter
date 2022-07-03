@@ -102,27 +102,33 @@ const convertAcConditionsWithValuedValues = i => {
   }
 }
 const isAcSelector = m => m.data.selector === 'ac' || m.data.selector === 'all'
-const convertAcConditionsWithRuleElements = i => {
-  if (!i?.document?.rules) return i
-  const acRule = i.document.rules.find(isAcSelector)
-  if (!acRule) return i
-  if (acRule.key !== 'FlatModifier') return i
+const convertAcConditionsWithRuleElements = itemData => {
+  if (!itemData?.document?.rules) return itemData
+  const acRule = itemData.document.rules.find(isAcSelector)
+  if (!acRule) return itemData
+  if (acRule.key !== 'FlatModifier') return itemData
   let value = acRule.data.value
   if (typeof value === 'string') {
-    // e.g. Greater Cover, where i.data.value = @item.data.flags.pf2e.rulesSelections.cover
-    value = i.data.rules[0].selection
+    const valueStr = acRule.data.value
+    if (valueStr.startsWith(`@item.data.`)) {
+      // e.g. Cover, where acRule.data.value = @item.data.flags.pf2e.rulesSelections.cover
+      value = getProperty(itemData, acRule.data.value.substr('@item.data.'.length))
+    } else if (valueStr.includes('@item.badge.value')) {
+      value = itemData.data.value.value
+      if (valueStr.startsWith('-')) value = -value
+    }
     if (!value) {
-      console.error(`${MODULE_ID} | weird value for ${i.name}: ${value}`)
-      return i
+      console.error(`${MODULE_ID} | weird value for ${itemData.name}: ${value}`)
+      return itemData
     }
   }
   if (acRule.predicate) {
-    const rollOptions = i.document.parent.getRollOptions(['ac', 'all'])
+    const rollOptions = itemData.document.parent.getRollOptions(['ac', 'all'])
     const predicateTest = acRule.predicate.test(rollOptions)
-    if (!predicateTest) return i
+    if (!predicateTest) return itemData
   }
   return {
-    name: i.name,
+    name: itemData.name,
     data: {
       modifiers: [
         {
@@ -150,18 +156,33 @@ const getShieldAcCondition = (targetedToken) => {
   }
 }
 
+const getFlankingAcCondition = () => {
+  const systemFlanking = game.pf2e.ConditionManager.getCondition('flat-footed')
+  return {
+    name: systemFlanking.name,
+    data: {
+      modifiers: [
+        {
+          group: 'ac',
+          type: 'circumstance',
+          value: -2,
+        }],
+    },
+  }
+}
+
 const acConsOfToken = (targetedToken, isFlanking) => {
-  const items = [
+  const itemDatas = [
     ...(targetedToken.data.actorData.items || []),
     ...(targetedToken.actor.items.map(i => i.data) || []),
   ]
-    // flanking - calculated by the system
-    .concat(isFlanking ? [game.pf2e.ConditionManager.getCondition('flat-footed')] : [])
-  return items
+  return itemDatas
     .map(convertAcConditionsWithValuedValues)
     .map(convertAcConditionsWithRuleElements)
     // shield - calculated by the system. a 'effect-raise-a-shield' condition will also exist on the token but get filtered out
     .concat(targetedToken.actor.getShieldBonus() ? [getShieldAcCondition(targetedToken)] : [])
+    // flanking - calculated by the system
+    .concat(isFlanking ? [getFlankingAcCondition()] : [])
     .filter(i => acModOfCon(i) !== undefined)
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
