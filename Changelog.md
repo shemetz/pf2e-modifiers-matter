@@ -4,8 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.4.4] - 2022-07-03
+## [1.4.5] - 2022-07-03
 - Fixed some conditions that broke in recent PF2e system update
+- Fixed handling for the new "transparent" tag styles
 
 ## [1.4.3] - 2022-06-03
 - Fixed bug that sometimes miscolored unnecessary modifiers
@@ -107,5 +108,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.1]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.0...1.4.1
 [1.4.2]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.1...1.4.2
 [1.4.3]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.2...1.4.3
-[1.4.4]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.3...1.4.4
-[Unreleased]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.4...HEAD
+[1.4.5]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.3...1.4.5
+[Unreleased]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.5...HEAD
