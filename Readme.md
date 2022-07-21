@@ -35,7 +35,9 @@ effect causes the outcome to change (by one or more degrees of success), the eff
 colored green if it helped or red if it hurt.
 
 This will only apply color to temporary effects - it will ignore effects such as proficiency, ability modifier, runes,
-or potency bonus.
+or potency bonus. It will also ignore effects like Ooze Form (which fully replace your attack bonus), or the Ranger's
+Flurry edge (which replaces the Multiple Attack Penalty).  You can add your own ignored effects in the settings.
+
 
 The color will be a strong red/green for an effect that directly caused a change in outcome (and was necessary for the
 change). A less striking and less saturated red/green color will be used for effects that were helpful/hurtful but not
