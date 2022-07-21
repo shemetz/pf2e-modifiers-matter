@@ -25,7 +25,11 @@
       "DeviseAStratagem": "Concevoir un Stratagème",
       "HuntersEdgeFlurry1": "Spécialisation du chasseur : Déluge",
       "HuntersEdgeFlurry2": "Déluge",
-      "HuntersEdgeFlurry3": "Effet : Spécialisation du chasseur, déluge"
+      "HuntersEdgeFlurry3": "Effet : Spécialisation du chasseur, déluge",
+      "BattleForm1": "Nature Incarnate",
+      "BattleForm2": "Form of the Sandpoint Devil",
+      "BattleForm3": "Element Embodied",
+      "BattleForm4": "Avatar"
     }
   }
 }

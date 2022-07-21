@@ -71,6 +71,12 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry1`, // Ranger, replaces multiple attack penalty
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry3`, // same, Ranger's companion
+    // NOTE: all spells that end in "form" are also ignored for the attack bonus; e.g. Ooze Form
+    // also some battle form spells with different names:
+    `${MODULE_ID}.IgnoredModifiers.BattleForm1`, // battle form
+    `${MODULE_ID}.IgnoredModifiers.BattleForm2`, // battle form
+    `${MODULE_ID}.IgnoredModifiers.BattleForm3`, // battle form
+    `${MODULE_ID}.IgnoredModifiers.BattleForm4`, // battle form
   ]
   IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
     .concat(getSetting('additional-ignored-labels').split(';'))
@@ -299,6 +305,8 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const conMods = data.flags.pf2e.modifiers
     // enabled is false for one of the conditions if it can't stack with others
     .filter(m => m.enabled && !m.ignored && !IGNORED_MODIFIER_LABELS.includes(m.label))
+    // ignoring all "form" spells that replace your attack bonus
+    .filter(m => !(attackIsAgainstAc && m.slug.endsWith('-form')))
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)

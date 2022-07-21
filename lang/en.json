@@ -25,7 +25,11 @@
       "DeviseAStratagem": "Devise a Stratagem",
       "HuntersEdgeFlurry1": "Hunter's Edge: Flurry",
       "HuntersEdgeFlurry2": "Flurry",
-      "HuntersEdgeFlurry3": "Effect: Hunter's Edge, Flurry"
+      "HuntersEdgeFlurry3": "Effect: Hunter's Edge, Flurry",
+      "BattleForm1": "Nature Incarnate",
+      "BattleForm2": "Form of the Sandpoint Devil",
+      "BattleForm3": "Element Embodied",
+      "BattleForm4": "Avatar"
     }
   }
 }
