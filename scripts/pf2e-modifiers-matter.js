@@ -89,28 +89,26 @@ const valuePositive = m => m.value > 0
 const valueNegative = m => m.value < 0
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
-const acModOfCon = i => i.data?.modifiers?.find(isAcMod)
+const acModOfCon = i => i.modifiers?.find(isAcMod)
 const convertAcConditionsWithValuedValues = i => {
-  if (!i.data.value || !i.data.value.isValued) return i
+  if (!i.value || !i.value.isValued) return i
   const m = acModOfCon(i)
   if (!m) return i
   return {
     name: i.name,
-    data: {
-      modifiers: [
-        {
-          group: m.group,
-          type: m.type,
-          // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
-          value: -i.data.value.value,
-        }],
-    },
+    modifiers: [
+      {
+        group: m.group,
+        type: m.type,
+        // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
+        value: -i.value,
+      }],
   }
 }
 const isAcSelector = m => m.data.selector === 'ac' || m.data.selector === 'all'
 const convertAcConditionsWithRuleElements = itemData => {
-  if (!itemData?.document?.rules) return itemData
-  const acRule = itemData.document.rules.find(isAcSelector)
+  if (!itemData?.rules) return itemData
+  const acRule = itemData.rules.find(isAcSelector)
   if (!acRule) return itemData
   if (acRule.key !== 'FlatModifier') return itemData
   let value = acRule.data.value
@@ -118,32 +116,34 @@ const convertAcConditionsWithRuleElements = itemData => {
     const valueStr = acRule.data.value
     if (valueStr.startsWith(`@item.data.`)) {
       // e.g. Cover, where acRule.data.value = @item.data.flags.pf2e.rulesSelections.cover
-      value = getProperty(itemData, acRule.data.value.substr('@item.data.'.length))
+      value = getProperty(itemData, valueStr.substring('@item.data.'.length))
     } else if (valueStr.includes('@item.badge.value')) {
-      value = itemData.data.value.value
+      value = itemData.value
       if (valueStr.startsWith('-')) value = -value
+    } else if (valueStr.includes('@item.flags.pf2e')) {
+      // TODO!  PF2e system on dev master branch currently has an issue with Cover condition
+      console.error(`${MODULE_ID} | weird value for ${itemData.name}: ${value}  (this may be the Cover bug)`)
+      return itemData
     }
-    if (!value) {
+    if (!value || typeof value === 'string') {
       console.error(`${MODULE_ID} | weird value for ${itemData.name}: ${value}`)
       return itemData
     }
   }
   if (acRule.predicate) {
-    const rollOptions = itemData.document.parent.getRollOptions(['ac', 'all'])
+    const rollOptions = itemData.parent.getRollOptions(['ac', 'all'])
     const predicateTest = acRule.predicate.test(rollOptions)
     if (!predicateTest) return itemData
   }
   return {
     name: itemData.name,
-    data: {
-      modifiers: [
-        {
-          group: acRule.data.selector,
-          type: acRule.type,
-          // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
-          value: value,
-        }],
-    },
+    modifiers: [
+      {
+        group: acRule.data.selector,
+        type: acRule.type,
+        // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
+        value: value,
+      }],
   }
 }
 
@@ -151,14 +151,13 @@ const getShieldAcCondition = (targetedToken) => {
   const raisedShieldModifier = targetedToken.actor.getShieldBonus()
   if (raisedShieldModifier) return {
     name: raisedShieldModifier.label,
-    data: {
-      modifiers: [
-        {
-          group: 'ac',
-          type: raisedShieldModifier.type,
-          value: raisedShieldModifier.modifier,
-        }],
-    },
+    modifiers: [
+      {
+        group: 'ac',
+        type: raisedShieldModifier.type,
+        value: raisedShieldModifier.modifier,
+      }
+    ],
   }
 }
 
@@ -166,21 +165,19 @@ const getFlankingAcCondition = () => {
   const systemFlanking = game.pf2e.ConditionManager.getCondition('flat-footed')
   return {
     name: systemFlanking.name,
-    data: {
-      modifiers: [
-        {
-          group: 'ac',
-          type: 'circumstance',
-          value: -2,
-        }],
-    },
+    modifiers: [
+      {
+        group: 'ac',
+        type: 'circumstance',
+        value: -2,
+      }
+    ],
   }
 }
 
 const acConsOfToken = (targetedToken, isFlanking) => {
   const itemDatas = [
-    ...(targetedToken.data.actorData.items || []),
-    ...(targetedToken.actor.items.map(i => i.data) || []),
+    ...(targetedToken.actor.items || []),
   ]
   return itemDatas
     .map(convertAcConditionsWithValuedValues)
@@ -216,7 +213,7 @@ const acConsOfToken = (targetedToken, isFlanking) => {
     .filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name))
 }
 
-const acModsFromCons = (acConditions) => acConditions.map(c => c.data.modifiers).deepFlatten().filter(isAcMod)
+const acModsFromCons = (acConditions) => acConditions.map(c => c.modifiers).deepFlatten().filter(isAcMod)
 
 const DEGREES = Object.freeze({
   CRIT_SUCC: 'CRIT_SUCC',
@@ -299,7 +296,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const targetedToken = Array.from(game.user.targets)[0]
   const dcObj = data.flags.pf2e.context.dc
   const attackIsAgainstAc = dcObj.slug === 'ac'
-  const isFlanking = chatMessage.data.flags.pf2e.context.options.includes('self:flanking')
+  const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
   const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken, isFlanking) : []
 
   const conMods = data.flags.pf2e.modifiers
@@ -325,11 +322,12 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     )
   }
 
-  const rollTotal = parseInt(data.content || chatMessage.roll.total.toString())
+  const roll = chatMessage.rolls[0]  // I hope the main roll is always the first one!
+  const rollTotal = parseInt(data.content || roll.total.toString())
   const rollDc = data.flags.pf2e.context.dc.value
   const deltaFromDc = rollTotal - rollDc
   // technically DoS can be higher or lower through nat 1 and nat 20, but it doesn't matter with this calculation
-  const dieRoll = chatMessage.roll.terms[0].results[0].result
+  const dieRoll = roll.terms[0].results[0].result
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
   // wouldChangeOutcome(x) returns true if a bonus of x ("penalty" if x is negative) changes the degree of success
   const wouldChangeOutcome = (extra) => {
@@ -373,7 +371,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       : (changedOutcome ? POSITIVE_COLOR : WEAK_POSITIVE_COLOR)
   }
 
-  const oldFlavor = chatMessage.data.flavor
+  const oldFlavor = chatMessage.flavor
   // adding an artificial div to have a single parent element, enabling nicer editing of html
   const $editedFlavor = $(`<div>${oldFlavor}</div>`)
   conMods.forEach(m => {
@@ -390,7 +388,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       .css('font-weight', 'bold')
   })
   const acFlavorSuffix = targetAcConditions.map(c => {
-    const conditionAcMod = c.data.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
+    const conditionAcMod = c.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
     let outcomeChangeColor = calcOutcomeChangeColor(-conditionAcMod)
     if (!outcomeChangeColor) {
       if (getSetting('always-show-defense-conditions', false)) {
@@ -410,7 +408,14 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const newFlavor = $editedFlavor.html()
   if (newFlavor !== oldFlavor) {
     data.flavor = newFlavor
+
+    // TODO - this shouldn't have `.data` but an open bug in Foundry prevents me from changing it
+    CONFIG.compatibility.excludePatterns.push(
+      new RegExp('Error: You are accessing the ChatMessagePF2e#data object'),
+    )
     await chatMessage.data.update({ 'flavor': newFlavor })
+    // await chatMessage.update({ 'flavor': newFlavor })
+    CONFIG.compatibility.excludePatterns.pop()
   }
   return true
 }
