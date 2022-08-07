@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2022-08-07
+- Upgrade to V10 compatibility
+
 ## [1.4.6] - 2022-07-21
 - Added battle form spells to ignore list
 
@@ -113,4 +116,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.4.3]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.2...1.4.3
 [1.4.5]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.3...1.4.5
 [1.4.6]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.5...1.4.6
-[Unreleased]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.6...HEAD
+[1.5.0]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.4.6...1.5.0
+[Unreleased]: https://github.com/itamarcu/pf2e-modifiers-matter/compare/1.5.0...HEAD
