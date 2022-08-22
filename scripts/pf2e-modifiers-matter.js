@@ -409,12 +409,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   if (newFlavor !== oldFlavor) {
     data.flavor = newFlavor
 
-    // TODO - this shouldn't have `.data` but an open bug in Foundry prevents me from changing it
-    CONFIG.compatibility.excludePatterns.push(
-      new RegExp('Error: You are accessing the ChatMessagePF2e#data object'),
-    )
-    await chatMessage.data.update({ 'flavor': newFlavor })
-    // await chatMessage.update({ 'flavor': newFlavor })
+    await chatMessage.updateSource({ 'flavor': newFlavor })
     CONFIG.compatibility.excludePatterns.pop()
   }
   return true

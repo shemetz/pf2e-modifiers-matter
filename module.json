@@ -5,8 +5,7 @@
   "version": "1.5.0",
   "compatibility": {
     "minimum": "10",
-    "verified": "10",
-    "maximum": "13"
+    "verified": "10"
   },
   "esmodules": [
     "scripts/pf2e-modifiers-matter.js"
@@ -15,12 +14,14 @@
     {
       "lang": "en",
       "name": "English",
-      "path": "lang/en.json"
+      "path": "lang/en.json",
+      "flags": {}
     },
     {
       "lang": "fr",
       "name": "Français",
-      "path": "lang/fr.json"
+      "path": "lang/fr.json",
+      "flags": {}
     }
   ],
   "url": "https://github.com/itamarcu/pf2e-modifiers-matter",
@@ -48,7 +49,8 @@
       "name": "shem",
       "email": "itamarcu+foundry@gmail.com",
       "discord": "shem#0226",
-      "reddit": "u/Shemetz"
+      "reddit": "u/Shemetz",
+      "flags": {}
     }
   ],
   "manifestPlusVersion": "1.2.0",
@@ -56,12 +58,16 @@
     {
       "type": "icon",
       "url": "https://raw.githubusercontent.com/itamarcu/pf2e-modifiers-matter/master/metadata/icon.png",
-      "caption": "PF2e Modifiers Matter"
+      "caption": "PF2e Modifiers Matter",
+      "loop": false,
+      "flags": {}
     },
     {
       "type": "cover",
       "url": "https://raw.githubusercontent.com/itamarcu/pf2e-modifiers-matter/master/metadata/cover.png",
-      "caption": "PF2e Modifiers Matter"
+      "caption": "PF2e Modifiers Matter",
+      "loop": false,
+      "flags": {}
     }
   ]
 }
