@@ -1,9 +1,9 @@
 # [Pf2E Modifiers Matter](https://foundryvtt.com/packages/pf2e-modifiers-matter/)
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/itamarcu/pf2e-modifiers-matter?style=for-the-badge)
-![GitHub Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-modifiers-matter/latest/total?style=for-the-badge)
-![GitHub All Releases](https://img.shields.io/github/downloads/itamarcu/pf2e-modifiers-matter/total?style=for-the-badge&label=Downloads+total)
-![Latest Supported Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/itamarcu/pf2e-modifiers-matter/raw/master/module.json)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/shemetz/pf2e-modifiers-matter?style=for-the-badge)
+![GitHub Releases](https://img.shields.io/github/downloads/shemetz/pf2e-modifiers-matter/latest/total?style=for-the-badge)
+![GitHub All Releases](https://img.shields.io/github/downloads/shemetz/pf2e-modifiers-matter/total?style=for-the-badge&label=Downloads+total)
+![Latest Supported Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/shemetz/pf2e-modifiers-matter/raw/master/module.json)
 
 FoundryVTT module for the PF2e system, which highlights situations where status effects (buffs, debuffs, conditions)
 change the outcome of a roll.
@@ -13,7 +13,7 @@ narrate it. For example, if the Fighter got a critical hit against a goblin only
 goblin, or when the Fighter misses an attack due to the poison it was recently exposed to.
 
 To install, browse for it in the module browser,
-or [directly copy the manifest link for the latest release](https://github.com/itamarcu/pf2e-modifiers-matter/releases/latest/download/module.json)
+or [directly copy the manifest link for the latest release](https://github.com/shemetz/pf2e-modifiers-matter/releases/latest/download/module.json)
 .
 
 ![](metadata/example_0.png)
