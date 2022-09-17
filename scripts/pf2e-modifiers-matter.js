@@ -304,6 +304,8 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     .filter(m => m.enabled && !m.ignored && !IGNORED_MODIFIER_LABELS.includes(m.label))
     // ignoring all "form" spells that replace your attack bonus
     .filter(m => !(attackIsAgainstAc && m.slug.endsWith('-form')))
+    // ignoring Doubling Rings which are basically a permanent item bonus
+    .filter(m => !m.slug.startsWith('doubling-rings'))
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
