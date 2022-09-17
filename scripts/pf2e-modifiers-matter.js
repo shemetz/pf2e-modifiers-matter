@@ -45,6 +45,7 @@ const tryLocalize = (key, defaultValue) => {
 const initializeIgnoredModifiers = () => {
   const IGNORED_MODIFIERS_I18N = [
     'PF2E.BaseModifier',
+    'PF2E.ModifierTitle',
     'PF2E.MultipleAttackPenalty',
     'PF2E.ProficiencyLevel0',
     'PF2E.ProficiencyLevel1',
