@@ -112,6 +112,11 @@ const convertAcConditionsWithRuleElements = itemData => {
   const acRule = itemData.rules.find(isAcSelector)
   if (!acRule) return itemData
   if (acRule.key !== 'FlatModifier') return itemData
+  if (acRule.predicate) {
+    const rollOptions = itemData.parent.getRollOptions(['ac', 'all'])
+    const predicateTest = acRule.predicate.test(rollOptions)
+    if (!predicateTest) return itemData
+  }
   let value = acRule.data.value
   if (typeof value === 'string') {
     const valueStr = acRule.data.value
@@ -130,11 +135,26 @@ const convertAcConditionsWithRuleElements = itemData => {
       console.error(`${MODULE_ID} | weird value for ${itemData.name}: ${value}`)
       return itemData
     }
-  }
-  if (acRule.predicate) {
-    const rollOptions = itemData.parent.getRollOptions(['ac', 'all'])
-    const predicateTest = acRule.predicate.test(rollOptions)
-    if (!predicateTest) return itemData
+  } else if (typeof value.field === 'string' && typeof value.brackets !== 'undefined') {
+    // e.g. Protective Ward, brackets that define different strengths at different levels
+    if (value.field.startsWith('item|')) {
+      const fieldValue = getProperty(itemData, value.field.split('|')[1])
+      const matchingBracket = value.brackets.find(b =>
+        (!b.start || b.start <= fieldValue) && (!b.end || b.end >= fieldValue)
+      )
+      const matchingValue = matchingBracket.value
+      if (typeof matchingValue !== 'number') {
+        console.error(`${MODULE_ID} | unexpected bracket value ${matchingValue} for ${itemData.name}`)
+        return itemData
+      }
+      value = matchingValue
+    } else {
+      console.error(`${MODULE_ID} | unexpected field ${value.field} for ${itemData.name}`)
+      return itemData
+    }
+  } else if (typeof value !== ('number')) {
+    console.error(`${MODULE_ID} | non-string non-bracketed value for ${itemData.name}: ${value}`)
+    return itemData
   }
   return {
     name: itemData.name,

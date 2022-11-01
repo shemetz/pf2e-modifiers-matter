@@ -39,7 +39,7 @@
         "manifest": "https://github.com/foundryvtt/pf2e/releases/download/latest/system.json",
         "compatibility": {
           "minimum": "4.0.0",
-          "verified": "4.0.6"
+          "verified": "4.2.6"
         }
       }
     ]
@@ -49,11 +49,9 @@
       "name": "shemetz",
       "email": "itamarcu+foundry@gmail.com",
       "discord": "shemetz#0226",
-      "reddit": "u/Shemetz",
       "flags": {}
     }
   ],
-  "manifestPlusVersion": "1.2.0",
   "media": [
     {
       "type": "icon",
