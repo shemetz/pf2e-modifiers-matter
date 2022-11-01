@@ -91,83 +91,18 @@ const valueNegative = m => m.value < 0
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
 const acModOfCon = i => i.modifiers?.find(isAcMod)
-const convertAcConditionsWithValuedValues = i => {
-  if (!i.value || !i.value.isValued) return i
-  const m = acModOfCon(i)
-  if (!m) return i
+const convertAcModifier = m => {
+  if (!m.enabled && m.ignored) return m
   return {
-    name: i.name,
+    name: m.label,
     modifiers: [
       {
-        group: m.group,
+        group: 'ac',
         type: m.type,
-        // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
-        value: -i.value,
+        value: m.modifier,
       }],
   }
 }
-const isAcSelector = m => m.data.selector === 'ac' || m.data.selector === 'all'
-const convertAcConditionsWithRuleElements = itemData => {
-  if (!itemData?.rules) return itemData
-  const acRule = itemData.rules.find(isAcSelector)
-  if (!acRule) return itemData
-  if (acRule.key !== 'FlatModifier') return itemData
-  if (acRule.predicate) {
-    const rollOptions = itemData.parent.getRollOptions(['ac', 'all'])
-    const predicateTest = acRule.predicate.test(rollOptions)
-    if (!predicateTest) return itemData
-  }
-  let value = acRule.data.value
-  if (typeof value === 'string') {
-    const valueStr = acRule.data.value
-    if (valueStr.startsWith(`@item.data.`)) {
-      // e.g. Cover, where acRule.data.value = @item.data.flags.pf2e.rulesSelections.cover
-      value = getProperty(itemData, valueStr.substring('@item.data.'.length))
-    } else if (valueStr.includes('@item.badge.value')) {
-      value = itemData.value
-      if (valueStr.startsWith('-')) value = -value
-    } else if (valueStr.includes('@item.flags.pf2e')) {
-      // TODO!  PF2e system on dev master branch currently has an issue with Cover condition
-      console.error(`${MODULE_ID} | weird value for ${itemData.name}: ${value}  (this may be the Cover bug)`)
-      return itemData
-    }
-    if (!value || typeof value === 'string') {
-      console.error(`${MODULE_ID} | weird value for ${itemData.name}: ${value}`)
-      return itemData
-    }
-  } else if (typeof value.field === 'string' && typeof value.brackets !== 'undefined') {
-    // e.g. Protective Ward, brackets that define different strengths at different levels
-    if (value.field.startsWith('item|')) {
-      const fieldValue = getProperty(itemData, value.field.split('|')[1])
-      const matchingBracket = value.brackets.find(b =>
-        (!b.start || b.start <= fieldValue) && (!b.end || b.end >= fieldValue),
-      )
-      const matchingValue = matchingBracket.value
-      if (typeof matchingValue !== 'number') {
-        console.error(`${MODULE_ID} | unexpected bracket value ${matchingValue} for ${itemData.name}`)
-        return itemData
-      }
-      value = matchingValue
-    } else {
-      console.error(`${MODULE_ID} | unexpected field ${value.field} for ${itemData.name}`)
-      return itemData
-    }
-  } else if (typeof value !== ('number')) {
-    console.error(`${MODULE_ID} | non-string non-bracketed value for ${itemData.name}: ${value}`)
-    return itemData
-  }
-  return {
-    name: itemData.name,
-    modifiers: [
-      {
-        group: acRule.data.selector,
-        type: acRule.type,
-        // value normally is undefined and calculated someplace else;  here I'm replacing it with a copy that has value
-        value: value,
-      }],
-  }
-}
-
 const getShieldAcCondition = (targetedToken) => {
   const raisedShieldModifier = targetedToken.actor.getShieldBonus()
   if (raisedShieldModifier) return {
@@ -197,14 +132,16 @@ const getFlankingAcCondition = () => {
 }
 
 const acConsOfToken = (targetedToken, isFlanking) => {
-  const itemDatas = [
-    ...(targetedToken.actor.items || []),
-  ]
-  return itemDatas.map(convertAcConditionsWithValuedValues).map(convertAcConditionsWithRuleElements)
+  const nameOfArmor = targetedToken.actor.attributes.ac.dexCap?.source || 'Modifier' // "Modifier" for NPCs
+  return [].concat(targetedToken.actor.attributes.ac.modifiers.map(convertAcModifier))
     // shield - calculated by the system. a 'effect-raise-a-shield' condition will also exist on the token but get filtered out
     .concat(targetedToken.actor.getShieldBonus() ? [getShieldAcCondition(targetedToken)] : [])
     // flanking - calculated by the system
-    .concat(isFlanking ? [getFlankingAcCondition()] : []).filter(i => acModOfCon(i) !== undefined)
+    .concat(isFlanking ? [getFlankingAcCondition()] : [])
+    // remove all non-AC conditions and irrelevant items
+    .filter(i => acModOfCon(i) !== undefined)
+    // ignore armor because it's a passive constant (dex and prof are already in IGNORED_MODIFIER_LABELS)
+    .filter(i => i.name !== nameOfArmor)
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
     // remove items where condition can't stack;  by checking if another item has equal/higher mods of same type
