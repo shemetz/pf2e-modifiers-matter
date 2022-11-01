@@ -79,8 +79,8 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.BattleForm3`, // battle form
     `${MODULE_ID}.IgnoredModifiers.BattleForm4`, // battle form
   ]
-  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
-    .concat(getSetting('additional-ignored-labels').split(';'))
+  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).
+    concat(getSetting('additional-ignored-labels').split(';'))
 }
 
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
@@ -140,7 +140,7 @@ const convertAcConditionsWithRuleElements = itemData => {
     if (value.field.startsWith('item|')) {
       const fieldValue = getProperty(itemData, value.field.split('|')[1])
       const matchingBracket = value.brackets.find(b =>
-        (!b.start || b.start <= fieldValue) && (!b.end || b.end >= fieldValue)
+        (!b.start || b.start <= fieldValue) && (!b.end || b.end >= fieldValue),
       )
       const matchingValue = matchingBracket.value
       if (typeof matchingValue !== 'number') {
@@ -177,7 +177,7 @@ const getShieldAcCondition = (targetedToken) => {
         group: 'ac',
         type: raisedShieldModifier.type,
         value: raisedShieldModifier.modifier,
-      }
+      },
     ],
   }
 }
@@ -191,7 +191,7 @@ const getFlankingAcCondition = () => {
         group: 'ac',
         type: 'circumstance',
         value: -2,
-      }
+      },
     ],
   }
 }
@@ -200,14 +200,11 @@ const acConsOfToken = (targetedToken, isFlanking) => {
   const itemDatas = [
     ...(targetedToken.actor.items || []),
   ]
-  return itemDatas
-    .map(convertAcConditionsWithValuedValues)
-    .map(convertAcConditionsWithRuleElements)
+  return itemDatas.map(convertAcConditionsWithValuedValues).map(convertAcConditionsWithRuleElements)
     // shield - calculated by the system. a 'effect-raise-a-shield' condition will also exist on the token but get filtered out
     .concat(targetedToken.actor.getShieldBonus() ? [getShieldAcCondition(targetedToken)] : [])
     // flanking - calculated by the system
-    .concat(isFlanking ? [getFlankingAcCondition()] : [])
-    .filter(i => acModOfCon(i) !== undefined)
+    .concat(isFlanking ? [getFlankingAcCondition()] : []).filter(i => acModOfCon(i) !== undefined)
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
     // remove items where condition can't stack;  by checking if another item has equal/higher mods of same type
@@ -230,8 +227,7 @@ const acConsOfToken = (targetedToken, isFlanking) => {
             || (Math.abs(m2.value) > Math.abs(m1.value) && idx1 < idx2)
           )
       }) === undefined
-    })
-    .filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name))
+    }).filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name))
 }
 
 const acModsFromCons = (acConditions) => acConditions.map(c => c.modifiers).deepFlatten().filter(isAcMod)
@@ -296,9 +292,8 @@ const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
 const insertAcFlavorSuffix = ($flavorText, acFlavorSuffix) => {
   const showDefenseHighlightsToEveryone = getSetting('show-defense-highlights-to-everyone')
   const dataVisibility = showDefenseHighlightsToEveryone ? 'all' : 'gm'
-  $flavorText.find('div.degree-of-success')
-    .before(
-      `<div data-visibility="${dataVisibility}">
+  $flavorText.find('div.degree-of-success').before(
+    `<div data-visibility="${dataVisibility}">
 ${tryLocalize(`${MODULE_ID}.Message.TargetHas`, 'Target has:')} <b>(${acFlavorSuffix})</b>
 </div>`)
 }
@@ -318,7 +313,8 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const dcObj = data.flags.pf2e.context.dc
   const attackIsAgainstAc = dcObj.slug === 'ac'
   const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
-  const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken, isFlanking) : []
+  const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken,
+    isFlanking) : []
 
   const conMods = data.flags.pf2e.modifiers
     // enabled is false for one of the conditions if it can't stack with others
@@ -361,18 +357,16 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const positiveConditionsChangedOutcome = wouldChangeOutcome(-conModsPositiveTotal)
   const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
   // sum of condition modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
-  const conModsNecessaryPositiveTotal = conMods
-      .filter(m => modifierPositive(m) && wouldChangeOutcome(-m.modifier))
-      .reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions)
-      .filter(m => valueNegative(m) && wouldChangeOutcome(m.value))
-      .reduce(sumReducerAcConditions, 0)
-  const conModsNecessaryNegativeTotal = conMods
-      .filter(m => modifierNegative(m) && wouldChangeOutcome(-m.modifier))
-      .reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions)
-      .filter(m => valuePositive(m) && wouldChangeOutcome(m.value))
-      .reduce(sumReducerAcConditions, 0)
+  const conModsNecessaryPositiveTotal = conMods.filter(m => modifierPositive(m) && wouldChangeOutcome(-m.modifier)).
+      reduce(sumReducerMods, 0)
+    - acModsFromCons(targetAcConditions).
+      filter(m => valueNegative(m) && wouldChangeOutcome(m.value)).
+      reduce(sumReducerAcConditions, 0)
+  const conModsNecessaryNegativeTotal = conMods.filter(m => modifierNegative(m) && wouldChangeOutcome(-m.modifier)).
+      reduce(sumReducerMods, 0)
+    - acModsFromCons(targetAcConditions).
+      filter(m => valuePositive(m) && wouldChangeOutcome(m.value)).
+      reduce(sumReducerAcConditions, 0)
 // sum of all other condition modifiers.  if this sum's changing does not affect the outcome it means conditions were unnecessary
   const remainingPositivesChangedOutcome = wouldChangeOutcome(-(conModsPositiveTotal - conModsNecessaryPositiveTotal))
   const remainingNegativesChangedOutcome = wouldChangeOutcome(-(conModsNegativeTotal - conModsNecessaryNegativeTotal))
@@ -403,12 +397,12 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     if (!outcomeChangeColor) return
     const modifierValue = (mod < 0 ? '' : '+') + mod
     // edit background color for full tags
-    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValue}).tag_alt`)
-      .css('background-color', outcomeChangeColor)
+    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValue}).tag_alt`).
+      css('background-color', outcomeChangeColor)
     // edit background+text colors for transparent tags, which have dark text by default
-    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValue}).tag_transparent`)
-      .css('color', outcomeChangeColor)
-      .css('font-weight', 'bold')
+    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValue}).tag_transparent`).
+      css('color', outcomeChangeColor).
+      css('font-weight', 'bold')
   })
   const acFlavorSuffix = targetAcConditions.map(c => {
     const conditionAcMod = c.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
