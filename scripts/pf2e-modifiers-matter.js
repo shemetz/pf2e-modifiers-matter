@@ -78,6 +78,8 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.BattleForm2`, // battle form
     `${MODULE_ID}.IgnoredModifiers.BattleForm3`, // battle form
     `${MODULE_ID}.IgnoredModifiers.BattleForm4`, // battle form
+    // also effects that replace your AC item bonus and dex cap - super hard to calculate their "true" bonus
+    `${MODULE_ID}.IgnoredModifiers.DrakeheartMutagen`,
   ]
   IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).
     concat(getSetting('additional-ignored-labels').split(';'))
@@ -130,7 +132,6 @@ const getFlankingAcCondition = () => {
     ],
   }
 }
-
 const acConsOfToken = (targetedToken, isFlanking) => {
   const nameOfArmor = targetedToken.actor.attributes.ac.dexCap?.source || 'Modifier' // "Modifier" for NPCs
   return [].concat(targetedToken.actor.attributes.ac.modifiers.map(convertAcModifier))
@@ -164,7 +165,9 @@ const acConsOfToken = (targetedToken, isFlanking) => {
             || (Math.abs(m2.value) > Math.abs(m1.value) && idx1 < idx2)
           )
       }) === undefined
-    }).filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name))
+    })
+    // remove everything that should be ignored (including user-defined)
+    .filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name))
 }
 
 const acModsFromCons = (acConditions) => acConditions.map(c => c.modifiers).deepFlatten().filter(isAcMod)
