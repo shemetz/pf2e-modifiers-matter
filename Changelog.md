@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2022-11-01
+- Refactored AC condition code to directly use actor AC modifiers rather than items
+- Added support for Forbidding Ward effect
+- Added Drakeheart Mutagen to default list of ignored modifiers
+
 ## [1.5.2] - 2022-09-25
 - Added "Modifier" to ignored modifiers list (shown for NPCs)
 
@@ -125,4 +130,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.5.0]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.4.6...1.5.0
 [1.5.1]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.0...1.5.1
 [1.5.2]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.1...1.5.2
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.2...HEAD
+[1.5.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.2...1.5.3
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.3...HEAD
