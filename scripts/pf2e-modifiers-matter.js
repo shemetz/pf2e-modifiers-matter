@@ -28,6 +28,7 @@ const NO_CHANGE_COLOR = '#000000'
 const NEGATIVE_COLOR = '#ff0000'
 const WEAK_NEGATIVE_COLOR = '#ff852f'
 let IGNORED_MODIFIER_LABELS = []
+let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = []
 
 let warnedAboutLocalization = false
 const tryLocalize = (key, defaultValue) => {
@@ -78,11 +79,14 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.BattleForm2`, // battle form
     `${MODULE_ID}.IgnoredModifiers.BattleForm3`, // battle form
     `${MODULE_ID}.IgnoredModifiers.BattleForm4`, // battle form
-    // also effects that replace your AC item bonus and dex cap - super hard to calculate their "true" bonus
-    `${MODULE_ID}.IgnoredModifiers.DrakeheartMutagen`,
   ]
   IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).
     concat(getSetting('additional-ignored-labels').split(';'))
+  IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = [
+    // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
+    // however, this effect also has other modifiers which I don't want to ignore.
+    `${MODULE_ID}.IgnoredModifiers.DrakeheartMutagen`,
+  ].map(str => tryLocalize(str, str))
 }
 
 const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
@@ -167,7 +171,8 @@ const acConsOfToken = (targetedToken, isFlanking) => {
       }) === undefined
     })
     // remove everything that should be ignored (including user-defined)
-    .filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name))
+    .filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name)).
+    filter(i => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(i.name))
 }
 
 const acModsFromCons = (acConditions) => acConditions.map(c => c.modifiers).deepFlatten().filter(isAcMod)
