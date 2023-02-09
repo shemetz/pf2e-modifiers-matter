@@ -1,0 +1,36 @@
+{
+  "pf2e-modifiers-matter": {
+    "Settings": {
+      "show-defense-highlights-to-everyone": {
+        "name": "将防御高光点展示给所有人",
+        "hint": "若启用，防御高光点比如像\"措手不及 -2\"会展示给所有人看（而不是仅GM）。"
+      },
+      "always-show-defense-conditions": {
+        "name": "永远显示防御状态",
+        "hint": "若启动，防御高光点比如像\"措手不及 -2\"会被一直显示，即使他们不影响结果。"
+      },
+      "ignore-crit-fail-over-fail-on-attacks": {
+        "name": "不区分攻击时的大失败和失败",
+        "hint": "若启用，模组不会高光那些让失败变为大失败的效果（因为这两者在攻击的情境下绝大多数时候没有什么差别）。"
+      },
+      "additional-ignored-labels": {
+        "name": "额外忽略标签",
+        "hint": "输入文本，以分号隔开（;），这些调整值会被忽略。如果你觉得有些调整值应该默认就该被忽略，请在Discord或Github提出你的建议。"
+      }
+    },
+    "Message": {
+      "TargetHas": "目标具有:"
+    },
+    "IgnoredModifiers": {
+      "DeviseAStratagem": "出谋划策",
+      "HuntersEdgeFlurry1": "猎手优势：连击",
+      "HuntersEdgeFlurry2": "连击",
+      "HuntersEdgeFlurry3": "效果：猎手优势：连击",
+      "BattleForm1": "生界化生",
+      "BattleForm2": "Form of the Sandpoint Devil",
+      "BattleForm3": "元素具身",
+      "BattleForm4": "天神下凡",
+      "DrakeheartMutagen": "龙兽之心突变药剂"
+    }
+  }
+}
