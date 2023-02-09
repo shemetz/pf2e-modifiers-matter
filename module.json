@@ -16,6 +16,11 @@
       "name": "English",
       "path": "lang/en.json",
       "flags": {}
+    },    {
+      "lang": "cn",
+      "name": "简体中文（Simplified Chinese）",
+      "path": "lang/cn.json",
+      "flags": {}
     },
     {
       "lang": "fr",
