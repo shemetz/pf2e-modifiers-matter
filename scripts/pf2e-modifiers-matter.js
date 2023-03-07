@@ -255,6 +255,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
 
   // potentially include modifiers that apply to enemy AC (it's hard to do the same with ability/spell DCs though)
   const targetedToken = Array.from(game.user.targets)[0]
+  const rollingActor = data.flags.pf2e.context.actor ? game.actors.get(data.flags.pf2e.context.actor) : undefined
   const dcObj = data.flags.pf2e.context.dc
   const attackIsAgainstAc = dcObj.slug === 'ac'
   const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
@@ -268,6 +269,15 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     .filter(m => !(attackIsAgainstAc && m.slug.endsWith('-form')))
     // ignoring Doubling Rings which are basically a permanent item bonus
     .filter(m => !m.slug.startsWith('doubling-rings'))
+    // for saving throws, ignore item bonuses that come from armor, they're Resilient runes
+    .filter(m => !(
+      !attackIsAgainstAc
+      && m.type === 'item'
+      // comparing the modifier label to the name of the rolling actor's Armor item
+      && rollingActor?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
+      // matching roll type to "Xxxx Saving Throw", trying to make it work for all languages
+      && data.flags.pf2e.modifierName.match(game.i18n.localize('PF2E.SavingThrowWithName').replace('{saveName}', '.'))
+    ))
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
