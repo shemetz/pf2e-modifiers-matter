@@ -79,6 +79,13 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.BattleForm2`, // battle form
     `${MODULE_ID}.IgnoredModifiers.BattleForm3`, // battle form
     `${MODULE_ID}.IgnoredModifiers.BattleForm4`, // battle form
+    // yes I'm gonna add my houserules to my module, you can't stop me.
+    // https://discord.com/channels/880968862240239708/880969943724728391/1082678343234760704
+    `${MODULE_ID}.IgnoredModifiers.SpellAttackHouserule`,
+    `${MODULE_ID}.IgnoredModifiers.SpellPotency1`,
+    `${MODULE_ID}.IgnoredModifiers.SpellPotency2`,
+    `${MODULE_ID}.IgnoredModifiers.SkillPotency1`,
+    `${MODULE_ID}.IgnoredModifiers.SkillPotency2`,
   ]
   IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).
     concat(getSetting('additional-ignored-labels').split(';'))
