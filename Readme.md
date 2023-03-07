@@ -36,7 +36,8 @@ colored green if it helped or red if it hurt.
 
 This will only apply color to temporary effects - it will ignore effects such as proficiency, ability modifier, runes,
 or potency bonus. It will also ignore effects like Ooze Form (which fully replace your attack bonus), or the Ranger's
-Flurry edge (which replaces the Multiple Attack Penalty).  You can add your own ignored effects in the settings.
+Flurry edge (which replaces the Multiple Attack Penalty).  It will also ignore "Skill Potency", "Spell Potency", etc,
+which are common ABP-based modifiers that people add manually. You can add your own ignored effects in the settings!
 
 
 The color will be a strong red/green for an effect that directly caused a change in outcome (and was necessary for the

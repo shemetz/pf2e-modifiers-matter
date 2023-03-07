@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.4] - 2023-03-07
+- Added default ignore to some popular houserule-based bonuses: Spell Potency and Skill Potency
+- Added Resilient armor bonuses to ignored modifiers (by ignoring armor item bonuses to saves) (#17)
+- Added Simplified Chinese localization (#15)
+
 ## [1.5.3] - 2022-11-01
 - Refactored AC condition code to directly use actor AC modifiers rather than items
 - Added support for Forbidding Ward effect
@@ -131,4 +136,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.5.1]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.0...1.5.1
 [1.5.2]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.1...1.5.2
 [1.5.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.2...1.5.3
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.3...HEAD
+[1.5.4]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.3...1.5.4
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.4...HEAD
