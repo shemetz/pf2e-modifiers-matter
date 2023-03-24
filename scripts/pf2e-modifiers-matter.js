@@ -389,7 +389,6 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     data.flavor = newFlavor
 
     await chatMessage.updateSource({ 'flavor': newFlavor })
-    CONFIG.compatibility.excludePatterns.pop()
   }
   return true
 }
