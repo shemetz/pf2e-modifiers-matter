@@ -13,20 +13,38 @@ CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D2
 // this file has a ton of math (mostly simple).
 // I did my best to make it all easily understandable math, but there are limits to what I can do.
 
-// strong green = this condition was necessary to achieve this result (others were potentially also necessary).  this
-// means the one who caused this condition should definitely be congratulated/thanked.
-// weak green = this condition was not necessary to achieve this result, but degree of success did change due to
-// something in this direction, through a collection of weak green and/or strong green conditions.  for example,
-// if you rolled a 14, had +1 & +2, and needed a 15, both the +1 and +2 are weak green because neither is necessary on
-// its own but they were necessary together.
-// if you had rolled a 13 in this case, the +2 would be strong green but the +1 would still be weak green, simply
-// because it's difficult to come up with an algorithm that would solve complex cases.
-// note, by the way, that in case of multiple non-stacking conditions, PF2e hides some of them from the chat card.
-const POSITIVE_COLOR = '#008000'
-const WEAK_POSITIVE_COLOR = '#91a82a'
-const NO_CHANGE_COLOR = '#000000'
-const NEGATIVE_COLOR = '#ff0000'
-const WEAK_NEGATIVE_COLOR = '#ff852f'
+/**
+ * ESSENTIAL (strong green) - This modifier was necessary to achieve this degree of success (DoS).  Others were
+ * potentially also necessary.  You should thank the character who caused this modifier!
+ *
+ * HELPFUL (weak green) - This modifier was not necessary to achieve this DoS, but degree of success did change due to
+ * modifiers in this direction, and at least one of the helpful modifiers was needed.  For example, if you rolled a 14,
+ * had +1 & +2, and needed a 15, both the +1 and +2 are weak green because neither is necessary on its own, but they
+ * were necessary together. If you had rolled a 13 in this case, the +2 would be strong green but the +1 would still be
+ * weak green, simply because it's difficult to come up with an algorithm that would solve complex cases.
+ * Note, by the way, that in case of multiple non-stacking modifiers, PF2e hides some of them from the chat card.
+ *
+ * NONE - This modifier did not affect the DoS at all, this time.
+ *
+ * HARMFUL (orange) - Like HELPFUL but in the opposite direction.  Without all the harmful modifiers you had (but
+ * not without any one of them), you would've gotten a better DoS.
+ *
+ * DETRIMENTAL (red) - Like ESSENTIAL but in the opposite direction.  Without this, you would've gotten a better DoS.
+ */
+const SIGNIFICANCE = Object.freeze({
+  ESSENTIAL: 'ESSENTIAL',
+  HELPFUL: 'HELPFUL',
+  NONE: 'NONE',
+  HARMFUL: 'HARMFUL',
+  DETRIMENTAL: 'DETRIMENTAL',
+})
+const COLOR_BY_SIGNIFICANCE = Object.freeze({
+  ESSENTIAL: '#008000',
+  HELPFUL: '#91a82a',
+  NONE: '#000000',
+  HARMFUL: '#ff0000',
+  DETRIMENTAL: '#ff852f',
+})
 let IGNORED_MODIFIER_LABELS = []
 let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = []
 
@@ -211,6 +229,7 @@ const calcDegreeOfSuccess = (deltaFromDc) => {
 }
 const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
   const degree = calcDegreeOfSuccess(deltaFromDc)
+  // handle natural 20 and natural 1
   if (dieRoll === 20) {
     switch (degree) {
       case 'CRIT_SUCC':
@@ -222,8 +241,7 @@ const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
       case 'CRIT_FAIL':
         return DEGREES.FAILURE
     }
-  }
-  if (dieRoll === 1) {
+  } else if (dieRoll === 1) {
     switch (degree) {
       case 'CRIT_SUCC':
         return DEGREES.SUCCESS
@@ -234,8 +252,20 @@ const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
       case 'CRIT_FAIL':
         return DEGREES.CRIT_FAIL
     }
-  }
-  return degree
+  } else return degree
+}
+
+const shouldIgnoreStrikeCritFailToFail = (oldDOS, newDOS, isStrike) => {
+  // only ignore in this somewhat common edge case:
+  return (
+    // fail changed to crit fail, or vice versa
+    ((oldDOS === DEGREES.FAILURE && newDOS === DEGREES.CRIT_FAIL)
+      || (oldDOS === DEGREES.CRIT_FAIL && newDOS === DEGREES.FAILURE))
+    // and this game setting is enabled
+    && getSetting('ignore-crit-fail-over-fail-on-attacks')
+    // and it was a Strike attack
+    && isStrike
+  )
 }
 
 /**
@@ -253,23 +283,25 @@ ${tryLocalize(`${MODULE_ID}.Message.TargetHas`, 'Target has:')} <b>(${acFlavorSu
 const hook_preCreateChatMessage = async (chatMessage, data) => {
   // continue only if message is a PF2e roll message
   if (
-    !data.flags
-    || !data.flags.pf2e
-    || data.flags.pf2e.modifiers === undefined
-    || data.flags.pf2e.context.dc === undefined
-    || data.flags.pf2e.context.dc === null
+    !chatMessage.flags
+    || !chatMessage.flags.pf2e
+    || chatMessage.flags.pf2e.modifiers === undefined
+    || chatMessage.flags.pf2e.context.dc === undefined
+    || chatMessage.flags.pf2e.context.dc === null
   ) return true
 
   // potentially include modifiers that apply to enemy AC (it's hard to do the same with ability/spell DCs though)
   const targetedToken = Array.from(game.user.targets)[0]
-  const rollingActor = data.flags.pf2e.context.actor ? game.actors.get(data.flags.pf2e.context.actor) : undefined
-  const dcObj = data.flags.pf2e.context.dc
+  const rollingActor = chatMessage.flags.pf2e.context.actor
+    ? game.actors.get(chatMessage.flags.pf2e.context.actor)
+    : undefined
+  const dcObj = chatMessage.flags.pf2e.context.dc
   const attackIsAgainstAc = dcObj.slug === 'ac'
   const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
   const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken,
     isFlanking) : []
 
-  const conMods = data.flags.pf2e.modifiers
+  const conMods = chatMessage.flags.pf2e.modifiers
     // enabled is false for one of the conditions if it can't stack with others
     .filter(m => m.enabled && !m.ignored && !IGNORED_MODIFIER_LABELS.includes(m.label))
     // ignoring all "form" spells that replace your attack bonus
@@ -283,38 +315,27 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       // comparing the modifier label to the name of the rolling actor's Armor item
       && rollingActor?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
       // matching roll type to "Xxxx Saving Throw", trying to make it work for all languages
-      && data.flags.pf2e.modifierName.match(game.i18n.localize('PF2E.SavingThrowWithName').replace('{saveName}', '.'))
+      && chatMessage.flags.pf2e.modifierName.match(
+        game.i18n.localize('PF2E.SavingThrowWithName').replace('{saveName}', '.'))
     ))
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valuePositive).reduce(sumReducerAcConditions, 0)
 
-  const shouldIgnoreThisDegreeOfSuccess = (oldDOS, newDOS) => {
-    // only ignore in this somewhat common edge case:
-    return (
-      // fail changed to crit fail, or vice versa
-      ((oldDOS === DEGREES.FAILURE && newDOS === DEGREES.CRIT_FAIL)
-        || (oldDOS === DEGREES.CRIT_FAIL && newDOS === DEGREES.FAILURE))
-      // and this game setting is enabled
-      && getSetting('ignore-crit-fail-over-fail-on-attacks')
-      // and it was a Strike attack
-      && data.flavor.includes(`${tryLocalize('PF2E.WeaponStrikeLabel', 'Strike')}:`)
-    )
-  }
-
   const roll = chatMessage.rolls[0]  // I hope the main roll is always the first one!
-  const rollTotal = parseInt(data.content || roll.total.toString())
-  const rollDc = data.flags.pf2e.context.dc.value
+  const rollTotal = parseInt(chatMessage.content || roll.total.toString())
+  const rollDc = chatMessage.flags.pf2e.context.dc.value
   const deltaFromDc = rollTotal - rollDc
   // technically DoS can be higher or lower through nat 1 and nat 20, but it doesn't matter with this calculation
   const dieRoll = roll.terms[0].results[0].result
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
+  const isStrike = chatMessage.flavor.includes(`${tryLocalize('PF2E.WeaponStrikeLabel', 'Strike')}:`)
   // wouldChangeOutcome(x) returns true if a bonus of x ("penalty" if x is negative) changes the degree of success
   const wouldChangeOutcome = (extra) => {
     const newDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc + extra, dieRoll)
     return newDegreeOfSuccess !== currentDegreeOfSuccess &&
-      !shouldIgnoreThisDegreeOfSuccess(currentDegreeOfSuccess, newDegreeOfSuccess)
+      !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, newDegreeOfSuccess, isStrike)
   }
   const positiveConditionsChangedOutcome = wouldChangeOutcome(-conModsPositiveTotal)
   const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
@@ -334,49 +355,61 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const remainingNegativesChangedOutcome = wouldChangeOutcome(-(conModsNegativeTotal - conModsNecessaryNegativeTotal))
 
   // utility, because this calculation is done multiple times but requires a bunch of calculated variables
-  const calcOutcomeChangeColor = (modifier) => {
-    const isNegativeMod = modifier < 0
-    const changedOutcome = wouldChangeOutcome(-modifier)
-    // return (not marking condition modifier at all) if this condition modifier was absolutely not necessary
-    if (
-      (!isNegativeMod && !positiveConditionsChangedOutcome)
-      || (isNegativeMod && !negativeConditionsChangedOutcome)
-      || (!isNegativeMod && !remainingPositivesChangedOutcome && !changedOutcome)
-      || (isNegativeMod && !remainingNegativesChangedOutcome && !changedOutcome)
-    )
-      return undefined
-    return isNegativeMod
-      ? (changedOutcome ? NEGATIVE_COLOR : WEAK_NEGATIVE_COLOR)
-      : (changedOutcome ? POSITIVE_COLOR : WEAK_POSITIVE_COLOR)
+  const calcSignificance = (modifierValue) => {
+    const isNegativeMod = modifierValue < 0
+    const isPositiveMod = modifierValue > 0
+    const changedOutcome = wouldChangeOutcome(-modifierValue)
+    if (isPositiveMod && changedOutcome)
+      return SIGNIFICANCE.ESSENTIAL
+    if (isPositiveMod && !changedOutcome && positiveConditionsChangedOutcome && remainingPositivesChangedOutcome)
+      return SIGNIFICANCE.HELPFUL
+    if (isNegativeMod && changedOutcome)
+      return SIGNIFICANCE.HARMFUL
+    if (isNegativeMod && !changedOutcome && negativeConditionsChangedOutcome && remainingNegativesChangedOutcome)
+      return SIGNIFICANCE.DETRIMENTAL
+    return SIGNIFICANCE.NONE
   }
+
+  const significantModifiers = []
 
   const oldFlavor = chatMessage.flavor
   // adding an artificial div to have a single parent element, enabling nicer editing of html
   const $editedFlavor = $(`<div>${oldFlavor}</div>`)
   conMods.forEach(m => {
-    const mod = m.modifier
-    const outcomeChangeColor = calcOutcomeChangeColor(mod)
-    if (!outcomeChangeColor) return
-    const modifierValue = (mod < 0 ? '' : '+') + mod
+    const modVal = m.modifier
+    const significance = calcSignificance(modVal)
+    if (significance === SIGNIFICANCE.NONE) return
+    significantModifiers.push({
+      name: m.label,
+      value: modVal,
+      significance: significance,
+    })
+    const outcomeChangeColor = COLOR_BY_SIGNIFICANCE[significance]
+    const modifierValueStr = (modVal < 0 ? '' : '+') + modVal
     // edit background color for full tags
-    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValue}).tag_alt`).
+    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValueStr}).tag_alt`).
       css('background-color', outcomeChangeColor)
     // edit background+text colors for transparent tags, which have dark text by default
-    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValue}).tag_transparent`).
+    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValueStr}).tag_transparent`).
       css('color', outcomeChangeColor).
       css('font-weight', 'bold')
   })
   const acFlavorSuffix = targetAcConditions.map(c => {
-    const conditionAcMod = c.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
-    let outcomeChangeColor = calcOutcomeChangeColor(-conditionAcMod)
-    if (!outcomeChangeColor) {
-      if (getSetting('always-show-defense-conditions', false)) {
-        outcomeChangeColor = NO_CHANGE_COLOR
-      } else {
+    const modVal = c.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
+    const significance = calcSignificance(-modVal)
+    let outcomeChangeColor = COLOR_BY_SIGNIFICANCE[significance]
+    if (significance === SIGNIFICANCE.NONE) {
+      if (!getSetting('always-show-defense-conditions', false)) {
         return undefined
       }
+    } else {
+      significantModifiers.push({
+        name: c.name,
+        value: modVal,
+        significance: significance,
+      })
     }
-    const modifierValue = (conditionAcMod < 0 ? '' : '+') + conditionAcMod
+    const modifierValue = (modVal < 0 ? '' : '+') + modVal
     const modifierName = c.name
     return `<span style="color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
   }).filter(s => s !== undefined).join(', ')
@@ -386,11 +419,39 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   // newFlavor will be the inner HTML without the artificial div
   const newFlavor = $editedFlavor.html()
   if (newFlavor !== oldFlavor) {
-    data.flavor = newFlavor
-
+    data.flavor = newFlavor // just in case other hooks rely on it
     await chatMessage.updateSource({ 'flavor': newFlavor })
   }
+
+  // hook call - to allow other modules/macros to trigger based on MM
+  if (significantModifiers.length > 0) {
+    Hooks.callAll('modifiersMatter', {
+      rollingActor,
+      targetedToken, // can be undefined
+      significantModifiers, // list of: {name: string, value: number, significance: string}
+      chatMessage,
+    })
+  }
+
   return true
+}
+
+const exampleHookInspireCourage = () => {
+  // this hook call is an example!
+  // it will play a nice chime sound each time an Inspire Courage effect turns a miss into a hit (or hit to crit)
+  Hooks.on('modifiersMatter', ({ rollingActor, significantModifiers }) => {
+    console.log(`${rollingActor} was helped!`)
+    significantModifiers.forEach(({ name, significance }) => {
+      if (name.includes('Inspire Courage') && significance === 'ESSENTIAL') {
+        AudioHelper.play({
+          src: 'https://cdn.pixabay.com/audio/2022/01/18/audio_8db1f1b5a5.mp3',
+          volume: 1.0,
+          autoplay: true,
+          loop: false,
+        }, true)
+      }
+    })
+  })
 }
 
 const getSetting = (settingName) => game.settings.get(MODULE_ID, settingName)

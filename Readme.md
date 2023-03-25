@@ -32,7 +32,7 @@ behavior is controlled in the PF2E system settings, under Metagame Information -
 
 This module **edits** the chat card to color these bonuses whenever they are relevant to a roll. In other words, when an
 effect causes the outcome to change (by one or more degrees of success), the effect's bonus text on the card will be
-colored green if it helped or red if it hurt.
+colored green if it helped or orange/red if it hurt.
 
 This will only apply color to temporary effects - it will ignore effects such as proficiency, ability modifier, runes,
 or potency bonus. It will also ignore effects like Ooze Form (which fully replace your attack bonus), or the Ranger's
@@ -41,12 +41,12 @@ which are common ABP-based modifiers that people add manually. You can add your 
 
 
 The color will be a strong red/green for an effect that directly caused a change in outcome (and was necessary for the
-change). A less striking and less saturated red/green color will be used for effects that were helpful/hurtful but not
+change). A less striking color (yellow-green or orange) will be used for effects that were helpful/hurtful but not
 strictly necessary. For example, if you rolled a total of 17 against an enemy with AC 16, you hit (Success +1). If
 you've been currently under the effects of both Bless (+1 status bonus) and Assisting Shot (+1 circumstance bonus), then
 either of them would have helped you land your attack, but no one of them was necessary for the attack, so they'll both
-be partially highlighted. If an effect was definitely not necessary for the change in outcome - due to another effect
-being much more impactful - the unnecessary effect will not be colored at all.
+be "partially" highlighted. If an effect was definitely not necessary for the change in outcome - due to another effect
+being the only one essential for the change - the unnecessary effect will not be colored at all.
 
 ## Extra - AC conditions
 
