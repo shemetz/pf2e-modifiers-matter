@@ -298,8 +298,15 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const dcObj = chatMessage.flags.pf2e.context.dc
   const attackIsAgainstAc = dcObj.slug === 'ac'
   const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
-  const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken,
-    isFlanking) : []
+  // here I assume the PF2E system always includes the d20 roll as the first roll!  and as the first term of that roll!
+  const roll = chatMessage.rolls[0]
+  const rollTotal = parseInt(chatMessage.content || roll.total.toString())
+  const rollDc = chatMessage.flags.pf2e.context.dc.value
+  const deltaFromDc = rollTotal - rollDc
+  // using roll.terms[0].total will work when rolling 1d20+9, or 2d20kh+9 (RollTwice RE), or 10+9 (SubstituteRoll RE)
+  const dieRoll = roll.terms[0].total
+  const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
+  const isStrike = chatMessage.flavor.includes(`${tryLocalize('PF2E.WeaponStrikeLabel', 'Strike')}:`)
 
   const conMods = chatMessage.flags.pf2e.modifiers
     // enabled is false for one of the conditions if it can't stack with others
@@ -318,25 +325,20 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       && chatMessage.flags.pf2e.modifierName.match(
         game.i18n.localize('PF2E.SavingThrowWithName').replace('{saveName}', '.'))
     ))
+  const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken,
+    isFlanking) : []
   const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
   const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
     - acModsFromCons(targetAcConditions).filter(valuePositive).reduce(sumReducerAcConditions, 0)
 
-  const roll = chatMessage.rolls[0]  // I hope the main roll is always the first one!
-  const rollTotal = parseInt(chatMessage.content || roll.total.toString())
-  const rollDc = chatMessage.flags.pf2e.context.dc.value
-  const deltaFromDc = rollTotal - rollDc
-  // technically DoS can be higher or lower through nat 1 and nat 20, but it doesn't matter with this calculation
-  const dieRoll = roll.terms[0].results[0].result
-  const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
-  const isStrike = chatMessage.flavor.includes(`${tryLocalize('PF2E.WeaponStrikeLabel', 'Strike')}:`)
   // wouldChangeOutcome(x) returns true if a bonus of x ("penalty" if x is negative) changes the degree of success
   const wouldChangeOutcome = (extra) => {
     const newDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc + extra, dieRoll)
     return newDegreeOfSuccess !== currentDegreeOfSuccess &&
       !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, newDegreeOfSuccess, isStrike)
   }
+
   const positiveConditionsChangedOutcome = wouldChangeOutcome(-conModsPositiveTotal)
   const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
   // sum of condition modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
