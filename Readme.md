@@ -109,6 +109,18 @@ Here's what the UI looks like, as of v1.4.5:
 
 ![](metadata/v1_4_5_example.png)
 
+And as of v1.7.0 (added visible modifiers for caster DC and target actor DC:
+
+![](metadata/v1_7_0_example.png)
+
+## Integration with other modules
+
+There is a hook, `'modifiersMatter'`, which you can listen to, if you want things to trigger based on modifiers mattering.
+For example, the code includes a sample function - `exampleHookInspireCourage` - which will make Foundry play a short
+chime sound each time Inspire Courage causes a success.
+
+This hook is already in use by the PF2e Animations module.  [Here's a link to a demo video (discord message)](https://discord.com/channels/880968862240239708/1006806454700875816/1089257601629442080).
+
 ## Credits
 
 - Thanks Sionth#5174 for coming up with a name for this!

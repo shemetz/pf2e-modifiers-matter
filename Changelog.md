@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2023-03-27
+- New features! Will now show DC modifiers on spell, skill, and perception DCs, not just AC (#12, #13)
+- - (note that class DCs are still not included;  not easy to identify which actor they belong to) 
+- Refactored code to make things even clearer (sometimes) 
+
 ## [1.6.0] - 2023-03-25
 - Added modifiersMatter hook to allow integration
 - Fixed accidental minor bug - console excludePatterns was popped each time
@@ -142,4 +147,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.5.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.2...1.5.3
 [1.5.4]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.3...1.5.4
 [1.6.0]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.5.4...1.6.0
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.6.0...HEAD
+[1.7.0]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.6.0...1.7.0
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.0...HEAD
