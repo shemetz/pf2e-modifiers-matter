@@ -19,6 +19,8 @@
       }
     },
     "Message": {
+      "CasterHas": "Caster has:",
+      "ActorHas": "Actor has:",
       "TargetHas": "Target has:"
     },
     "IgnoredModifiers": {

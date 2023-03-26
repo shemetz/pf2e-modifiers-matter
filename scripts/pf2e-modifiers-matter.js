@@ -1,7 +1,8 @@
 const MODULE_ID = 'pf2e-modifiers-matter'
-// TODO - figure out how to notice effects on the target that change their Ref/Fort/Will DC, e.g. when trying to Tumble Through against targeted enemy
-// TODO - also effects from "rules" in general
-// so far:  got Cover to work (flat modifier to ac)
+// TODO - currently impossible, but in the future may be possible to react to effects that change class-based DCs.
+// for example, the Monk's Stunning Fist currently just creates a clickable @Check button, but when that button is
+// pressed, the result roll captured in this code has no identifies related to the monk or the monk's attack/feat,
+// other than { "label": "Fist DC", "value": 18 } plus a hundred minor flags (none have any of these IDs).
 
 // Helpful for testing - replace random dice roller with 1,2,3,4....19,20 by putting this in the console:
 /*
@@ -114,7 +115,7 @@ const initializeIgnoredModifiers = () => {
   ].map(str => tryLocalize(str, str))
 }
 
-const sumReducerMods = (accumulator, curr) => accumulator + curr.modifier
+const sumMods = (modsList) => modsList.reduce((accumulator, curr) => accumulator + curr.modifier, 0)
 const sumReducerAcConditions = (accumulator, curr) => accumulator + curr.value
 const isAcMod = m => m.group === 'ac' || m.group === 'all'
 const valuePositive = m => m.value > 0
@@ -131,11 +132,35 @@ const convertAcModifier = m => {
         group: 'ac',
         type: m.type,
         value: m.modifier,
-      }],
+      },
+    ],
   }
 }
-const getShieldAcCondition = (targetedToken) => {
-  const raisedShieldModifier = targetedToken.actor.getShieldBonus()
+const convertSpellDcModifier = m => {
+  if (!m.enabled && m.ignored) return undefined
+  return {
+    name: m.label,
+    modifiers: [
+      {
+        type: m.type,
+        value: m.modifier,
+      },
+    ],
+  }
+}
+const convertStatisticDcModifier = m => {
+  return {
+    name: m.label,
+    modifiers: [
+      {
+        type: m.type,
+        value: m.modifier,
+      },
+    ],
+  }
+}
+const getShieldAcCondition = (targetedActor) => {
+  const raisedShieldModifier = targetedActor.getShieldBonus()
   if (raisedShieldModifier) return {
     name: raisedShieldModifier.label,
     modifiers: [
@@ -148,10 +173,15 @@ const getShieldAcCondition = (targetedToken) => {
   }
 }
 
-const getFlankingAcCondition = () => {
-  const systemFlanking = game.pf2e.ConditionManager.getCondition('flat-footed')
+const getFlankingAcMod = () => {
+  const systemFlatFootedCondition = game.pf2e.ConditionManager.getCondition('flat-footed')
   return {
-    name: systemFlanking.name,
+    // TODO - name or label?
+    name: systemFlatFootedCondition.name,
+    label: systemFlatFootedCondition.name,
+    modifier: -2,
+    type: 'circumstance',
+    // TODO - do I even still need this sub-list thing?
     modifiers: [
       {
         group: 'ac',
@@ -161,46 +191,41 @@ const getFlankingAcCondition = () => {
     ],
   }
 }
-const acConsOfToken = (targetedToken, isFlanking) => {
-  const nameOfArmor = targetedToken.actor.attributes.ac.dexCap?.source || 'Modifier' // "Modifier" for NPCs
-  return [].concat(targetedToken.actor.attributes.ac.modifiers.map(convertAcModifier))
-    // shield - calculated by the system. a 'effect-raise-a-shield' condition will also exist on the token but get filtered out
-    .concat(targetedToken.actor.getShieldBonus() ? [getShieldAcCondition(targetedToken)] : [])
-    // flanking - calculated by the system
-    .concat(isFlanking ? [getFlankingAcCondition()] : [])
-    // remove all non-AC conditions and irrelevant items
-    .filter(i => acModOfCon(i) !== undefined)
-    // ignore armor because it's a passive constant (dex and prof are already in IGNORED_MODIFIER_LABELS)
-    .filter(i => i.name !== nameOfArmor)
+const dcModsOfStatistic = (dcStatistic, actorWithDc) => {
+  return dcStatistic.modifiers
+    // remove if not enabled, or ignored
+    .filter(m => m.enabled && !m.ignored)
+    // remove everything that should be ignored (including user-defined)
+    .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
+    // ignore item bonuses that come from armor, they're Resilient runes
+    .filter(m => !(
+      m.type === 'item'
+      // comparing the modifier label to the names of the actor's Armor items
+      && actorWithDc?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
+    ))
     // remove duplicates where name is identical
     .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
-    // remove items where condition can't stack;  by checking if another item has equal/higher mods of same type
-    .filter((i1, idx1, a) => {
-      const m1 = acModOfCon(i1)
-      if (m1.type === 'untyped') return true // untyped always stacks
-      // keeping if there isn't another mod item that this won't stack with
-      return a.find((i2, idx2) => {
-        const m2 = acModOfCon(i2)
-        // looking for something with a different index
-        return i1 !== i2
-          // of the same type
-          && m2.type === m1.type
-          // with the same sign (-1 and -2 don't stack, but -1 and +2 do)
-          && Math.sign(m2.value) === Math.sign(m1.value)
-          && (
-            // with higher value (if higher index)
-            (Math.abs(m2.value) >= Math.abs(m1.value) && idx1 > idx2)
-            // or equal-to-higher value (if lower index)
-            || (Math.abs(m2.value) > Math.abs(m1.value) && idx1 < idx2)
-          )
-      }) === undefined
-    })
-    // remove everything that should be ignored (including user-defined)
-    .filter(i => !IGNORED_MODIFIER_LABELS.includes(i.name)).
-    filter(i => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(i.name))
 }
+const rollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType) => {
+  return modifiersFromChatMessage
+    // enabled is false for one of the conditions if it can't stack with others
+    .filter(m => m.enabled && !m.ignored)
+    // ignoring standard things from list (including user-defined)
+    .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
+    // for attacks, ignore all "form" spells that replace your attack bonus
+    .filter(m => !(dcType === 'ac' && m.slug.endsWith('-form')))
+    // for attacks/skills, ignore Doubling Rings which are basically a permanent item bonus
+    .filter(m => !m.slug.startsWith('doubling-rings'))
+    // TODO - ignore item bonuses that are permanent (mostly skill items)
 
-const acModsFromCons = (acConditions) => acConditions.map(c => c.modifiers).deepFlatten().filter(isAcMod)
+    // TODO - can next thing be removed?
+    // for saving throws, ignore item bonuses that come from armor, they're Resilient runes
+    .filter(m => !(
+      m.type === 'item'
+      // comparing the modifier label to the name of the rolling actor's Armor item
+      && rollingActor?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
+    ))
+}
 
 const DEGREES = Object.freeze({
   CRIT_SUCC: 'CRIT_SUCC',
@@ -269,35 +294,31 @@ const shouldIgnoreStrikeCritFailToFail = (oldDOS, newDOS, isStrike) => {
 }
 
 /**
- * acFlavorSuffix will be e.g. 'Flatfooted -2, Frightened -1'
+ * dcFlavorSuffix will be e.g. 'Flatfooted -2, Frightened -1'
  */
-const insertAcFlavorSuffix = ($flavorText, acFlavorSuffix) => {
+const insertDcFlavorSuffix = ($flavorText, dcFlavorSuffix, dcActorType) => {
   const showDefenseHighlightsToEveryone = getSetting('show-defense-highlights-to-everyone')
   const dataVisibility = showDefenseHighlightsToEveryone ? 'all' : 'gm'
+  const messageKey = dcActorType === 'target' ? `${MODULE_ID}.Message.TargetHas`
+    : dcActorType === 'caster' ? `${MODULE_ID}.Message.CasterHas`
+      : `${MODULE_ID}.Message.ActorHas`
   $flavorText.find('div.degree-of-success').before(
     `<div data-visibility="${dataVisibility}">
-${tryLocalize(`${MODULE_ID}.Message.TargetHas`, 'Target has:')} <b>(${acFlavorSuffix})</b>
+${tryLocalize(messageKey, 'Target has:')} <b>(${dcFlavorSuffix})</b>
 </div>`)
 }
 
 const hook_preCreateChatMessage = async (chatMessage, data) => {
-  // continue only if message is a PF2e roll message
+  // continue only if message is a PF2e roll message with a rolling actor
   if (
     !chatMessage.flags
     || !chatMessage.flags.pf2e
-    || chatMessage.flags.pf2e.modifiers === undefined
-    || chatMessage.flags.pf2e.context.dc === undefined
-    || chatMessage.flags.pf2e.context.dc === null
+    || !chatMessage.flags.pf2e.modifiers
+    || !chatMessage.flags.pf2e.context.dc
+    || !chatMessage.flags.pf2e.context.actor
   ) return true
 
-  // potentially include modifiers that apply to enemy AC (it's hard to do the same with ability/spell DCs though)
-  const targetedToken = Array.from(game.user.targets)[0]
-  const rollingActor = chatMessage.flags.pf2e.context.actor
-    ? game.actors.get(chatMessage.flags.pf2e.context.actor)
-    : undefined
-  const dcObj = chatMessage.flags.pf2e.context.dc
-  const attackIsAgainstAc = dcObj.slug === 'ac'
-  const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
+  const rollingActor = game.actors.get(chatMessage.flags.pf2e.context.actor)
   // here I assume the PF2E system always includes the d20 roll as the first roll!  and as the first term of that roll!
   const roll = chatMessage.rolls[0]
   const rollTotal = parseInt(chatMessage.content || roll.total.toString())
@@ -306,117 +327,157 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   // using roll.terms[0].total will work when rolling 1d20+9, or 2d20kh+9 (RollTwice RE), or 10+9 (SubstituteRoll RE)
   const dieRoll = roll.terms[0].total
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
-  const isStrike = chatMessage.flavor.includes(`${tryLocalize('PF2E.WeaponStrikeLabel', 'Strike')}:`)
+  // noinspection JSDeprecatedSymbols (String.strike is irrelevant, IntelliJ!)
+  const dcSlug = chatMessage.flags.pf2e.context.dc.slug
+  const isStrike = dcSlug === 'ac'
+  const isSpell = chatMessage.flags.pf2e.origin?.type === 'spell'
+  const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
+  const targetedTokenUuid = chatMessage.flags.pf2e.context.target?.token
+  const targetedActorUuid = chatMessage.flags.pf2e.context.target?.actor
+  const targetedToken = targetedTokenUuid ? fromUuidSync(targetedTokenUuid) : undefined
+  const targetedActor = targetedActorUuid ? fromUuidSync(targetedActorUuid) : undefined
+  const originUuid = chatMessage.flags.pf2e.origin?.uuid
+  const originItem = originUuid ? fromUuidSync(originUuid) : undefined
+  const allModifiersInChatMessage = chatMessage.flags.pf2e.modifiers
+  /*
+  NOTE - from this point on, I use the term "modifier" or "mod" to refer to conditions/effects/feats that have granted
+  a bonus or penalty to the roll or to the DC the roll was against.  I will filter rollMods and dcMods to only include
+  relevant non-ignored modifiers, and then calculate which modifiers actually made a significant impact on the outcome.
 
-  const conMods = chatMessage.flags.pf2e.modifiers
-    // enabled is false for one of the conditions if it can't stack with others
-    .filter(m => m.enabled && !m.ignored && !IGNORED_MODIFIER_LABELS.includes(m.label))
-    // ignoring all "form" spells that replace your attack bonus
-    .filter(m => !(attackIsAgainstAc && m.slug.endsWith('-form')))
-    // ignoring Doubling Rings which are basically a permanent item bonus
-    .filter(m => !m.slug.startsWith('doubling-rings'))
-    // for saving throws, ignore item bonuses that come from armor, they're Resilient runes
-    .filter(m => !(
-      !attackIsAgainstAc
-      && m.type === 'item'
-      // comparing the modifier label to the name of the rolling actor's Armor item
-      && rollingActor?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
-      // matching roll type to "Xxxx Saving Throw", trying to make it work for all languages
-      && chatMessage.flags.pf2e.modifierName.match(
-        game.i18n.localize('PF2E.SavingThrowWithName').replace('{saveName}', '.'))
-    ))
-  const targetAcConditions = (attackIsAgainstAc && targetedToken !== undefined) ? acConsOfToken(targetedToken,
-    isFlanking) : []
-  const conModsPositiveTotal = conMods.filter(modifierPositive).reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions).filter(valueNegative).reduce(sumReducerAcConditions, 0)
-  const conModsNegativeTotal = conMods.filter(modifierNegative).reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions).filter(valuePositive).reduce(sumReducerAcConditions, 0)
+  The "modifier" objects in these lists are generally ModifierPf2e class objects, which have a "label", a "type", and
+  a "modifier" field (their signed numerical value).
+   */
+  const rollMods = rollModsFromChatMessage(allModifiersInChatMessage, rollingActor, dcSlug)
+  let dcMods
+  let actorWithDc
+  if (isStrike && targetedActor) {
+    actorWithDc = targetedActor
+    dcMods = dcModsOfStatistic(targetedActor.system.attributes.ac, actorWithDc)
+    if (isFlanking) {
+      dcMods.push(getFlankingAcMod())
+    }
+    dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(m.label))
+  } else if (isSpell) {
+    // if saving against spell, DC is the Spellcasting DC which means it's affected by stuff like Frightened or Stupefied
+    actorWithDc = originItem.actor
+    dcMods = dcModsOfStatistic(originItem.spellcasting.statistic.dc, actorWithDc)
+  } else if (targetedActor && dcSlug) {
+    // if there's a target, but it's not an attack, then it's probably a skill check against one of the target's
+    // save DCs or perception DC or possibly a skill DC
+    actorWithDc = targetedActor
+    const dcStatistic = targetedActor.saves[dcSlug] || targetedActor.skills[dcSlug] || targetedActor[dcSlug]
+    // dcStatistic should always be defined.  (otherwise it means I didn't account for all cases here!)
+    dcMods = dcModsOfStatistic(dcStatistic.dc, actorWithDc)
+  } else {
+    // happens if e.g. rolling from a @Check style button
+    dcMods = []
+  }
 
-  // wouldChangeOutcome(x) returns true if a bonus of x ("penalty" if x is negative) changes the degree of success
+  /**
+   * wouldChangeOutcome(x) returns true if a bonus of x ("penalty" if x is negative) changes the degree of success
+   */
   const wouldChangeOutcome = (extra) => {
     const newDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc + extra, dieRoll)
     return newDegreeOfSuccess !== currentDegreeOfSuccess &&
       !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, newDegreeOfSuccess, isStrike)
   }
 
-  const positiveConditionsChangedOutcome = wouldChangeOutcome(-conModsPositiveTotal)
-  const negativeConditionsChangedOutcome = wouldChangeOutcome(-conModsNegativeTotal)
-  // sum of condition modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
-  const conModsNecessaryPositiveTotal = conMods.filter(m => modifierPositive(m) && wouldChangeOutcome(-m.modifier)).
-      reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions).
-      filter(m => valueNegative(m) && wouldChangeOutcome(m.value)).
-      reduce(sumReducerAcConditions, 0)
-  const conModsNecessaryNegativeTotal = conMods.filter(m => modifierNegative(m) && wouldChangeOutcome(-m.modifier)).
-      reduce(sumReducerMods, 0)
-    - acModsFromCons(targetAcConditions).
-      filter(m => valuePositive(m) && wouldChangeOutcome(m.value)).
-      reduce(sumReducerAcConditions, 0)
-// sum of all other condition modifiers.  if this sum's changing does not affect the outcome it means conditions were unnecessary
-  const remainingPositivesChangedOutcome = wouldChangeOutcome(-(conModsPositiveTotal - conModsNecessaryPositiveTotal))
-  const remainingNegativesChangedOutcome = wouldChangeOutcome(-(conModsNegativeTotal - conModsNecessaryNegativeTotal))
+  const positiveRollMods = rollMods.filter(modifierPositive)
+  const negativeRollMods = rollMods.filter(modifierNegative)
+  const positiveDcMods = dcMods.filter(modifierPositive)
+  const negativeDcMods = dcMods.filter(modifierNegative)
+  const necessaryPositiveRollMods = positiveRollMods.filter(m => wouldChangeOutcome(-m.modifier))
+  const necessaryNegativeRollMods = negativeRollMods.filter(m => wouldChangeOutcome(-m.modifier))
+  const necessaryPositiveDcMods = positiveDcMods.filter(m => wouldChangeOutcome(m.modifier))
+  const necessaryNegativeDcMods = negativeDcMods.filter(m => wouldChangeOutcome(m.modifier))
+  const rollModsPositiveTotal = sumMods(positiveRollMods) - sumMods(negativeDcMods)
+  const rollModsNegativeTotal = sumMods(negativeRollMods) - sumMods(positiveDcMods)
+  // sum of modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
+  const rollModsNecessaryPositiveTotal = sumMods(necessaryPositiveRollMods) - sumMods(necessaryPositiveDcMods)
+  const rollModsNecessaryNegativeTotal = sumMods(necessaryNegativeRollMods) - sumMods(necessaryNegativeDcMods)
+  // sum of all other modifiers.  if this sum's changing does not affect the outcome it means modifiers were unnecessary
+  const rollModsRemainingPositiveTotal = rollModsPositiveTotal - rollModsNecessaryPositiveTotal
+  const rollModsRemainingNegativeTotal = rollModsNegativeTotal - rollModsNecessaryNegativeTotal
+  // based on the above sums and the following booleans, we can determine which modifiers were significant and how much
+  const didPositiveModifiersChangeOutcome = wouldChangeOutcome(-rollModsPositiveTotal)
+  const didNegativeModifiersChangeOutcome = wouldChangeOutcome(-rollModsNegativeTotal)
+  const didRemainingPositivesChangeOutcome = wouldChangeOutcome(-rollModsRemainingPositiveTotal)
+  const didRemainingNegativesChangeOutcome = wouldChangeOutcome(-rollModsRemainingNegativeTotal)
 
-  // utility, because this calculation is done multiple times but requires a bunch of calculated variables
   const calcSignificance = (modifierValue) => {
     const isNegativeMod = modifierValue < 0
     const isPositiveMod = modifierValue > 0
     const changedOutcome = wouldChangeOutcome(-modifierValue)
     if (isPositiveMod && changedOutcome)
       return SIGNIFICANCE.ESSENTIAL
-    if (isPositiveMod && !changedOutcome && positiveConditionsChangedOutcome && remainingPositivesChangedOutcome)
+    if (isPositiveMod && !changedOutcome && didPositiveModifiersChangeOutcome && didRemainingPositivesChangeOutcome)
       return SIGNIFICANCE.HELPFUL
     if (isNegativeMod && changedOutcome)
       return SIGNIFICANCE.HARMFUL
-    if (isNegativeMod && !changedOutcome && negativeConditionsChangedOutcome && remainingNegativesChangedOutcome)
+    if (isNegativeMod && !changedOutcome && didNegativeModifiersChangeOutcome && didRemainingNegativesChangeOutcome)
       return SIGNIFICANCE.DETRIMENTAL
     return SIGNIFICANCE.NONE
   }
-
   const significantModifiers = []
-
-  const oldFlavor = chatMessage.flavor
-  // adding an artificial div to have a single parent element, enabling nicer editing of html
-  const $editedFlavor = $(`<div>${oldFlavor}</div>`)
-  conMods.forEach(m => {
+  rollMods.forEach(m => {
     const modVal = m.modifier
     const significance = calcSignificance(modVal)
     if (significance === SIGNIFICANCE.NONE) return
     significantModifiers.push({
+      appliedTo: 'roll',
       name: m.label,
       value: modVal,
       significance: significance,
     })
-    const outcomeChangeColor = COLOR_BY_SIGNIFICANCE[significance]
-    const modifierValueStr = (modVal < 0 ? '' : '+') + modVal
+  })
+  dcMods.forEach(m => {
+    const modVal = m.modifier
+    const significance = calcSignificance(-modVal)
+    significantModifiers.push({
+      appliedTo: 'dc',
+      name: m.label,
+      value: modVal,
+      significance: significance,
+    })
+  })
+
+  const oldFlavor = chatMessage.flavor
+  // adding an artificial div to have a single parent element, enabling nicer editing of html
+  const $editedFlavor = $(`<div>${oldFlavor}</div>`)
+  significantModifiers.filter(m => m.appliedTo === 'roll').forEach(m => {
+    const modVal = m.value
+    const modName = m.name
+    const modSignificance = m.significance
+    if (modSignificance === SIGNIFICANCE.NONE) return
+    const outcomeChangeColor = COLOR_BY_SIGNIFICANCE[modSignificance]
+    const modValStr = (modVal < 0 ? '' : '+') + modVal
     // edit background color for full tags
-    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValueStr}).tag_alt`).
+    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_alt`).
       css('background-color', outcomeChangeColor)
     // edit background+text colors for transparent tags, which have dark text by default
-    $editedFlavor.find(`span.tag:contains(${m.label} ${modifierValueStr}).tag_transparent`).
+    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_transparent`).
       css('color', outcomeChangeColor).
       css('font-weight', 'bold')
   })
-  const acFlavorSuffix = targetAcConditions.map(c => {
-    const modVal = c.modifiers.filter(isAcMod).reduce(sumReducerAcConditions, -0)
-    const significance = calcSignificance(-modVal)
-    let outcomeChangeColor = COLOR_BY_SIGNIFICANCE[significance]
-    if (significance === SIGNIFICANCE.NONE) {
-      if (!getSetting('always-show-defense-conditions', false)) {
-        return undefined
-      }
-    } else {
-      significantModifiers.push({
-        name: c.name,
-        value: modVal,
-        significance: significance,
-      })
-    }
-    const modifierValue = (modVal < 0 ? '' : '+') + modVal
-    const modifierName = c.name
-    return `<span style="color: ${outcomeChangeColor}">${modifierName} ${modifierValue}</span>`
-  }).filter(s => s !== undefined).join(', ')
-  if (acFlavorSuffix) {
-    insertAcFlavorSuffix($editedFlavor, acFlavorSuffix)
+  const dcFlavorSuffixHtmls = []
+  significantModifiers.filter(m => m.appliedTo === 'dc').forEach(m => {
+    const modVal = m.value
+    const modName = m.name
+    const modSignificance = m.significance
+    if (modSignificance === SIGNIFICANCE.NONE)
+      if (!(isStrike && getSetting('always-show-defense-conditions', false)))
+        return
+    const outcomeChangeColor = COLOR_BY_SIGNIFICANCE[modSignificance]
+    // remove number from end of name, because it's better to see "Frightened (-3)" than "Frightened 3 (-3)"
+    const modNameNoNum = modName.match(/.* \d+/) ? modName.substring(0, modName.lastIndexOf(' ')) : modName
+    const modValStr = (modVal < 0 ? '' : '+') + modVal
+    dcFlavorSuffixHtmls.push(`<span style="color: ${outcomeChangeColor}">${modNameNoNum} ${modValStr}</span>`)
+  })
+  const dcFlavorSuffix = dcFlavorSuffixHtmls.join(', ')
+  if (dcFlavorSuffix) {
+    // dcActorType is only used to make the string slightly more fitting
+    const dcActorType = targetedActor ? 'target' : isSpell ? 'caster' : 'actor'
+    insertDcFlavorSuffix($editedFlavor, dcFlavorSuffix, dcActorType)
   }
   // newFlavor will be the inner HTML without the artificial div
   const newFlavor = $editedFlavor.html()
@@ -429,6 +490,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   if (significantModifiers.length > 0) {
     Hooks.callAll('modifiersMatter', {
       rollingActor,
+      actorWithDc, // can be undefined
       targetedToken, // can be undefined
       significantModifiers, // list of: {name: string, value: number, significance: string}
       chatMessage,

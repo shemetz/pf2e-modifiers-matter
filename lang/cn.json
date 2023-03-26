@@ -19,6 +19,8 @@
       }
     },
     "Message": {
+      "CasterHas": "Caster has:",
+      "ActorHas": "Actor has:",
       "TargetHas": "目标具有:"
     },
     "IgnoredModifiers": {
