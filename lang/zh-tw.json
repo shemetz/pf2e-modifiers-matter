@@ -1,0 +1,38 @@
+{
+  "pf2e-modifiers-matter": {
+    "Settings": {
+      "show-defense-highlights-to-everyone": {
+        "name": "將防禦高光點展示給所有人",
+        "hint": "若啟用，防禦高光點比如像\"措手不及 -2\"會展示給所有人看（而不是僅GM）。"
+      },
+      "always-show-defense-conditions": {
+        "name": "永遠顯示防禦狀態",
+        "hint": "若啟動，防禦高光點比如像\"措手不及 -2\"會被一直顯示，即使他們不影響結果。"
+      },
+      "ignore-crit-fail-over-fail-on-attacks": {
+        "name": "不區分攻擊時的大失敗和失敗",
+        "hint": "若啟用，模組不會高光那些讓失敗變為大失敗的效果（因為這兩者在攻擊的情境下絕大多數時候沒有什麼差別）。"
+      },
+      "additional-ignored-labels": {
+        "name": "額外忽略標籤",
+        "hint": "輸入文字，以分號隔開（;），這些調整值會被忽略。如果你覺得有些調整值應該預設就該被忽略，請在Discord或Github提出你的建議。"
+      }
+    },
+    "Message": {
+      "CasterHas": "Caster has:",
+      "ActorHas": "Actor has:",
+      "TargetHas": "目標具有:"
+    },
+    "IgnoredModifiers": {
+      "DeviseAStratagem": "出謀劃策",
+      "HuntersEdgeFlurry1": "獵手優勢：連擊",
+      "HuntersEdgeFlurry2": "連擊",
+      "HuntersEdgeFlurry3": "效果：獵手優勢：連擊",
+      "BattleForm1": "生界化生",
+      "BattleForm2": "Form of the Sandpoint Devil",
+      "BattleForm3": "元素具身",
+      "BattleForm4": "天神下凡",
+      "DrakeheartMutagen": "龍獸之心突變藥劑"
+    }
+  }
+}
