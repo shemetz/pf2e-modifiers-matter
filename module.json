@@ -28,6 +28,12 @@
       "name": "Français",
       "path": "lang/fr.json",
       "flags": {}
+    },
+    {
+      "lang": "zh-tw",
+      "name": "正體中文",
+      "path": "lang/zh-tw.json",
+      "flags": {}
     }
   ],
   "url": "https://github.com/shemetz/pf2e-modifiers-matter",
