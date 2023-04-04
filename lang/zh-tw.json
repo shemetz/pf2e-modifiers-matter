@@ -19,8 +19,8 @@
       }
     },
     "Message": {
-      "CasterHas": "Caster has:",
-      "ActorHas": "Actor has:",
+      "CasterHas": "施法者有:",
+      "ActorHas": "角色具有:",
       "TargetHas": "目標具有:"
     },
     "IgnoredModifiers": {
