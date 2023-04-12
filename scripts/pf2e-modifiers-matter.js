@@ -336,7 +336,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const targetedActorUuid = chatMessage.flags.pf2e.context.target?.actor
   const targetedToken = targetedTokenUuid ? fromUuidSync(targetedTokenUuid) : undefined
   // targetedActorUuid will return the TOKEN uuid if it's an unlinked token!  so, we're probably going to ignore it
-  const targetedActor = targetedToken.actor ? targetedToken.actor
+  const targetedActor = targetedToken?.actor ? targetedToken.actor
     : targetedActorUuid ? fromUuidSync(targetedActorUuid)
       : undefined
   const originUuid = chatMessage.flags.pf2e.origin?.uuid
