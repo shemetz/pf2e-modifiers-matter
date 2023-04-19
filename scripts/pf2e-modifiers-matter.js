@@ -176,19 +176,9 @@ const getShieldAcCondition = (targetedActor) => {
 const getFlankingAcMod = () => {
   const systemFlatFootedCondition = game.pf2e.ConditionManager.getCondition('flat-footed')
   return {
-    // TODO - name or label?
-    name: systemFlatFootedCondition.name,
     label: systemFlatFootedCondition.name,
     modifier: -2,
     type: 'circumstance',
-    // TODO - do I even still need this sub-list thing?
-    modifiers: [
-      {
-        group: 'ac',
-        type: 'circumstance',
-        value: -2,
-      },
-    ],
   }
 }
 const dcModsOfStatistic = (dcStatistic, actorWithDc) => {
@@ -356,8 +346,9 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   if (isStrike && targetedActor) {
     actorWithDc = targetedActor
     dcMods = dcModsOfStatistic(targetedActor.system.attributes.ac, actorWithDc)
-    if (isFlanking) {
-      dcMods.push(getFlankingAcMod())
+    const flankingMod = getFlankingAcMod()
+    if (isFlanking && !dcMods.some(m => m.label === flankingMod.label)) {
+      dcMods.push(flankingMod)
     }
     dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(m.label))
   } else if (isSpell) {
