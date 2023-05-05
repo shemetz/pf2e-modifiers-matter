@@ -105,6 +105,10 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.SpellPotency2`,
     `${MODULE_ID}.IgnoredModifiers.SkillPotency1`,
     `${MODULE_ID}.IgnoredModifiers.SkillPotency2`,
+    // compatibility with a module, pf2e-flatten, which adds modifiers to match the PWoL variants.
+    // https://github.com/League-of-Foundry-Developers/pf2e-flatten/blob/main/bundle.js#L41
+    'Proficiency Without Level',
+    '1/2 Level Proficiency',
   ]
   IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).
     concat(getSetting('additional-ignored-labels').split(';'))
