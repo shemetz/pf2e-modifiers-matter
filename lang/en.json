@@ -38,6 +38,10 @@
       "BattleForm3": "Element Embodied",
       "BattleForm4": "Avatar",
       "DrakeheartMutagen": "Drakeheart Mutagen"
+    },
+    "IgnoredModifiers3p": {
+      "pf2e-flatten_pwol": "Proficiency Without Level",
+      "pf2e-flatten_pwol_half": "1/2 Level Proficiency"
     }
   }
 }

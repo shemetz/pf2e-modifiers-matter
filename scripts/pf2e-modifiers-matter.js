@@ -107,11 +107,11 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.SkillPotency2`,
     // compatibility with a module, pf2e-flatten, which adds modifiers to match the PWoL variants.
     // https://github.com/League-of-Foundry-Developers/pf2e-flatten/blob/main/bundle.js#L41
-    'Proficiency Without Level',
-    '1/2 Level Proficiency',
+    `${MODULE_ID}.IgnoredModifiers3p.pf2e-flatten_pwol`,
+    `${MODULE_ID}.IgnoredModifiers3p.pf2e-flatten_pwol_half`,
   ]
-  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).
-    concat(getSetting('additional-ignored-labels').split(';'))
+  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
+    .concat(getSetting('additional-ignored-labels').split(';'))
   IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = [
     // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
     // however, this effect also has other modifiers which I don't want to ignore.
@@ -450,12 +450,11 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     const outcomeChangeColor = COLOR_BY_SIGNIFICANCE[modSignificance]
     const modValStr = (modVal < 0 ? '' : '+') + modVal
     // edit background color for full tags
-    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_alt`).
-      css('background-color', outcomeChangeColor)
+    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_alt`).css('background-color', outcomeChangeColor)
     // edit background+text colors for transparent tags, which have dark text by default
-    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_transparent`).
-      css('color', outcomeChangeColor).
-      css('font-weight', 'bold')
+    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_transparent`)
+      .css('color', outcomeChangeColor)
+      .css('font-weight', 'bold')
   })
   const dcFlavorSuffixHtmls = []
   significantModifiers.filter(m => m.appliedTo === 'dc').forEach(m => {
