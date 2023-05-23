@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.5] - 2023-05-23
+- Fixed "localization" of a 3p module string
+
 ## [1.7.4] - 2023-05-05
 - Added "Proficiency Without Level" string to ignored modifiers list, to be more compatible with pf2e-flatten
 
@@ -165,4 +168,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.7.2]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.1...1.7.2
 [1.7.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.2...1.7.3
 [1.7.4]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.3...1.7.4
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.4...HEAD
+[1.7.5]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.4...1.7.5
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.5...HEAD
