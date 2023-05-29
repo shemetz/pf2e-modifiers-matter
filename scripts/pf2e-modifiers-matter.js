@@ -323,7 +323,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
   // noinspection JSDeprecatedSymbols (String.strike is irrelevant, IntelliJ!)
   const dcSlug = chatMessage.flags.pf2e.context.dc.slug
-  const isStrike = dcSlug === 'ac'
+  const isStrike = dcSlug === 'ac' || dcSlug === 'armor'
   const isSpell = chatMessage.flags.pf2e.origin?.type === 'spell'
   const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
   const targetedTokenUuid = chatMessage.flags.pf2e.context.target?.token
