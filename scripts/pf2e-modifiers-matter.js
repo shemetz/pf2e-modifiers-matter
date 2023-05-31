@@ -120,63 +120,8 @@ const initializeIgnoredModifiers = () => {
 }
 
 const sumMods = (modsList) => modsList.reduce((accumulator, curr) => accumulator + curr.modifier, 0)
-const sumReducerAcConditions = (accumulator, curr) => accumulator + curr.value
-const isAcMod = m => m.group === 'ac' || m.group === 'all'
-const valuePositive = m => m.value > 0
-const valueNegative = m => m.value < 0
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
-const acModOfCon = i => i.modifiers?.find(isAcMod)
-const convertAcModifier = m => {
-  if (!m.enabled && m.ignored) return m
-  return {
-    name: m.label,
-    modifiers: [
-      {
-        group: 'ac',
-        type: m.type,
-        value: m.modifier,
-      },
-    ],
-  }
-}
-const convertSpellDcModifier = m => {
-  if (!m.enabled && m.ignored) return undefined
-  return {
-    name: m.label,
-    modifiers: [
-      {
-        type: m.type,
-        value: m.modifier,
-      },
-    ],
-  }
-}
-const convertStatisticDcModifier = m => {
-  return {
-    name: m.label,
-    modifiers: [
-      {
-        type: m.type,
-        value: m.modifier,
-      },
-    ],
-  }
-}
-const getShieldAcCondition = (targetedActor) => {
-  const raisedShieldModifier = targetedActor.getShieldBonus()
-  if (raisedShieldModifier) return {
-    name: raisedShieldModifier.label,
-    modifiers: [
-      {
-        group: 'ac',
-        type: raisedShieldModifier.type,
-        value: raisedShieldModifier.modifier,
-      },
-    ],
-  }
-}
-
 const getFlankingAcMod = () => {
   const systemFlatFootedCondition = game.pf2e.ConditionManager.getCondition('flat-footed')
   return {
@@ -207,7 +152,8 @@ const rollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType)
     // ignoring standard things from list (including user-defined)
     .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus
-    .filter(m => !(dcType === 'ac' && m.slug.endsWith('-form')))
+    // it changed from 'ac' to 'armor' in pf2e v4.12
+    .filter(m => !((dcType === 'ac' || dcType === 'armor') && m.slug.endsWith('-form')))
     // for attacks/skills, ignore Doubling Rings which are basically a permanent item bonus
     .filter(m => !m.slug.startsWith('doubling-rings'))
     // TODO - ignore item bonuses that are permanent (mostly skill items)
@@ -323,7 +269,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
   // noinspection JSDeprecatedSymbols (String.strike is irrelevant, IntelliJ!)
   const dcSlug = chatMessage.flags.pf2e.context.dc.slug
-  const isStrike = dcSlug === 'ac' || dcSlug === 'armor'
+  const isStrike = dcSlug === 'ac' || dcSlug === 'armor'  // it changed from 'ac' to 'armor' in pf2e v4.12
   const isSpell = chatMessage.flags.pf2e.origin?.type === 'spell'
   const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
   const targetedTokenUuid = chatMessage.flags.pf2e.context.target?.token
