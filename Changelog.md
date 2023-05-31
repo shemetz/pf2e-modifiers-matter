@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.6] - 2023-05-31
+- Fixed armor/ac error for pf2e v4.12 (#23 and #22, see PR #24, thanks @adyoungblood!)
+
 ## [1.7.5] - 2023-05-23
 - Fixed "localization" of a 3p module string
 
@@ -132,6 +135,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  
 ## [0.1.0] - 2021-10-30
 - Created the module
+- (Thanks Sionth#5174 for coming up with a name!)
 
 ## See also: [Unreleased]
 
@@ -169,4 +173,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.7.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.2...1.7.3
 [1.7.4]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.3...1.7.4
 [1.7.5]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.4...1.7.5
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.5...HEAD
+[1.7.6]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.5...1.7.6
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.6...HEAD
