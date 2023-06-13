@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.7.6] - 2023-05-31
 - Fixed armor/ac error for pf2e v4.12 (#23 and #22, see PR #24, thanks @adyoungblood!)
+- 1.7.7 - marked as compatible with V11 
 
 ## [1.7.5] - 2023-05-23
 - Fixed "localization" of a 3p module string
