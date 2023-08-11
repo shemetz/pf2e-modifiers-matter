@@ -122,10 +122,11 @@ const initializeIgnoredModifiers = () => {
 const sumMods = (modsList) => modsList.reduce((accumulator, curr) => accumulator + curr.modifier, 0)
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
+const offGuardSlug = (game.system.version < '5.3.0') ? 'flat-footed' : 'off-guard'
 const getFlankingAcMod = () => {
-  const systemFlatFootedCondition = game.pf2e.ConditionManager.getCondition('flat-footed')
+  const systemOffGuardCondition = game.pf2e.ConditionManager.getCondition(offGuardSlug)
   return {
-    label: systemFlatFootedCondition.name,
+    label: systemOffGuardCondition.name,
     modifier: -2,
     type: 'circumstance',
   }
