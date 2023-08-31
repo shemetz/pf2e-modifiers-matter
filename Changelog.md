@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.8] - 2023-09-01
+- Fixed compatibility with Pathfinder 5.3.x+ (#26, #28, thanks @surged20)
+- Improved text for flanked condition
+
 ## [1.7.6] - 2023-05-31
 - Fixed armor/ac error for pf2e v4.12 (#23 and #22, see PR #24, thanks @adyoungblood!)
 - 1.7.7 - marked as compatible with V11 
@@ -175,4 +179,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.7.4]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.3...1.7.4
 [1.7.5]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.4...1.7.5
 [1.7.6]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.5...1.7.6
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.6...HEAD
+[1.7.7]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.6...1.7.7
+[1.7.8]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.7...1.7.8
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.8...HEAD

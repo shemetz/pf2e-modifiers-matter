@@ -52,7 +52,7 @@ being the only one essential for the change - the unnecessary effect will not be
 
 The module will also display similar status effect consequences when they apply to enemies' AC when making attacks
 against them. This will add new text to the card (a setting exists to show or hide it from players). For example, it
-will show up when an attack roll of 15 would normally miss the AC 16 goblin, except the goblin was flat-footed and had
+will show up when an attack roll of 15 would normally miss the AC 16 goblin, except the goblin was off-guard and had
 its AC reduced to 14.
 
 (also note that this will treat missed attacks and critically missed attacks as usual, meaning sometimes you'll see that
@@ -73,7 +73,8 @@ Ezren is attacking the skeleton with a stick. They both have a lot of effects on
 
 ![](metadata/example_1.png)
 
-Here you can see that the attack ended up as a critical hit (because total >= DC + 10). The flat-footed condition that
+Here you can see that the attack ended up as a critical hit (because total >= DC + 10). The off-guard condition (previously
+named the "Flat-Footed" condition) that
 was applied to the skeleton has been crucial to get this outcome; the other three buffs (frightened skeleton, assisting
 shot, bless)
 were useful but only two of were needed (any two).
@@ -103,7 +104,7 @@ whatsoever.
 
 ## Did the UI change?
 
-The PF2e UI is changing often (which is a good thing!) and that means the screenshots above are incorrect.
+The PF2e UI is changing often (which is a good thing!), as do some terms like "Flat-Footed", and that means the screenshots above are incorrect.
 
 Here's what the UI looks like, as of v1.4.5:
 
