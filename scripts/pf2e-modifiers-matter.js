@@ -122,8 +122,8 @@ const initializeIgnoredModifiers = () => {
 const sumMods = (modsList) => modsList.reduce((accumulator, curr) => accumulator + curr.modifier, 0)
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
-const offGuardSlug = (game.system.version < '5.3.0') ? 'flat-footed' : 'off-guard'
-const getFlankingAcMod = () => {
+const getOffGuardAcMod = () => {
+  const offGuardSlug = isNewerVersion(game.version, '5.3') ? 'off-guard' : 'flat-footed'
   const systemOffGuardCondition = game.pf2e.ConditionManager.getCondition(offGuardSlug)
   return {
     label: systemOffGuardCondition.name,
@@ -235,7 +235,7 @@ const shouldIgnoreStrikeCritFailToFail = (oldDOS, newDOS, isStrike) => {
 }
 
 /**
- * dcFlavorSuffix will be e.g. 'Flatfooted -2, Frightened -1'
+ * dcFlavorSuffix will be e.g. 'Off-Guard -2, Frightened -1'
  */
 const insertDcFlavorSuffix = ($flavorText, dcFlavorSuffix, dcActorType) => {
   const showDefenseHighlightsToEveryone = getSetting('show-defense-highlights-to-everyone')
@@ -272,7 +272,6 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const dcSlug = chatMessage.flags.pf2e.context.dc.slug
   const isStrike = dcSlug === 'ac' || dcSlug === 'armor'  // it changed from 'ac' to 'armor' in pf2e v4.12
   const isSpell = chatMessage.flags.pf2e.origin?.type === 'spell'
-  const isFlanking = chatMessage.flags.pf2e.context.options.includes('self:flanking')
   const targetedTokenUuid = chatMessage.flags.pf2e.context.target?.token
   const targetedActorUuid = chatMessage.flags.pf2e.context.target?.actor
   const targetedToken = targetedTokenUuid ? fromUuidSync(targetedTokenUuid) : undefined
@@ -297,9 +296,16 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   if (isStrike && targetedActor) {
     actorWithDc = targetedActor
     dcMods = dcModsOfStatistic(targetedActor.system.attributes.ac, actorWithDc)
-    const flankingMod = getFlankingAcMod()
-    if (isFlanking && !dcMods.some(m => m.label === flankingMod.label)) {
-      dcMods.push(flankingMod)
+    const offGuardMod = getOffGuardAcMod()
+    const isOffGuard = chatMessage.flags.pf2e.context.options.includes('target:condition:off-guard')
+    const isFlanking = isNewerVersion(game.version, '5.3')
+      ? (isOffGuard && !targetedActor.hasCondition('off-guard')) // flanking gives an ephemeral effect
+      : chatMessage.flags.pf2e.context.options.includes('self:flanking')
+    if ((isFlanking || isOffGuard) && !dcMods.some(m => m.label === offGuardMod.label)) {
+      if (isFlanking) {
+        offGuardMod.label = game.i18n.localize('PF2E.Item.Condition.Flanked')
+      }
+      dcMods.push(offGuardMod)
     }
     dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(m.label))
   } else if (isSpell) {
