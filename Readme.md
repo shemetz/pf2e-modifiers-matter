@@ -48,7 +48,7 @@ either of them would have helped you land your attack, but no one of them was ne
 be "partially" highlighted. If an effect was definitely not necessary for the change in outcome - due to another effect
 being the only one essential for the change - the unnecessary effect will not be colored at all.
 
-## Extra - AC conditions
+### AC conditions
 
 The module will also display similar status effect consequences when they apply to enemies' AC when making attacks
 against them. This will add new text to the card (a setting exists to show or hide it from players). For example, it
@@ -57,11 +57,21 @@ its AC reduced to 14.
 
 (also note that this will treat missed attacks and critically missed attacks as usual, meaning sometimes you'll see that
 a condition turned a miss into a critical miss even when you don't care about it. This is because some game mechanics
-may interact with missed versus critically missed attacks - for example: Dueling Riposte, Confident Finisher)
+may interact with missed versus critically missed attacks - for example: Dueling Riposte, Confident Finisher.  You can change
+this behavior in the settings, but it isn't per-character.)
 
-Sadly, I've not been able to show how similar status effects change the DC of spells, or the fortitude/reflex/will DCs
-of creatures. I am also unable to do this with all Rule Elements (though I managed some basics like Cover). This will
-hopefully be an upcoming feature.
+### Spellcasting DC conditions, Class DC conditions
+
+Spellcasting DC is fully supported - for example, if you successfuly save against a stupefied wizard's fireball, you'll
+know that the stupefied condition mattered.
+
+Class DC is *mostly* supported.  It should work when the embedded save button appears directly inside the posted item's
+chat message; for example, if your kineticist is Drained and is using Hail of Splinters, the module will highlight a
+success that happened only due to that debuff.
+
+However, class DC (and other DCs) are **not supported if they appear in a Note**;  that is, if the check button they
+create is in text that is appended to an attack, damage, or similar chat message.  For example, the Monk's Stunning Fist
+won't properly have highlights with this module.  (This issue is a PF2E system problem:  See https://github.com/foundryvtt/pf2e/issues/9824)
 
 ## Examples
 

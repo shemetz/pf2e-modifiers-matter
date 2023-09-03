@@ -1,8 +1,7 @@
 const MODULE_ID = 'pf2e-modifiers-matter'
-// TODO - currently impossible, but in the future may be possible to react to effects that change class-based DCs.
-// for example, the Monk's Stunning Fist currently just creates a clickable @Check button, but when that button is
-// pressed, the result roll captured in this code has no identifies related to the monk or the monk's attack/feat,
-// other than { "label": "Fist DC", "value": 18 } plus a hundred minor flags (none have any of these IDs).
+// TODO - currently impossible, but in the future may be possible to react to effects that change embedded DCs in Note rule elements.
+// See:  https://github.com/foundryvtt/pf2e/issues/9824
+// for example, the Monk's Stunning Fist uses a Class DC but this module won't recognize modifiers to that DC in this situation.
 
 // Helpful for testing - replace random dice roller with 1,2,3,4....19,20 by putting this in the console:
 /*
@@ -311,9 +310,14 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     }
     dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(m.label))
   } else if (isSpell) {
-    // if saving against spell, DC is the Spellcasting DC which means it's affected by stuff like Frightened or Stupefied
+    // if saving against spell, DC is the Spellcasting DC which means it's affected by stuff like Frightened and Stupefied
     actorWithDc = originItem.actor
     dcMods = dcModsOfStatistic(originItem.spellcasting.statistic.dc, actorWithDc)
+  } else if (originItem?.category === "class") {
+    // if saving against a class feat/feature, DC is the Class DC which means it's affected by stuff like Frightened and Enfeebled/Drained/etc, depending
+    // NOTE:  this will not work for embedded Check buttons that come from Note REs.  see https://github.com/foundryvtt/pf2e/issues/9824
+    actorWithDc = originItem.actor
+    dcMods = dcModsOfStatistic(originItem.parent.classDC, actorWithDc)
   } else if (targetedActor && dcSlug) {
     // if there's a target, but it's not an attack, then it's probably a skill check against one of the target's
     // save DCs or perception DC or possibly a skill DC
