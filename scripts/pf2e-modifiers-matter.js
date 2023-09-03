@@ -79,6 +79,7 @@ const initializeIgnoredModifiers = () => {
     'PF2E.AbilityWis',
     'PF2E.AbilityCha',
     'PF2E.PotencyRuneLabel',
+    'PF2E.RuleElement.WeaponPotency',
     'PF2E.AutomaticBonusProgression.attackPotency',
     'PF2E.AutomaticBonusProgression.defensePotency',
     'PF2E.AutomaticBonusProgression.savePotency',
@@ -297,6 +298,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     actorWithDc = targetedActor
     dcMods = dcModsOfStatistic(targetedActor.system.attributes.ac, actorWithDc)
     const offGuardMod = getOffGuardAcMod()
+    // TODO: maybe simplify after next pf2e release, when `self.flanking` is coming back
     const isOffGuard = chatMessage.flags.pf2e.context.options.includes('target:condition:off-guard')
     const isFlanking = isNewerVersion(game.version, '5.3')
       ? (isOffGuard && !targetedActor.hasCondition('off-guard')) // flanking gives an ephemeral effect
