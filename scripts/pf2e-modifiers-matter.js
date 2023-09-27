@@ -309,11 +309,12 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       dcMods.push(offGuardMod)
     }
     dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(m.label))
-  } else if (isSpell) {
+  } else if (isSpell && !!originItem) {
+    // (note:  originItem will be undefined in the rare case of a message created through a module like Quick Send To Chat)
     // if saving against spell, DC is the Spellcasting DC which means it's affected by stuff like Frightened and Stupefied
     actorWithDc = originItem.actor
     dcMods = dcModsOfStatistic(originItem.spellcasting.statistic.dc, actorWithDc)
-  } else if (originItem?.category === "class") {
+  } else if (originItem?.category === 'class') {
     // if saving against a class feat/feature, DC is the Class DC which means it's affected by stuff like Frightened and Enfeebled/Drained/etc, depending
     // NOTE:  this will not work for embedded Check buttons that come from Note REs.  see https://github.com/foundryvtt/pf2e/issues/9824
     actorWithDc = originItem.actor
