@@ -262,7 +262,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const rollingActor = game.actors.get(chatMessage.flags.pf2e.context.actor)
   // here I assume the PF2E system always includes the d20 roll as the first roll!  and as the first term of that roll!
   const roll = chatMessage.rolls[0]
-  const rollTotal = parseInt(chatMessage.content || roll.total.toString())
+  const rollTotal = roll?.total !== undefined ? roll.total : parseInt(chatMessage.content)
   const rollDc = chatMessage.flags.pf2e.context.dc.value
   const deltaFromDc = rollTotal - rollDc
   // using roll.terms[0].total will work when rolling 1d20+9, or 2d20kh+9 (RollTwice RE), or 10+9 (SubstituteRoll RE)
@@ -402,6 +402,11 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const oldFlavor = chatMessage.flavor
   // adding an artificial div to have a single parent element, enabling nicer editing of html
   const $editedFlavor = $(`<div>${oldFlavor}</div>`)
+  // remove old highlights, in case of a reroll within the same message
+  $editedFlavor.find('.pf2e-modifiers-matter-highlight')
+    .css('color', '')
+    .css('font-weight', '')
+    .removeClass('pf2e-modifiers-matter-highlight')
   significantModifiers.filter(m => m.appliedTo === 'roll').forEach(m => {
     const modVal = m.value
     const modName = m.name
@@ -410,11 +415,13 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     const outcomeChangeColor = COLOR_BY_SIGNIFICANCE[modSignificance]
     const modValStr = (modVal < 0 ? '' : '+') + modVal
     // edit background color for full tags
-    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_alt`).css('background-color', outcomeChangeColor)
+    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_alt`)
+      .css('background-color', outcomeChangeColor)
     // edit background+text colors for transparent tags, which have dark text by default
     $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_transparent`)
       .css('color', outcomeChangeColor)
       .css('font-weight', 'bold')
+      .addClass('pf2e-modifiers-matter-highlight')
   })
   const dcFlavorSuffixHtmls = []
   significantModifiers.filter(m => m.appliedTo === 'dc').forEach(m => {
@@ -428,9 +435,11 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     // remove number from end of name, because it's better to see "Frightened (-3)" than "Frightened 3 (-3)"
     const modNameNoNum = modName.match(/.* \d+/) ? modName.substring(0, modName.lastIndexOf(' ')) : modName
     const modValStr = (modVal < 0 ? '' : '+') + modVal
-    dcFlavorSuffixHtmls.push(`<span style="color: ${outcomeChangeColor}">${modNameNoNum} ${modValStr}</span>`)
+    dcFlavorSuffixHtmls.push(
+      `<span class="pf2e-modifiers-matter-suffix" style="color: ${outcomeChangeColor}">${modNameNoNum} ${modValStr}</span>`)
   })
   const dcFlavorSuffix = dcFlavorSuffixHtmls.join(', ')
+  $editedFlavor.find('.pf2e-modifiers-matter-suffix').remove()
   if (dcFlavorSuffix) {
     // dcActorType is only used to make the string slightly more fitting
     const dcActorType = targetedActor ? 'target' : isSpell ? 'caster' : 'actor'
