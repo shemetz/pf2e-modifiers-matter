@@ -245,7 +245,7 @@ const insertDcFlavorSuffix = ($flavorText, dcFlavorSuffix, dcActorType) => {
       : `${MODULE_ID}.Message.ActorHas`
   $flavorText.find('div.degree-of-success').before(
     `<div data-visibility="${dataVisibility}">
-${tryLocalize(messageKey, 'Target has:')} <b>(${dcFlavorSuffix})</b>
+${tryLocalize(messageKey, 'Target has:')} <b>${dcFlavorSuffix}</b>
 </div>`)
 }
 
