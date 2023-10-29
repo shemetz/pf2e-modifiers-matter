@@ -143,8 +143,6 @@ const dcModsOfStatistic = (dcStatistic, actorWithDc) => {
       // comparing the modifier label to the names of the actor's Armor items
       && actorWithDc?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
     ))
-    // remove duplicates where name is identical
-    .filter((i1, idx, a) => a.findIndex(i2 => (i2.name === i1.name)) === idx)
 }
 const rollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType) => {
   return modifiersFromChatMessage
