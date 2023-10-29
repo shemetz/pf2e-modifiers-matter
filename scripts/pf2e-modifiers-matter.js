@@ -297,15 +297,14 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     actorWithDc = targetedActor
     dcMods = dcModsOfStatistic(targetedActor.system.attributes.ac, actorWithDc)
     const offGuardMod = getOffGuardAcMod()
-    // TODO: maybe simplify after next pf2e release, when `self.flanking` is coming back
-    const isOffGuard = chatMessage.flags.pf2e.context.options.includes('target:condition:off-guard')
-    const isFlanking = isNewerVersion(game.version, '5.3')
-      ? (isOffGuard && !targetedActor.hasCondition('off-guard')) // flanking gives an ephemeral effect
-      : chatMessage.flags.pf2e.context.options.includes('self:flanking')
-    if ((isFlanking || isOffGuard) && !dcMods.some(m => m.label === offGuardMod.label)) {
-      if (isFlanking) {
-        offGuardMod.label = game.i18n.localize('PF2E.Item.Condition.Flanked')
-      }
+    const isTargetEphemerallyOffGuard = chatMessage.flags.pf2e.context.options.includes(
+      'target:condition:off-guard')
+    if (isTargetEphemerallyOffGuard && !dcMods.some(m => m.label === offGuardMod.label)) {
+      const messageFlavorHtml = $(`<div>${chatMessage.flavor}</div>`)
+      const dcTooltipsStr = messageFlavorHtml.find("div.target-dc > span > span.adjusted").attr("data-tooltip")
+      const dcTooltips = dcTooltipsStr.split("\n").map(s => s.replace("<div>", "").replace("</div>", ""))
+      const offGuardTooltip = dcTooltips.find(t => t.includes(game.i18n.localize('PF2E.condition.off-guard.name')))
+      offGuardMod.label = offGuardTooltip.split(":")[0]
       dcMods.push(offGuardMod)
     }
     dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(m.label))
