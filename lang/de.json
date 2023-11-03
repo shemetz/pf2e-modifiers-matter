@@ -1,0 +1,47 @@
+{
+  "pf2e-modifiers-matter": {
+    "Settings": {
+      "show-defense-highlights-to-everyone": {
+        "name": "Verteidigungshervorhebungen für alle anzeigen",
+        "hint": "Wenn aktiviert, werden Verteidigungshervorhebungen wie \"Auf dem falschen Fuß -2\" allen angezeigt, nicht nur dem Spielleiter."
+      },
+      "always-show-defense-conditions": {
+        "name": "Verteidigungszustände immer anzeigen",
+        "hint": "Wenn aktiviert, werden Verteidigungshervorhebungen wie \"Auf dem falschen Fuß -2\" ständig angezeigt, auch wenn sie irrelevant sind."
+      },
+      "ignore-crit-fail-over-fail-on-attacks": {
+        "name": "Krit. Fehlschlag bei Angriffen ignorieren",
+        "hint": "Wenn aktiviert, wird das Modul keine Änderungen hervorheben, die einen Angriff von einem Fehlschlag zu einem kritischen Fehlschlag oder umgekehrt ändern. Dies ist hilfreich, da es bei Angriffen normalerweise keinen Unterschied zwischen den beiden Fällen gibt; es gibt jedoch einige Ausnahmen von dieser Regel, wie z.B. Zuversichtlicher Abschluss."
+      },
+      "additional-ignored-labels": {
+        "name": "Zusätzliche ignorierte Labels",
+        "hint": "Text durch Semikolons (;) trennen. Jede dieser Modifikatorlabels wird ignoriert. Wenn Sie der Meinung sind, dass ein vorhandener Modifikator in den Regeln standardmäßig ignoriert werden sollte, schlagen Sie dies bitte auf Github/Discord vor."
+      }
+    },
+    "Message": {
+      "CasterHas": "Zauberer hat:",
+      "ActorHas": "Akteur hat:",
+      "TargetHas": "Ziel hat:"
+    },
+    "IgnoredModifiers": {
+      "DeviseAStratagem": "Angriffsstrategie",
+      "HuntersEdgeFlurry1": "Jägervorteil: Angriffshagel",
+      "HuntersEdgeFlurry2": "Angriffshagel",
+      "HuntersEdgeFlurry3": "Effekt: Jägervorteil, Angriffshagel",
+      "SpellAttackHouserule": "Zauberangriff Hausregel",
+      "SpellPotency1": "Zauberverbesserung",
+      "SpellPotency2": "Zauberverbesserung",
+      "SkillPotency1": "Fertigkeitenverbesserung",
+      "SkillPotency2": "Fertigkeitenverbesserung",
+      "BattleForm1": "Verkörperung der Natur",
+      "BattleForm2": "Gestalt des Teufels von Sandspitze",
+      "BattleForm3": "Verkörperung der Elemente",
+      "BattleForm4": "Avatar",
+      "DrakeheartMutagen": "Drakaherzmutagen"
+    },
+    "IgnoredModifiers3p": {
+      "pf2e-flatten_pwol": "Kompetenz ohne Stufe",
+      "pf2e-flatten_pwol_half": "1/2 Level Proficiency"
+    }
+  }
+}
