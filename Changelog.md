@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.3] - 2023-10-30
+- Removed parentheses from DC flavor suffix added by the module
+- Fixed bug that hid many DC modifiers from being detected (duplicate detection)
+- Fixed ephemeral off-guard effect names, combining with flanking detection
+- Changed minimum Foundry version to v11, and minimum PF2E version to 5.4.0 
+
 ## [1.8.2] - 2023-09-30
 - Added handling of rerolled rolls (#29)
 
@@ -193,4 +199,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.8.0]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.7.8...1.8.0
 [1.8.1]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.0...1.8.1
 [1.8.2]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.1...1.8.2
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.2...HEAD
+[1.8.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.2...1.8.3
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.3...HEAD

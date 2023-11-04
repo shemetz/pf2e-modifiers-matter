@@ -1,0 +1,47 @@
+{
+  "pf2e-modifiers-matter": {
+    "Settings": {
+      "show-defense-highlights-to-everyone": {
+        "name": "Pokaż wyróżnienia obrony wszystkim",
+        "hint": "Jeżeli ustawione na TAK, podświetlenia obrony takie jak \"Odsłonięty -2\" będą pokazywane wszystkim, nie tylko MG."
+      },
+      "always-show-defense-conditions": {
+        "name": "Zawsze pokazuj czynniki obrony",
+        "hint": "Jeżeli ustawione na TAK, podświetlenia obrony takie jak \"Odsłonięty -2\" będą pokazywane stale, nawet jeżeli nie mają znaczenia."
+      },
+      "ignore-crit-fail-over-fail-on-attacks": {
+        "name": "Ignoruj zmianę Krtycznej Porażki na Porażkę przy Atakach",
+        "hint": "Jeżeli ustawione na TAK, moduł nie podświetli czynników, które zmieniły atak z porażki na krytyczną porażkę i vice versa. Jest to pomocne, gdyż zwykle nie ma różnicy między tymi dwoma przypadkami dla ataków;  jednakże są też wyjątki od reguły, jak np. Pewne Wykończenie (COnfident Finisher)."
+      },
+      "additional-ignored-labels": {
+        "name": "Dodatkowe ignorowane czynniki",
+        "hint": "Wprowadź tekst dzielony średnikami (;).  Każdy taki modyfikator będzie ignorowany.  Jeżeli uważasz że istniejący modyfikator w zasadach powinien być ignorowany z definicji, zasugeruj to na Githubie/Discordzie."
+      }
+    },
+    "Message": {
+      "CasterHas": "Rzucający czar ma:",
+      "ActorHas": "Aktor ma:",
+      "TargetHas": "Cel ma:"
+    },
+    "IgnoredModifiers": {
+      "DeviseAStratagem": "Opracuj Strategię",
+      "HuntersEdgeFlurry1": "Ostrze Łowcy: Grad Ciosów",
+      "HuntersEdgeFlurry2": "Grad Ciosów",
+      "HuntersEdgeFlurry3": "Efekt: Ostrze Łowcy: Grad Ciosów",
+      "SpellAttackHouserule": "Atak czarem zasada domowa",
+      "SpellPotency1": "Moc Czaru",
+      "SpellPotency2":  "Moc czaru",
+      "SkillPotency1": "Moc Umiejętności",
+      "SkillPotency2":  "Moc umiejętności",
+      "BattleForm1": "Wcielenie Natury",
+      "BattleForm2": "Forma Piaskowego Diabła",
+      "BattleForm3": "Ucieleśnienie Żywiołu",
+      "BattleForm4": "Awatar",
+      "DrakeheartMutagen": "Mutagen Smoczyserca"
+    },
+    "IgnoredModifiers3p": {
+      "pf2e-flatten_pwol": "Biegłość Bez Poziomu",
+      "pf2e-flatten_pwol_half": "1/2 Poziomu Biegłości"
+    }
+  }
+}

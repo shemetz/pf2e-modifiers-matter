@@ -2,9 +2,9 @@
   "id": "pf2e-modifiers-matter",
   "title": "Pf2E Modifiers Matter",
   "description": "Highlights situations where status effects (buffs, debuffs, conditions) change the outcome of a roll.  Technically this module is not about modifiers but about all the other things that modify a roll, which happen to not be called modifiers, despite applying modifications.",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "compatibility": {
-    "minimum": "10",
+    "minimum": "11",
     "verified": "11"
   },
   "esmodules": [
@@ -36,6 +36,12 @@
       "flags": {}
     },
     {
+      "lang": "pl",
+      "name": "polski",
+      "path": "lang/pl.json",
+      "flags": {}
+    },
+    {
       "lang": "de",
       "name": "Deutsch",
       "path": "lang/de.json",
@@ -56,8 +62,8 @@
         "type": "system",
         "manifest": "https://github.com/foundryvtt/pf2e/releases/download/latest/system.json",
         "compatibility": {
-          "minimum": "4.0.0",
-          "verified": "5.4.2"
+          "minimum": "5.4.0",
+          "verified": "5.7.4"
         }
       }
     ]
