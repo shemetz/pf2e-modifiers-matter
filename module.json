@@ -24,15 +24,15 @@
       "flags": {}
     },
     {
-      "lang": "fr",
-      "name": "Français",
-      "path": "lang/fr.json",
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json",
       "flags": {}
     },
     {
-      "lang": "zh-tw",
-      "name": "正體中文",
-      "path": "lang/zh-tw.json",
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json",
       "flags": {}
     },
     {
@@ -42,9 +42,9 @@
       "flags": {}
     },
     {
-      "lang": "de",
-      "name": "Deutsch",
-      "path": "lang/de.json",
+      "lang": "zh-tw",
+      "name": "正體中文",
+      "path": "lang/zh-tw.json",
       "flags": {}
     }
   ],
@@ -63,7 +63,7 @@
         "manifest": "https://github.com/foundryvtt/pf2e/releases/download/latest/system.json",
         "compatibility": {
           "minimum": "5.4.0",
-          "verified": "5.7.4"
+          "verified": "5.8.0"
         }
       }
     ]
@@ -72,7 +72,7 @@
     {
       "name": "shemetz",
       "email": "itamarcu+foundry@gmail.com",
-      "discord": "shemetz#0226",
+      "discord": "shemetz",
       "flags": {}
     }
   ],
