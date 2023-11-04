@@ -16,7 +16,7 @@ To install, browse for it in the module browser,
 or [directly copy the manifest link for the latest release](https://github.com/shemetz/pf2e-modifiers-matter/releases/latest/download/module.json)
 .
 
-![](metadata/example_0.png)
+![](metadata/cover.png)
 
 Yes, technically this module is not about modifiers but about all the other things that modify a roll, which happen to
 not be called modifiers, despite applying modifications. But "Pathfinder 2nd Edition Highlight Status Effect Consequences" was too long.
