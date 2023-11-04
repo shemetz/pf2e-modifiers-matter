@@ -81,18 +81,18 @@
   ],
   "media": [
     {
+      "type": "setup",
+      "url": "https://raw.githubusercontent.com/shemetz/pf2e-modifiers-matter/master/metadata/cover.png"
+    },
+    {
       "type": "icon",
       "url": "https://raw.githubusercontent.com/shemetz/pf2e-modifiers-matter/master/metadata/icon.png",
-      "caption": "PF2e Modifiers Matter",
-      "loop": false,
-      "flags": {}
+      "caption": "PF2e Modifiers Matter"
     },
     {
       "type": "cover",
       "url": "https://raw.githubusercontent.com/shemetz/pf2e-modifiers-matter/master/metadata/cover.png",
-      "caption": "PF2e Modifiers Matter",
-      "loop": false,
-      "flags": {}
+      "caption": "PF2e Modifiers Matter"
     }
   ]
 }
