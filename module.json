@@ -40,6 +40,12 @@
       "name": "polski",
       "path": "lang/pl.json",
       "flags": {}
+    },
+    {
+      "lang": "de",
+      "name": "Deutsch",
+      "path": "lang/de.json",
+      "flags": {}
     }
   ],
   "url": "https://github.com/shemetz/pf2e-modifiers-matter",
