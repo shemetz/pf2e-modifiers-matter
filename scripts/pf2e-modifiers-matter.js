@@ -400,25 +400,21 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   // adding an artificial div to have a single parent element, enabling nicer editing of html
   const $editedFlavor = $(`<div>${oldFlavor}</div>`)
   // remove old highlights, in case of a reroll within the same message
-  $editedFlavor.find('.pf2e-modifiers-matter-highlight')
-    .css('color', '')
-    .css('font-weight', '')
-    .removeClass('pf2e-modifiers-matter-highlight')
+  $editedFlavor.find('.pf2emm-highlight')
+    .removeClass('.pf2emm-highlight')
+    .removeClass(`.pf2emm-is-${SIGNIFICANCE.HARMFUL}`)
+    .removeClass(`.pf2emm-is-${SIGNIFICANCE.HELPFUL}`)
+    .removeClass(`.pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`)
+    .removeClass(`.pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
   significantModifiers.filter(m => m.appliedTo === 'roll').forEach(m => {
     const modVal = m.value
     const modName = m.name
     const modSignificance = m.significance
     if (modSignificance === SIGNIFICANCE.NONE) return
-    const outcomeChangeColor = COLOR_BY_SIGNIFICANCE[modSignificance]
     const modValStr = (modVal < 0 ? '' : '+') + modVal
-    // edit background color for full tags
-    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_alt`)
-      .css('background-color', outcomeChangeColor)
-    // edit background+text colors for transparent tags, which have dark text by default
-    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr}).tag_transparent`)
-      .css('color', outcomeChangeColor)
-      .css('font-weight', 'bold')
-      .addClass('pf2e-modifiers-matter-highlight')
+    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`)
+      .addClass('pf2emm-highlight')
+      .addClass(`pf2emm-is-${m.significance}`)
   })
   const dcFlavorSuffixHtmls = []
   significantModifiers.filter(m => m.appliedTo === 'dc').forEach(m => {
@@ -428,15 +424,14 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     if (modSignificance === SIGNIFICANCE.NONE)
       if (!(isStrike && getSetting('always-show-defense-conditions', false)))
         return
-    const outcomeChangeColor = COLOR_BY_SIGNIFICANCE[modSignificance]
     // remove number from end of name, because it's better to see "Frightened (-3)" than "Frightened 3 (-3)"
     const modNameNoNum = modName.match(/.* \d+/) ? modName.substring(0, modName.lastIndexOf(' ')) : modName
     const modValStr = (modVal < 0 ? '' : '+') + modVal
     dcFlavorSuffixHtmls.push(
-      `<span class="pf2e-modifiers-matter-suffix" style="color: ${outcomeChangeColor}">${modNameNoNum} ${modValStr}</span>`)
+      `<span class="pf2emm-suffix pf2emm-is-${m.significance}">${modNameNoNum} ${modValStr}</span>`)
   })
   const dcFlavorSuffix = dcFlavorSuffixHtmls.join(', ')
-  $editedFlavor.find('.pf2e-modifiers-matter-suffix').remove()
+  $editedFlavor.find('.pf2emm-suffix').remove()
   if (dcFlavorSuffix) {
     // dcActorType is only used to make the string slightly more fitting
     const dcActorType = targetedActor ? 'target' : isSpell ? 'caster' : 'actor'

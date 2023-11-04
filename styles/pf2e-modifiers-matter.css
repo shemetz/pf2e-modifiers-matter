@@ -1,0 +1,70 @@
+:root {
+    --pf2emm-color-essential: #008000;
+    --pf2emm-color-essential-outline: #008000bf;
+    --pf2emm-color-helpful: #91a82a;
+    --pf2emm-color-helpful-outline: #91a82abf;
+    --pf2emm-color-harmful: #ff0000;
+    --pf2emm-color-harmful-outline: #ff0000bf;
+    --pf2emm-color-detrimental: #ff852f;
+    --pf2emm-color-detrimental-outline: #ff852fbf;
+}
+
+/*
+I added #chat-log to all of these CSS selectors to increase their specificity, so that they override the pf2e system styles.
+(having an ID makes them more specific than the pf2e css styles, which only have classes for these)
+*/
+#chat-log .pf2emm-highlight {
+    font-weight: bold;
+}
+
+#chat-log .tag_alt.pf2emm-is-ESSENTIAL {
+    background-color: var(--pf2emm-color-essential);
+}
+
+#chat-log .tag_alt.pf2emm-is-HELPFUL {
+    background-color: var(--pf2emm-color-helpful);
+}
+
+#chat-log .tag_alt.pf2emm-is-HARMFUL {
+    background-color: var(--pf2emm-color-harmful);
+}
+
+#chat-log .tag_alt.pf2emm-is-DETRIMENTAL {
+    background-color: var(--pf2emm-color-detrimental);
+}
+
+#chat-log .tag_transparent.pf2emm-is-ESSENTIAL {
+    color: var(--pf2emm-color-essential);
+    box-shadow: inset 0 0 0 1px var(--pf2emm-color-essential-outline);
+}
+
+#chat-log .tag_transparent.pf2emm-is-HELPFUL {
+    color: var(--pf2emm-color-helpful);
+    box-shadow: inset 0 0 0 1px var(--pf2emm-color-helpful-outline);
+}
+
+#chat-log .tag_transparent.pf2emm-is-HARMFUL {
+    color: var(--pf2emm-color-harmful);
+    box-shadow: inset 0 0 0 1px var(--pf2emm-color-harmful-outline);
+}
+
+#chat-log .tag_transparent.pf2emm-is-DETRIMENTAL {
+    color: var(--pf2emm-color-detrimental);
+    box-shadow: inset 0 0 0 1px var(--pf2emm-color-detrimental-outline);
+}
+
+#chat-log .pf2emm-suffix.pf2emm-is-ESSENTIAL {
+    color: var(--pf2emm-color-essential);
+}
+
+#chat-log .pf2emm-suffix.pf2emm-is-HELPFUL {
+    color: var(--pf2emm-color-helpful);
+}
+
+#chat-log .pf2emm-suffix.pf2emm-is-HARMFUL {
+    color: var(--pf2emm-color-harmful);
+}
+
+#chat-log .pf2emm-suffix.pf2emm-is-DETRIMENTAL {
+    color: var(--pf2emm-color-detrimental);
+}
