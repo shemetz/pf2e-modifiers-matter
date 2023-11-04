@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.4] - 2023-11-04
+- Added translations to Polish and German
+- Refactored code to allow a bit more CSS customizability in case someone wants to change colors and styles
+
 ## [1.8.3] - 2023-10-30
 - Removed parentheses from DC flavor suffix added by the module
 - Fixed bug that hid many DC modifiers from being detected (duplicate detection)
@@ -200,4 +204,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.8.1]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.0...1.8.1
 [1.8.2]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.1...1.8.2
 [1.8.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.2...1.8.3
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.3...HEAD
+[1.8.4]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.3...1.8.4
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.4...HEAD
