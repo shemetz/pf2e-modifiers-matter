@@ -299,11 +299,21 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       'target:condition:off-guard')
     if (isTargetEphemerallyOffGuard && !dcMods.some(m => m.label === offGuardMod.label)) {
       const messageFlavorHtml = $(`<div>${chatMessage.flavor}</div>`)
-      const dcTooltipsStr = messageFlavorHtml.find("div.target-dc > span > span.adjusted").attr("data-tooltip")
-      const dcTooltips = dcTooltipsStr.split("\n").map(s => s.replace("<div>", "").replace("</div>", ""))
-      const offGuardTooltip = dcTooltips.find(t => t.includes(game.i18n.localize('PF2E.condition.off-guard.name')))
-      offGuardMod.label = offGuardTooltip.split(":")[0]
-      dcMods.push(offGuardMod)
+      const dcTooltipsStr = messageFlavorHtml.find('div.target-dc > span > span.adjusted').attr('data-tooltip')
+      if (dcTooltipsStr === undefined) {
+        // TODO - find when it happens and fix it
+        console.error(`${MODULE_ID} | failed to find target DC tooltips in message flavor:`, chatMessage.flavor)
+        console.error(`${MODULE_ID} | message flavor as string: ${chatMessage.flavor}`)
+        console.error(
+          `${MODULE_ID} | please show these three error messages to shemetz on Discord and include a bit of context to explain what happened! 🙏`)
+        offGuardMod.label = 'Off-Guard'
+        dcMods.push(offGuardMod)
+      } else {
+        const dcTooltips = dcTooltipsStr.split('\n').map(s => s.replace('<div>', '').replace('</div>', ''))
+        const offGuardTooltip = dcTooltips.find(t => t.includes(game.i18n.localize('PF2E.condition.off-guard.name')))
+        offGuardMod.label = offGuardTooltip.split(':')[0]
+        dcMods.push(offGuardMod)
+      }
     }
     dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(m.label))
   } else if (isSpell && !!originItem) {
@@ -400,21 +410,21 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   // adding an artificial div to have a single parent element, enabling nicer editing of html
   const $editedFlavor = $(`<div>${oldFlavor}</div>`)
   // remove old highlights, in case of a reroll within the same message
-  $editedFlavor.find('.pf2emm-highlight')
-    .removeClass('.pf2emm-highlight')
-    .removeClass(`.pf2emm-is-${SIGNIFICANCE.HARMFUL}`)
-    .removeClass(`.pf2emm-is-${SIGNIFICANCE.HELPFUL}`)
-    .removeClass(`.pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`)
-    .removeClass(`.pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
+  $editedFlavor.find('.pf2emm-highlight').
+    removeClass('.pf2emm-highlight').
+    removeClass(`.pf2emm-is-${SIGNIFICANCE.HARMFUL}`).
+    removeClass(`.pf2emm-is-${SIGNIFICANCE.HELPFUL}`).
+    removeClass(`.pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`).
+    removeClass(`.pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
   significantModifiers.filter(m => m.appliedTo === 'roll').forEach(m => {
     const modVal = m.value
     const modName = m.name
     const modSignificance = m.significance
     if (modSignificance === SIGNIFICANCE.NONE) return
     const modValStr = (modVal < 0 ? '' : '+') + modVal
-    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`)
-      .addClass('pf2emm-highlight')
-      .addClass(`pf2emm-is-${m.significance}`)
+    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).
+      addClass('pf2emm-highlight').
+      addClass(`pf2emm-is-${m.significance}`)
   })
   const dcFlavorSuffixHtmls = []
   significantModifiers.filter(m => m.appliedTo === 'dc').forEach(m => {
