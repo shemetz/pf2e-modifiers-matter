@@ -110,8 +110,8 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers3p.pf2e-flatten_pwol`,
     `${MODULE_ID}.IgnoredModifiers3p.pf2e-flatten_pwol_half`,
   ]
-  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
-    .concat(getSetting('additional-ignored-labels').split(';'))
+  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).
+    concat(getSetting('additional-ignored-labels').split(';'))
   IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = [
     // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
     // however, this effect also has other modifiers which I don't want to ignore.
@@ -411,11 +411,11 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const $editedFlavor = $(`<div>${oldFlavor}</div>`)
   // remove old highlights, in case of a reroll within the same message
   $editedFlavor.find('.pf2emm-highlight').
-    removeClass('.pf2emm-highlight').
-    removeClass(`.pf2emm-is-${SIGNIFICANCE.HARMFUL}`).
-    removeClass(`.pf2emm-is-${SIGNIFICANCE.HELPFUL}`).
-    removeClass(`.pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`).
-    removeClass(`.pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
+    removeClass('pf2emm-highlight').
+    removeClass(`pf2emm-is-${SIGNIFICANCE.HARMFUL}`).
+    removeClass(`pf2emm-is-${SIGNIFICANCE.HELPFUL}`).
+    removeClass(`pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`).
+    removeClass(`pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
   significantModifiers.filter(m => m.appliedTo === 'roll').forEach(m => {
     const modVal = m.value
     const modName = m.name
