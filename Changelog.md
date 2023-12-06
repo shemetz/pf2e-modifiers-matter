@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.7] - 2023-12-06
+- Fixed handling of rerolled rolls (#29, #32)
+
 ## [1.8.5] - 2023-11-04
 - Added translations to Polish and German
 - Refactored code to allow a bit more CSS customizability in case someone wants to change colors and styles
@@ -205,4 +208,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.8.2]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.1...1.8.2
 [1.8.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.2...1.8.3
 [1.8.5]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.3...1.8.5
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.5...HEAD
+[1.8.7]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.5...1.8.7
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.7...HEAD
