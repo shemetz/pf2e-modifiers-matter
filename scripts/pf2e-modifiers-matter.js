@@ -151,8 +151,7 @@ const rollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType)
     // ignoring standard things from list (including user-defined)
     .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus
-    // it changed from 'ac' to 'armor' in pf2e v4.12
-    .filter(m => !((dcType === 'ac' || dcType === 'armor') && m.slug.endsWith('-form')))
+    .filter(m => !(dcType === 'armor' && m.slug.endsWith('-form')))
     // for attacks/skills, ignore Doubling Rings which are basically a permanent item bonus
     .filter(m => !m.slug.startsWith('doubling-rings'))
     // TODO - ignore item bonuses that are permanent (mostly skill items)
@@ -261,14 +260,14 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   // here I assume the PF2E system always includes the d20 roll as the first roll!  and as the first term of that roll!
   const roll = chatMessage.rolls[0]
   const rollTotal = roll?.total !== undefined ? roll.total : parseInt(chatMessage.content)
-  const rollDc = chatMessage.flags.pf2e.context.dc.value
+  // dc.value is usually defined, but apparently not when Escaping vs an enemy's Athletics DC
+  const rollDc = chatMessage.flags.pf2e.context.dc.value ?? chatMessage.flags.pf2e.context.dc.parent?.dc?.value
   const deltaFromDc = rollTotal - rollDc
   // using roll.terms[0].total will work when rolling 1d20+9, or 2d20kh+9 (RollTwice RE), or 10+9 (SubstituteRoll RE)
   const dieRoll = roll.terms[0].total
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
-  // noinspection JSDeprecatedSymbols (String.strike is irrelevant, IntelliJ!)
-  const dcSlug = chatMessage.flags.pf2e.context.dc.slug
-  const isStrike = dcSlug === 'ac' || dcSlug === 'armor'  // it changed from 'ac' to 'armor' in pf2e v4.12
+  const dcSlug = chatMessage.flags.pf2e.context.dc.slug ?? chatMessage.flags.pf2e.context.dc.parent?.slug
+  const isStrike = dcSlug === 'armor'
   const isSpell = chatMessage.flags.pf2e.origin?.type === 'spell'
   const targetedTokenUuid = chatMessage.flags.pf2e.context.target?.token
   const targetedActorUuid = chatMessage.flags.pf2e.context.target?.actor
