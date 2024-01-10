@@ -128,9 +128,14 @@ And as of v1.7.0 (added visible modifiers for caster DC and target actor DC:
 
 There is a hook, `'modifiersMatter'`, which you can listen to, if you want things to trigger based on modifiers mattering.
 For example, the code includes a sample function - `exampleHookInspireCourage` - which will make Foundry play a short
-chime sound each time Inspire Courage causes a success.
+chime sound each time Inspire Courage causes a success.  The extra `significance` parameter will let you know
+whether the modifier was necessary or useful - one of ESSENTIAL, HELPFUL, HURTFUL, or DETRIMENTAL.
 
-This hook is already in use by the PF2e Animations module.  [Here's a link to a demo video (discord message)](https://discord.com/channels/880968862240239708/1006806454700875816/1089257601629442080).
+This hook is already in use by the PF2e Animations module.  [Here's a link to a demo video (discord message)](https://discord.com/channels/880968862240239708/1006806454700875816/1089257601629442080).  To
+add new animations for MM integration, you can either add an entry to play whenever the modifier matters, or narrow it
+down depending on significance.  For example, if you want your animation to play whenever off-guard (or flanking) is
+relevant, name the entry "Modifiers Matter: Off-Guard".  If you want it to only play when off-guard was crucial to
+improving the effect, name it "Modifiers Matter: Off-Guard (ESSENTIAL)".
 
 ## Accessibility
 
