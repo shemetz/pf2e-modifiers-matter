@@ -267,7 +267,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const dieRoll = roll.terms[0].total
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
   const dcSlug = chatMessage.flags.pf2e.context.dc.slug ?? chatMessage.flags.pf2e.context.dc.parent?.slug
-  const isStrike = dcSlug === 'armor'
+  const isStrike = dcSlug === 'armor' || dcSlug === 'ac'
   const isSpell = chatMessage.flags.pf2e.origin?.type === 'spell'
   const targetedTokenUuid = chatMessage.flags.pf2e.context.target?.token
   const targetedActorUuid = chatMessage.flags.pf2e.context.target?.actor
