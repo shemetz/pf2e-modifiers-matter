@@ -151,7 +151,7 @@ const rollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType)
     // ignoring standard things from list (including user-defined)
     .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus
-    .filter(m => !(dcType === 'armor' && m.slug.endsWith('-form')))
+    .filter(m => !((dcType === 'armor' || dcType === 'ac') && m.slug.endsWith('-form')))
     // for attacks/skills, ignore Doubling Rings which are basically a permanent item bonus
     .filter(m => !m.slug.startsWith('doubling-rings'))
     // TODO - ignore item bonuses that are permanent (mostly skill items)
