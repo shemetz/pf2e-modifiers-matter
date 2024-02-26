@@ -1,7 +1,7 @@
 {
   "pf2e-modifiers-matter": {
     "Settings": {
-      "show-defense-highlights-to-everyone": {
+      "always-show-highlights-to-everyone": {
         "name": "Verteidigungshervorhebungen für alle anzeigen",
         "hint": "Wenn aktiviert, werden Verteidigungshervorhebungen wie \"Auf dem falschen Fuß -2\" allen angezeigt, nicht nur dem Spielleiter."
       },

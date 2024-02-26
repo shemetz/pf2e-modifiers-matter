@@ -1,7 +1,7 @@
 {
   "pf2e-modifiers-matter": {
     "Settings": {
-      "show-defense-highlights-to-everyone": {
+      "always-show-highlights-to-everyone": {
         "name": "Montrer le soulignement défensif à tous",
         "hint": "S'il est réglé sur vrai, le soulignement défensif comme\"Pris au dépourvu -2\" sera montré à tous, pas seulement au MJ."
       },

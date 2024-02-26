@@ -1,7 +1,7 @@
 {
   "pf2e-modifiers-matter": {
     "Settings": {
-      "show-defense-highlights-to-everyone": {
+      "always-show-highlights-to-everyone": {
         "name": "將防禦高光點展示給所有人",
         "hint": "若啟用，防禦高光點比如像\"措手不及 -2\"會展示給所有人看（而不是僅GM）。"
       },

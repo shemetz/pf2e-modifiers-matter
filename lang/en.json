@@ -1,9 +1,9 @@
 {
   "pf2e-modifiers-matter": {
     "Settings": {
-      "show-defense-highlights-to-everyone": {
-        "name": "Show defense highlights to everyone",
-        "hint": "If set to true, defense highlights such as \"Flat-footed -2\" will be shown to everyone, not just GM."
+      "always-show-highlights-to-everyone": {
+        "name": "Always show highlights to everyone",
+        "hint": "If enabled, highlights of NPC conditions such as \"Flat-footed -2\" always be shown to everyone, even if the \"Show roll breakdowns\" system setting is disabled. This is usually desired, but it does reveal some extra information to the players."
       },
       "always-show-defense-conditions": {
         "name": "Always show defense conditions",

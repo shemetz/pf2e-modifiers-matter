@@ -1,7 +1,7 @@
 {
   "pf2e-modifiers-matter": {
     "Settings": {
-      "show-defense-highlights-to-everyone": {
+      "always-show-highlights-to-everyone": {
         "name": "Pokaż wyróżnienia obrony wszystkim",
         "hint": "Jeżeli ustawione na TAK, podświetlenia obrony takie jak \"Odsłonięty -2\" będą pokazywane wszystkim, nie tylko MG."
       },

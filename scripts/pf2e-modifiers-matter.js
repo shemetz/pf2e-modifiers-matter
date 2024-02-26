@@ -235,8 +235,8 @@ const shouldIgnoreStrikeCritFailToFail = (oldDOS, newDOS, isStrike) => {
  * dcFlavorSuffix will be e.g. 'Off-Guard -2, Frightened -1'
  */
 const insertDcFlavorSuffix = ($flavorText, dcFlavorSuffix, dcActorType) => {
-  const showDefenseHighlightsToEveryone = getSetting('show-defense-highlights-to-everyone')
-  const dataVisibility = showDefenseHighlightsToEveryone ? 'all' : 'gm'
+  const showHighlightsToEveryone = getSetting('always-show-highlights-to-everyone')
+  const dataVisibility = showHighlightsToEveryone ? 'all' : 'gm'
   const messageKey = dcActorType === 'target' ? `${MODULE_ID}.Message.TargetHas`
     : dcActorType === 'caster' ? `${MODULE_ID}.Message.CasterHas`
       : `${MODULE_ID}.Message.ActorHas`
@@ -415,6 +415,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     removeClass(`pf2emm-is-${SIGNIFICANCE.HELPFUL}`).
     removeClass(`pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`).
     removeClass(`pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
+  const showHighlightsToEveryone = getSetting('always-show-highlights-to-everyone')
   significantModifiers.filter(m => m.appliedTo === 'roll').forEach(m => {
     const modVal = m.value
     const modName = m.name
@@ -424,6 +425,9 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).
       addClass('pf2emm-highlight').
       addClass(`pf2emm-is-${m.significance}`)
+    if (showHighlightsToEveryone)
+      $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).
+        attr('data-visibility', 'all')
   })
   const dcFlavorSuffixHtmls = []
   significantModifiers.filter(m => m.appliedTo === 'dc').forEach(m => {
@@ -488,9 +492,9 @@ const exampleHookInspireCourage = () => {
 const getSetting = (settingName) => game.settings.get(MODULE_ID, settingName)
 
 Hooks.on('init', function () {
-  game.settings.register(MODULE_ID, 'show-defense-highlights-to-everyone', {
-    name: `${MODULE_ID}.Settings.show-defense-highlights-to-everyone.name`,
-    hint: `${MODULE_ID}.Settings.show-defense-highlights-to-everyone.hint`,
+  game.settings.register(MODULE_ID, 'always-show-highlights-to-everyone', {
+    name: `${MODULE_ID}.Settings.always-show-highlights-to-everyone.name`,
+    hint: `${MODULE_ID}.Settings.always-show-highlights-to-everyone.hint`,
     scope: 'world',
     config: true,
     default: true,
