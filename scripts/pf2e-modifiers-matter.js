@@ -38,13 +38,6 @@ const SIGNIFICANCE = Object.freeze({
   HARMFUL: 'HARMFUL',
   DETRIMENTAL: 'DETRIMENTAL',
 })
-const COLOR_BY_SIGNIFICANCE = Object.freeze({
-  ESSENTIAL: '#008000',
-  HELPFUL: '#91a82a',
-  NONE: '#000000',
-  HARMFUL: '#ff0000',
-  DETRIMENTAL: '#ff852f',
-})
 let IGNORED_MODIFIER_LABELS = []
 let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = []
 
@@ -382,12 +375,14 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
       return SIGNIFICANCE.DETRIMENTAL
     return SIGNIFICANCE.NONE
   }
-  const significantModifiers = []
+  const significantRollModifiers = []
+  const significantDcModifiers = []
+  const insignificantDcModifiers = []
   rollMods.forEach(m => {
     const modVal = m.modifier
     const significance = calcSignificance(modVal)
     if (significance === SIGNIFICANCE.NONE) return
-    significantModifiers.push({
+    significantRollModifiers.push({
       appliedTo: 'roll',
       name: m.label,
       value: modVal,
@@ -397,7 +392,8 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   dcMods.forEach(m => {
     const modVal = m.modifier
     const significance = calcSignificance(-modVal)
-    significantModifiers.push({
+    const arr = significance === SIGNIFICANCE.NONE ? insignificantDcModifiers : significantDcModifiers
+    arr.push({
       appliedTo: 'dc',
       name: m.label,
       value: modVal,
@@ -416,32 +412,38 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     removeClass(`pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`).
     removeClass(`pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
   const showHighlightsToEveryone = getSetting('always-show-highlights-to-everyone')
-  significantModifiers.filter(m => m.appliedTo === 'roll').forEach(m => {
+  significantRollModifiers.forEach(m => {
     const modVal = m.value
     const modName = m.name
     const modSignificance = m.significance
-    if (modSignificance === SIGNIFICANCE.NONE) return
     const modValStr = (modVal < 0 ? '' : '+') + modVal
     $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).
       addClass('pf2emm-highlight').
-      addClass(`pf2emm-is-${m.significance}`)
+      addClass(`pf2emm-is-${modSignificance}`)
     if (showHighlightsToEveryone)
       $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).
         attr('data-visibility', 'all')
   })
   const dcFlavorSuffixHtmls = []
-  significantModifiers.filter(m => m.appliedTo === 'dc').forEach(m => {
+  significantDcModifiers.forEach(m => {
     const modVal = m.value
     const modName = m.name
     const modSignificance = m.significance
-    if (modSignificance === SIGNIFICANCE.NONE)
-      if (!(isStrike && getSetting('always-show-defense-conditions', false)))
-        return
     // remove number from end of name, because it's better to see "Frightened (-3)" than "Frightened 3 (-3)"
     const modNameNoNum = modName.match(/.* \d+/) ? modName.substring(0, modName.lastIndexOf(' ')) : modName
     const modValStr = (modVal < 0 ? '' : '+') + modVal
     dcFlavorSuffixHtmls.push(
-      `<span class="pf2emm-suffix pf2emm-is-${m.significance}">${modNameNoNum} ${modValStr}</span>`)
+      `<span class="pf2emm-suffix pf2emm-is-${modSignificance}">${modNameNoNum} ${modValStr}</span>`)
+  })
+  insignificantDcModifiers.forEach(m => {
+    const modVal = m.value
+    const modName = m.name
+    if (!(isStrike && getSetting('always-show-defense-conditions', false)))
+      return
+    // remove number from end of name, because it's better to see "Frightened (-3)" than "Frightened 3 (-3)"
+    const modNameNoNum = modName.match(/.* \d+/) ? modName.substring(0, modName.lastIndexOf(' ')) : modName
+    const modValStr = (modVal < 0 ? '' : '+') + modVal
+    dcFlavorSuffixHtmls.push(`<span class="pf2emm-suffix pf2emm-is-NONE">${modNameNoNum} ${modValStr}</span>`)
   })
   const dcFlavorSuffix = dcFlavorSuffixHtmls.join(', ')
   $editedFlavor.find('.pf2emm-suffix').remove()
@@ -458,12 +460,13 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   }
 
   // hook call - to allow other modules/macros to trigger based on MM
+  const significantModifiers = significantRollModifiers.concat(significantDcModifiers)
   if (significantModifiers.length > 0) {
     Hooks.callAll('modifiersMatter', {
       rollingActor,
       actorWithDc, // can be undefined
       targetedToken, // can be undefined
-      significantModifiers, // list of: {name: string, value: number, significance: string}
+      significantModifiers, // list of: {name: string, value: number, significance: string}, significance is never NONE
       chatMessage,
     })
   }
