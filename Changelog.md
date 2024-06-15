@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.9.2] - 2024-06-15
+## [1.9.3] - 2024-06-15
 - Refactored code
 - Added export of window.pf2eMm variable, exposing some API to other modules
 
@@ -227,5 +227,5 @@ will un-hide any modifiers hidden by the system when the system setting "Show ro
 [1.8.8]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.7...1.8.8
 [1.9.0]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.8.8...1.9.0
 [1.9.1]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.9.0...1.9.1
-[1.9.2]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.9.1...1.9.2
-[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.9.2...HEAD
+[1.9.3]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.9.1...1.9.3
+[Unreleased]: https://github.com/shemetz/pf2e-modifiers-matter/compare/1.9.3...HEAD
