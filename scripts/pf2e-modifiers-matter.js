@@ -14,6 +14,49 @@ CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D2
 // I did my best to make it all easily understandable math, but there are limits to what I can do.
 
 /**
+ * A modifier object (created in the pf2e system code)
+ * @typedef {Object} Modifier
+ * @property {string} label
+ * @property {number} modifier
+ * @property {string} type
+ * @property {string} slug
+ * @property {boolean} enabled
+ * @property {boolean} ignored
+ */
+/**
+ * A PF2E Actor object (created in the pf2e system code)
+ * @typedef {Object} Actor
+ */
+/**
+ * A PF2E Token object (created in the pf2e system code)
+ * @typedef {Object} Token
+ */
+/**
+ * A PF2E Item object (created in the pf2e system code)
+ * @typedef {Object} Item
+ */
+/**
+ * @typedef {string} DcType
+ */
+/**
+ * @typedef {'CRIT_SUCC' | 'SUCCESS' | 'FAILURE' | 'CRIT_FAIL'} Degree
+ */
+/**
+ * @typedef {Object} SignificantModifier
+ * @property {'roll' | 'dc'} appliedTo
+ * @property {string} name - name of the modifier, e.g. "Frightened 1"
+ * @property {number} value
+ * @property {'ESSENTIAL' | 'HELPFUL' | 'HARMFUL' | 'DETRIMENTAL'} significance - note: never "None"
+ */
+/**
+ * @typedef {Object} InsignificantModifier
+ * @property {'roll' | 'dc'} appliedTo
+ * @property {string} name
+ * @property {number} value
+ * @property {'None'} significance
+ */
+
+/**
  * ESSENTIAL (strong green) - This modifier was necessary to achieve this degree of success (DoS).  Others were
  * potentially also necessary.  You should thank the character who caused this modifier!
  *
@@ -30,6 +73,8 @@ CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D2
  * not without any one of them), you would've gotten a better DoS.
  *
  * DETRIMENTAL (red) - Like ESSENTIAL but in the opposite direction.  Without this, you would've gotten a better DoS.
+ *
+ * @typedef {'ESSENTIAL' | 'HELPFUL' | 'NONE' | 'HARMFUL' | 'DETRIMENTAL'} Significance
  */
 const SIGNIFICANCE = Object.freeze({
   ESSENTIAL: 'ESSENTIAL',
@@ -42,6 +87,12 @@ let IGNORED_MODIFIER_LABELS = []
 let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = []
 
 let warnedAboutLocalization = false
+
+/**
+ * @param {string} key
+ * @param {string} defaultValue
+ * @returns {string}
+ */
 const tryLocalize = (key, defaultValue) => {
   const localized = game.i18n.localize(key)
   if (localized === key) {
@@ -53,6 +104,9 @@ const tryLocalize = (key, defaultValue) => {
   }
   return localized
 }
+
+/** @param {string} settingName */
+const getSetting = (settingName) => game.settings.get(MODULE_ID, settingName)
 
 const initializeIgnoredModifiers = () => {
   const IGNORED_MODIFIERS_I18N = [
@@ -112,9 +166,19 @@ const initializeIgnoredModifiers = () => {
   ].map(str => tryLocalize(str, str))
 }
 
+/**
+ * @param {Modifier[]} modsList
+ * @returns {number}
+ */
 const sumMods = (modsList) => modsList.reduce((accumulator, curr) => accumulator + curr.modifier, 0)
+
+/** @param {Modifier} m
+ *  @return {boolean} */
 const modifierPositive = m => m.modifier > 0
+/** @param {Modifier} m
+ *  @return {boolean} */
 const modifierNegative = m => m.modifier < 0
+/** @return {Modifier} */
 const getOffGuardAcMod = () => {
   const offGuardSlug = 'off-guard'
   const systemOffGuardCondition = game.pf2e.ConditionManager.getCondition(offGuardSlug)
@@ -122,9 +186,12 @@ const getOffGuardAcMod = () => {
     label: systemOffGuardCondition.name,
     modifier: -2,
     type: 'circumstance',
+    slug: offGuardSlug,
+    enabled: true,
+    ignored: false,
   }
 }
-const dcModsOfStatistic = (dcStatistic, actorWithDc) => {
+const filterDcModsOfStatistic = (dcStatistic, actorWithDc) => {
   return dcStatistic.modifiers
     // remove if not enabled, or ignored
     .filter(m => m.enabled && !m.ignored)
@@ -137,7 +204,14 @@ const dcModsOfStatistic = (dcStatistic, actorWithDc) => {
       && actorWithDc?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
     ))
 }
-const rollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType) => {
+
+/**
+ * @param {Modifier[]} modifiersFromChatMessage
+ * @param {Actor} rollingActor
+ * @param {DcType} dcType
+ * @returns {Modifier[]}
+ */
+const filterRollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType) => {
   return modifiersFromChatMessage
     // enabled is false for one of the conditions if it can't stack with others
     .filter(m => m.enabled && !m.ignored)
@@ -147,14 +221,11 @@ const rollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType)
     .filter(m => !((dcType === 'armor' || dcType === 'ac') && m.slug.endsWith('-form')))
     // for attacks/skills, ignore Doubling Rings which are basically a permanent item bonus
     .filter(m => !m.slug.startsWith('doubling-rings'))
-    // TODO - ignore item bonuses that are permanent (mostly skill items)
-
-    // TODO - can next thing be removed?
     // for saving throws, ignore item bonuses that come from armor, they're Resilient runes
     .filter(m => !(
       m.type === 'item'
       // comparing the modifier label to the name of the rolling actor's Armor item
-      && rollingActor?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
+      && rollingActor.attributes.ac.modifiers.some(m2 => m2.label === m.label)
     ))
 }
 
@@ -211,6 +282,12 @@ const calcDegreePlusRoll = (deltaFromDc, dieRoll) => {
   } else return degree
 }
 
+/**
+ * @param {Degree} oldDOS
+ * @param {Degree} newDOS
+ * @param {boolean} isStrike
+ * @returns {boolean}
+ */
 const shouldIgnoreStrikeCritFailToFail = (oldDOS, newDOS, isStrike) => {
   // only ignore in this somewhat common edge case:
   return (
@@ -226,29 +303,27 @@ const shouldIgnoreStrikeCritFailToFail = (oldDOS, newDOS, isStrike) => {
 
 /**
  * dcFlavorSuffix will be e.g. 'Off-Guard -2, Frightened -1'
+ *
+ * @param $flavorText
+ * @param dcFlavorSuffix
+ * @param {'target' | 'caster' | 'actor'} dcActorType
  */
 const insertDcFlavorSuffix = ($flavorText, dcFlavorSuffix, dcActorType) => {
   const showHighlightsToEveryone = getSetting('always-show-highlights-to-everyone')
   const dataVisibility = showHighlightsToEveryone ? 'all' : 'gm'
-  const messageKey = dcActorType === 'target' ? `${MODULE_ID}.Message.TargetHas`
-    : dcActorType === 'caster' ? `${MODULE_ID}.Message.CasterHas`
-      : `${MODULE_ID}.Message.ActorHas`
+  const messageKey = {
+    target: `${MODULE_ID}.Message.TargetHas`,
+    caster: `${MODULE_ID}.Message.CasterHas`,
+    actor: `${MODULE_ID}.Message.ActorHas`,
+  }[dcActorType]
+  const targetHasPrefix = tryLocalize(messageKey, 'Target has:')
   $flavorText.find('div.degree-of-success').before(
     `<div data-visibility="${dataVisibility}">
-${tryLocalize(messageKey, 'Target has:')} <b>${dcFlavorSuffix}</b>
+${targetHasPrefix} <b>${dcFlavorSuffix}</b>
 </div>`)
 }
 
-const hook_preCreateChatMessage = async (chatMessage, data) => {
-  // continue only if message is a PF2e roll message with a rolling actor
-  if (
-    !chatMessage.flags
-    || !chatMessage.flags.pf2e
-    || !chatMessage.flags.pf2e.modifiers
-    || !chatMessage.flags.pf2e.context.dc
-    || !chatMessage.flags.pf2e.context.actor
-  ) return true
-
+const parsePf2eChatMessageWithRoll = (chatMessage) => {
   const rollingActor = game.actors.get(chatMessage.flags.pf2e.context.actor)
   // here I assume the PF2E system always includes the d20 roll as the first roll!  and as the first term of that roll!
   const roll = chatMessage.rolls[0]
@@ -272,30 +347,65 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   const originUuid = chatMessage.flags.pf2e.origin?.uuid
   const originItem = originUuid ? fromUuidSync(originUuid) : undefined
   const allModifiersInChatMessage = chatMessage.flags.pf2e.modifiers
-  /*
-  NOTE - from this point on, I use the term "modifier" or "mod" to refer to conditions/effects/feats that have granted
-  a bonus or penalty to the roll or to the DC the roll was against.  I will filter rollMods and dcMods to only include
-  relevant non-ignored modifiers, and then calculate which modifiers actually made a significant impact on the outcome.
+  return {
+    /** @type Actor */
+    rollingActor,
+    /** @type number */
+    deltaFromDc,
+    /** @type number */
+    dieRoll,
+    /** @type {Degree} */
+    currentDegreeOfSuccess,
+    /** @type string */
+    dcSlug,
+    /** @type boolean */
+    isStrike,
+    /** @type boolean */
+    isSpell,
+    /** @type {Token | undefined} */
+    targetedToken,
+    /** @type {Actor | undefined} */
+    targetedActor,
+    /** @type {Item | undefined} */
+    originItem,
+    /** @type {Modifier[]} */
+    allModifiersInChatMessage,
+  }
+}
 
-  The "modifier" objects in these lists are generally ModifierPf2e class objects, which have a "label", a "type", and
-  a "modifier" field (their signed numerical value).
-   */
-  const rollMods = rollModsFromChatMessage(allModifiersInChatMessage, rollingActor, dcSlug)
+/**
+ * @param {boolean} isStrike
+ * @param {Token | undefined} targetedActor
+ * @param {string[]} contextOptionsInFlags
+ * @param {string} chatMessageFlavor
+ * @param {boolean} isSpell
+ * @param {Item | undefined} originItem
+ * @param {string} dcSlug
+ * @returns {{actorWithDc: Actor | undefined, dcMods: Modifier[]}}
+ */
+const getDcModsAndDcActor = ({
+  isStrike,
+  targetedActor,
+  contextOptionsInFlags,
+  chatMessageFlavor,
+  isSpell,
+  originItem,
+  dcSlug,
+}) => {
   let dcMods
   let actorWithDc
   if (isStrike && targetedActor) {
     actorWithDc = targetedActor
-    dcMods = dcModsOfStatistic(targetedActor.system.attributes.ac, actorWithDc)
+    dcMods = filterDcModsOfStatistic(targetedActor.system.attributes.ac, actorWithDc)
     const offGuardMod = getOffGuardAcMod()
-    const isTargetEphemerallyOffGuard = chatMessage.flags.pf2e.context.options.includes(
-      'target:condition:off-guard')
+    const isTargetEphemerallyOffGuard = contextOptionsInFlags.includes('target:condition:off-guard')
     if (isTargetEphemerallyOffGuard && !dcMods.some(m => m.label === offGuardMod.label)) {
-      const messageFlavorHtml = $(`<div>${chatMessage.flavor}</div>`)
+      const messageFlavorHtml = $(`<div>${chatMessageFlavor}</div>`)
       const dcTooltipsStr = messageFlavorHtml.find('div.target-dc > span > span.adjusted').attr('data-tooltip')
       if (dcTooltipsStr === undefined) {
         // TODO - find when it happens and fix it
-        console.error(`${MODULE_ID} | failed to find target DC tooltips in message flavor:`, chatMessage.flavor)
-        console.error(`${MODULE_ID} | message flavor as string: ${chatMessage.flavor}`)
+        console.error(`${MODULE_ID} | failed to find target DC tooltips in message flavor:`, chatMessageFlavor)
+        console.error(`${MODULE_ID} | message flavor as string: ${chatMessageFlavor}`)
         console.error(
           `${MODULE_ID} | please show these three error messages to shemetz on Discord and include a bit of context to explain what happened! 🙏`)
         offGuardMod.label = 'Off-Guard'
@@ -312,29 +422,66 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     // (note:  originItem will be undefined in the rare case of a message created through a module like Quick Send To Chat)
     // if saving against spell, DC is the Spellcasting DC which means it's affected by stuff like Frightened and Stupefied
     actorWithDc = originItem.actor
-    dcMods = dcModsOfStatistic(originItem.spellcasting.statistic.dc, actorWithDc)
+    dcMods = filterDcModsOfStatistic(originItem.spellcasting.statistic.dc, actorWithDc)
   } else if (originItem?.category === 'class') {
     // if saving against a class feat/feature, DC is the Class DC which means it's affected by stuff like Frightened and Enfeebled/Drained/etc, depending
     // NOTE:  this will not work for embedded Check buttons that come from Note REs.  see https://github.com/foundryvtt/pf2e/issues/9824
     actorWithDc = originItem.actor
-    dcMods = dcModsOfStatistic(originItem.parent.classDC, actorWithDc)
+    dcMods = filterDcModsOfStatistic(originItem.parent.classDC, actorWithDc)
   } else if (targetedActor && dcSlug) {
     // if there's a target, but it's not an attack, then it's probably a skill check against one of the target's
     // save DCs or perception DC or possibly a skill DC
     actorWithDc = targetedActor
     const dcStatistic = targetedActor.saves[dcSlug] || targetedActor.skills[dcSlug] || targetedActor[dcSlug]
     // dcStatistic should always be defined.  (otherwise it means I didn't account for all cases here!)
-    dcMods = dcModsOfStatistic(dcStatistic.dc, actorWithDc)
+    dcMods = filterDcModsOfStatistic(dcStatistic.dc, actorWithDc)
   } else {
     // happens if e.g. rolling from a @Check style button
     dcMods = []
+    actorWithDc = undefined
   }
+  return { actorWithDc, dcMods }
+}
 
+/**
+ * This function calculates which modifiers were significant in the outcome of a roll.
+ * It divides the modifiers (of the roll and of the target DC) into three categories:
+ * 1.  significantRollModifiers - these are the modifiers applied to the roll itself that definitely or probably changed
+ *     the outcome of the roll.  For example, a +1 bonus from Aid, applied to an attack.
+ *     Each of those modifiers will have a "significance" field that is one of the values in the SIGNIFICANCE enum,
+ *     other than "NONE".  Each of these modifiers will be highlighted in the chat message.
+ * 2.  significantDcModifiers - same as the above, but modifiers applied to the DC (the target number).  For example,
+ *     a -2 penalty from Frightened.
+ * 3.  insignificantDcModifiers - unlike the above, these are modifiers that definitely had no effect on the outcome.
+ *     They are only included here because the setting "always-show-defense-conditions" may cause them to be displayed.
+ *
+ * @param {Modifier[]} rollMods
+ * @param {Modifier[]} dcMods
+ * @param {number} originalDeltaFromDc delta 0-9 means SUCCESS, delta 10+ means CRIT SUCCESS, etc
+ * @param {number} dieRoll
+ * @param {Degree} currentDegreeOfSuccess
+ * @param {boolean} isStrike
+ * @returns {{
+ *   significantRollModifiers: SignificantModifier[],
+ *   significantDcModifiers: SignificantModifier[],
+ *   insignificantDcModifiers: InsignificantModifier[]
+ * }}
+ */
+const calcSignificantModifiers = ({
+  rollMods,
+  dcMods,
+  originalDeltaFromDc,
+  dieRoll,
+  currentDegreeOfSuccess,
+  isStrike,
+}) => {
   /**
    * wouldChangeOutcome(x) returns true if a bonus of x ("penalty" if x is negative) changes the degree of success
+   * (in either direction).
+   * @param {number} extra
    */
   const wouldChangeOutcome = (extra) => {
-    const newDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc + extra, dieRoll)
+    const newDegreeOfSuccess = calcDegreePlusRoll(originalDeltaFromDc + extra, dieRoll)
     return newDegreeOfSuccess !== currentDegreeOfSuccess &&
       !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, newDegreeOfSuccess, isStrike)
   }
@@ -401,6 +548,23 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
     })
   })
 
+  return {
+    significantRollModifiers,
+    significantDcModifiers,
+    insignificantDcModifiers,
+  }
+}
+
+const updateChatMessageFlavorWithHighlights = async ({
+  chatMessage,
+  chatMessageData,
+  significantRollModifiers,
+  significantDcModifiers,
+  insignificantDcModifiers,
+  targetedActor,
+  isStrike,
+  isSpell,
+}) => {
   const oldFlavor = chatMessage.flavor
   // adding an artificial div to have a single parent element, enabling nicer editing of html
   const $editedFlavor = $(`<div>${oldFlavor}</div>`)
@@ -455,18 +619,92 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   // newFlavor will be the inner HTML without the artificial div
   const newFlavor = $editedFlavor.html()
   if (newFlavor !== oldFlavor) {
-    data.flavor = newFlavor // just in case other hooks rely on it
+    chatMessageData.flavor = newFlavor // just in case other hooks rely on it
     await chatMessage.updateSource({ 'flavor': newFlavor })
   }
+}
+
+/**
+ * @param {ChatMessage} chatMessage
+ * @param chatMessageData
+ * @return {Promise<true>} (always return true, we always want the message to go through)
+ */
+const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
+  // continue only if message is a PF2e roll message with a rolling actor
+  if (
+    !chatMessage.flags
+    || !chatMessage.flags.pf2e
+    || !chatMessage.flags.pf2e.modifiers
+    || !chatMessage.flags.pf2e.context.dc
+    || !chatMessage.flags.pf2e.context.actor
+  ) return true
+
+  const {
+    rollingActor,
+    deltaFromDc,
+    dieRoll,
+    currentDegreeOfSuccess,
+    dcSlug,
+    isStrike,
+    isSpell,
+    targetedToken,
+    targetedActor,
+    originItem,
+    allModifiersInChatMessage,
+  } = parsePf2eChatMessageWithRoll(chatMessage)
+
+  /*
+  NOTE - from this point on, I use the term "modifier" or "mod" to refer to conditions/effects/feats that have granted
+  a bonus or penalty to the roll or to the DC the roll was against.  I will filter rollMods and dcMods to only include
+  relevant non-ignored modifiers, and then calculate which modifiers actually made a significant impact on the outcome.
+
+  The "modifier" objects in these lists are generally ModifierPf2e class objects, which have a "label", a "type", and
+  a "modifier" field (their signed numerical value).
+   */
+  const rollMods = filterRollModsFromChatMessage(allModifiersInChatMessage, rollingActor, dcSlug)
+
+  const { actorWithDc, dcMods } = getDcModsAndDcActor({
+    isStrike,
+    targetedActor,
+    contextOptionsInFlags: chatMessage.flags.pf2e.context.options,
+    chatMessageFlavor: chatMessage.flavor,
+    isSpell,
+    originItem,
+    dcSlug,
+  })
+
+  const { significantRollModifiers, significantDcModifiers, insignificantDcModifiers } = calcSignificantModifiers({
+    rollMods,
+    dcMods,
+    originalDeltaFromDc: deltaFromDc,
+    dieRoll,
+    currentDegreeOfSuccess,
+    isStrike,
+  })
+
+  await updateChatMessageFlavorWithHighlights({
+    chatMessage,
+    chatMessageData,
+    significantRollModifiers,
+    significantDcModifiers,
+    insignificantDcModifiers,
+    targetedActor,
+    isStrike,
+    isSpell,
+  })
 
   // hook call - to allow other modules/macros to trigger based on MM
   const significantModifiers = significantRollModifiers.concat(significantDcModifiers)
   if (significantModifiers.length > 0) {
     Hooks.callAll('modifiersMatter', {
+      /** @type {Actor} */
       rollingActor,
-      actorWithDc, // can be undefined
-      targetedToken, // can be undefined
-      significantModifiers, // list of: {name: string, value: number, significance: string}, significance is never NONE
+      /** @type {Actor | undefined} */
+      actorWithDc,
+      /** @type {Token | undefined} */
+      targetedToken,
+      /** @type {SignificantModifier[]} */
+      significantModifiers,
       chatMessage,
     })
   }
@@ -492,8 +730,6 @@ const exampleHookInspireCourage = () => {
     })
   })
 }
-
-const getSetting = (settingName) => game.settings.get(MODULE_ID, settingName)
 
 Hooks.on('init', function () {
   game.settings.register(MODULE_ID, 'always-show-highlights-to-everyone', {
