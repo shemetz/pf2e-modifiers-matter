@@ -116,7 +116,7 @@ const sumMods = (modsList) => modsList.reduce((accumulator, curr) => accumulator
 const modifierPositive = m => m.modifier > 0
 const modifierNegative = m => m.modifier < 0
 const getOffGuardAcMod = () => {
-  const offGuardSlug = isNewerVersion(game.version, '5.3') ? 'off-guard' : 'flat-footed'
+  const offGuardSlug = 'off-guard'
   const systemOffGuardCondition = game.pf2e.ConditionManager.getCondition(offGuardSlug)
   return {
     label: systemOffGuardCondition.name,
@@ -474,6 +474,7 @@ const hook_preCreateChatMessage = async (chatMessage, data) => {
   return true
 }
 
+//noinspection JSUnusedGlobalSymbols
 const exampleHookInspireCourage = () => {
   // this hook call is an example!
   // it will play a nice chime sound each time an Inspire Courage effect turns a miss into a hit (or hit to crit)
