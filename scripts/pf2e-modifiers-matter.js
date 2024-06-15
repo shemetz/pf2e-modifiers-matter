@@ -657,9 +657,6 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
   NOTE - from this point on, I use the term "modifier" or "mod" to refer to conditions/effects/feats that have granted
   a bonus or penalty to the roll or to the DC the roll was against.  I will filter rollMods and dcMods to only include
   relevant non-ignored modifiers, and then calculate which modifiers actually made a significant impact on the outcome.
-
-  The "modifier" objects in these lists are generally ModifierPf2e class objects, which have a "label", a "type", and
-  a "modifier" field (their signed numerical value).
    */
   const rollMods = filterRollModsFromChatMessage(allModifiersInChatMessage, rollingActor, dcSlug)
 
@@ -710,6 +707,54 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
   }
 
   return true
+}
+
+/**
+ *
+ * @param {ChatMessage} chatMessage
+ * @return {boolean} true if the chat message includes a roll that should have one of its roll/DC modifiers highlighted
+ */
+const checkIfChatMessageShouldHaveHighlights = (chatMessage) => {
+  if (
+    !chatMessage.flags
+    || !chatMessage.flags.pf2e
+    || !chatMessage.flags.pf2e.modifiers
+    || !chatMessage.flags.pf2e.context.dc
+    || !chatMessage.flags.pf2e.context.actor
+  ) return false
+  const {
+    rollingActor,
+    deltaFromDc,
+    dieRoll,
+    currentDegreeOfSuccess,
+    dcSlug,
+    isStrike,
+    isSpell,
+    targetedActor,
+    originItem,
+    allModifiersInChatMessage,
+  } = parsePf2eChatMessageWithRoll(chatMessage)
+  const rollMods = filterRollModsFromChatMessage(allModifiersInChatMessage, rollingActor, dcSlug)
+  const { dcMods } = getDcModsAndDcActor({
+    isStrike,
+    targetedActor,
+    contextOptionsInFlags: chatMessage.flags.pf2e.context.options,
+    chatMessageFlavor: chatMessage.flavor,
+    isSpell,
+    originItem,
+    dcSlug,
+  })
+  const { significantRollModifiers, significantDcModifiers } = calcSignificantModifiers({
+    rollMods,
+    dcMods,
+    originalDeltaFromDc: deltaFromDc,
+    dieRoll,
+    currentDegreeOfSuccess,
+    isStrike,
+  })
+  const significantModifiers = significantRollModifiers.concat(significantDcModifiers)
+
+  return significantModifiers.length > 0
 }
 
 //noinspection JSUnusedGlobalSymbols
@@ -773,3 +818,10 @@ Hooks.once('setup', function () {
   console.info(`${MODULE_ID} | initialized`)
 })
 
+window.pf2eMm = {
+  checkIfChatMessageShouldHaveHighlights,
+  exampleHookInspireCourage,
+  calcSignificantModifiers,
+  DEGREES,
+  IGNORED_MODIFIER_LABELS,
+}
