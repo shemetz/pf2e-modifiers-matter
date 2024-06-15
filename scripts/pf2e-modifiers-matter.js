@@ -758,14 +758,14 @@ const checkIfChatMessageShouldHaveHighlights = (chatMessage) => {
 }
 
 //noinspection JSUnusedGlobalSymbols
-const exampleHookInspireCourage = () => {
+const exampleHookCourageousAnthem = () => {
   // this hook call is an example!
   // it will play a nice chime sound each time an Inspire Courage effect turns a miss into a hit (or hit to crit)
   Hooks.on('modifiersMatter', ({ rollingActor, significantModifiers }) => {
-    console.log(`${rollingActor} was helped!`)
+    console.log(`${rollingActor.name} was helped!`)
     significantModifiers.forEach(({ name, significance }) => {
-      if (name.includes('Inspire Courage') && significance === 'ESSENTIAL') {
-        AudioHelper.play({
+      if (name.includes('Courageous Anthem') && significance === 'ESSENTIAL') {
+        foundry.audio.AudioHelper.play({
           src: 'https://cdn.pixabay.com/audio/2022/01/18/audio_8db1f1b5a5.mp3',
           volume: 1.0,
           autoplay: true,
@@ -820,7 +820,7 @@ Hooks.once('setup', function () {
 
 window.pf2eMm = {
   checkIfChatMessageShouldHaveHighlights,
-  exampleHookInspireCourage,
+  exampleHookCourageousAnthem,
   DEGREES,
   IGNORED_MODIFIER_LABELS,
   parsePf2eChatMessageWithRoll,
