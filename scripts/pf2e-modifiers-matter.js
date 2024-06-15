@@ -374,14 +374,14 @@ const parsePf2eChatMessageWithRoll = (chatMessage) => {
 }
 
 /**
- * @param {boolean} isStrike
  * @param {Token | undefined} targetedActor
- * @param {string[]} contextOptionsInFlags
- * @param {string} chatMessageFlavor
- * @param {boolean} isSpell
  * @param {Item | undefined} originItem
  * @param {string} dcSlug
- * @returns {{actorWithDc: Actor | undefined, dcMods: Modifier[]}}
+ * @param {boolean} isStrike
+ * @param {boolean} isSpell
+ * @param {string[]} contextOptionsInFlags (used to check for target:condition:off-guard option, "ephemeral" off-guard)
+ * @param {string} chatMessageFlavor (used only in the "ephemeral" off-guard edge case)
+ * @returns {{dcMods: Modifier[], actorWithDc: Actor | undefined}}
  */
 const getDcModsAndDcActor = ({
   isStrike,
@@ -821,7 +821,9 @@ Hooks.once('setup', function () {
 window.pf2eMm = {
   checkIfChatMessageShouldHaveHighlights,
   exampleHookInspireCourage,
-  calcSignificantModifiers,
   DEGREES,
   IGNORED_MODIFIER_LABELS,
+  parsePf2eChatMessageWithRoll,
+  getDcModsAndDcActor,
+  calcSignificantModifiers,
 }
