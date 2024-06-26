@@ -888,6 +888,12 @@ Hooks.on('init', function () {
       2: game.i18n.localize(`${MODULE_ID}.Settings.highlight-potentials.choices.2`),
     },
     default: 0,
+    onChange: (value) => {
+      if (value > 0)
+        $('section.chat-sidebar').addClass('pf2emm-hp')
+      else
+        $('section.chat-sidebar').removeClass('pf2emm-hp')
+    },
   })
 })
 
@@ -895,6 +901,11 @@ Hooks.once('setup', function () {
   Hooks.on('preCreateChatMessage', hook_preCreateChatMessage)
   initializeIgnoredModifiers()
   console.info(`${MODULE_ID} | initialized`)
+})
+
+Hooks.on('renderChatLog', (_chatlog, $element, _options) => {
+  if (getSetting('highlight-potentials') > 0)
+    $element.addClass('pf2emm-hp')
 })
 
 window.pf2eMm = {

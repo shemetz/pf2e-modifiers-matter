@@ -82,7 +82,11 @@ I added #chat-log to all of these CSS selectors to increase their specificity, s
     }
 }
 
-#chat-log .pf2emm-potential-for-amped-guidance {
+section.chat-sidebar:not(.pf2emm-hp) .pf2emm-potential-for-amped-guidance {
+    display: none;
+}
+
+section.chat-sidebar.pf2emm-hp .pf2emm-potential-for-amped-guidance {
     margin: 0 8px;
     /* 51 iterations, 30s total, ends on 100% */
     animation: pf2emm-glow 0.6s 51 alternate;
