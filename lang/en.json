@@ -16,12 +16,22 @@
       "additional-ignored-labels": {
         "name": "Additional ignored labels",
         "hint": "Insert text separated by semicolons (;).  Each of these modifier labels will be ignored.  If you feel an existing modifier in the rules should be ignored by default, please suggest it on Github/Discord."
+      },
+      "highlight-potentials": {
+        "name": "Highlight potentials",
+        "hint": "Useful if you have the psychic amp for Guidance, or have the Nudge Fate effect active.  Will display a highlight whenever anyone fails a roll by 1-2, which you could potentially change with your spell.",
+        "choices": {
+          "0": "Disabled",
+          "1": "Highlight opportunities for a +1",
+          "2": "Highlight opportunities for a +2"
+        }
       }
     },
     "Message": {
       "CasterHas": "Caster has:",
       "ActorHas": "Actor has:",
-      "TargetHas": "Target has:"
+      "TargetHas": "Target has:",
+      "HasPotential": "(Has potential!)"
     },
     "IgnoredModifiers": {
       "DeviseAStratagem": "Devise a Stratagem",

@@ -7,6 +7,8 @@
     --pf2emm-color-harmful-outline: #ff0000bf;
     --pf2emm-color-detrimental: #ff852f;
     --pf2emm-color-detrimental-outline: #ff852fbf;
+
+    --pf2emm-color-glow: #ffcc00;
 }
 
 /*
@@ -67,4 +69,24 @@ I added #chat-log to all of these CSS selectors to increase their specificity, s
 
 #chat-log .pf2emm-suffix.pf2emm-is-DETRIMENTAL {
     color: var(--pf2emm-color-detrimental);
+}
+
+@keyframes pf2emm-glow {
+    0% {
+        text-shadow: 0 0 12px var(--pf2emm-color-glow);
+        opacity: 0.7;
+    }
+    100% {
+        text-shadow: 0 0 6px var(--pf2emm-color-glow);
+        opacity: 1;
+    }
+}
+
+#chat-log .pf2emm-potential-for-amped-guidance {
+    margin: 0 8px;
+    /* 51 iterations, 30s total, ends on 100% */
+    animation: pf2emm-glow 0.6s 51 alternate;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: both;
+    font-weight: 600;
 }

@@ -302,6 +302,47 @@ const shouldIgnoreStrikeCritFailToFail = (oldDOS, newDOS, isStrike) => {
 }
 
 /**
+ * See https://2e.aonprd.com/ConsciousMinds.aspx?ID=2
+ *
+ * > You can cast an amped guidance spell as a reaction triggered when your ally fails or critically fails an
+ * attack roll, Perception check, saving throw, or skill check, and the bonus from guidance would change the
+ * failure to a success or the critical failure to a normal failure. The bonus from guidance applies retroactively
+ * to their check.  (+1 status bonus, heightens to +2 bonus later)
+ *
+ * This function checks:
+ * - degree of success is fail or crit fail
+ * - status bonus would be significant
+ * - not a crit-fail strike upgraded to fail (depends on setting)
+ *
+ * This function does not check:
+ * - type of roll (already assumed to fit one of these four)
+ * - actor (may not be an ally)
+ * - whether a reaction is available
+ * - whether the user can cast the spell (it's hard to tell, easier to rely on the setting)
+ * - the value of the guidance status bonus (use the setting to choose for yourself)
+ */
+const checkPotentialForAmpedGuidance = ({
+  rollMods,
+  currentDegreeOfSuccess,
+  originalDeltaFromDc,
+  dieRoll,
+  isStrike,
+}) => {
+  if (currentDegreeOfSuccess === DEGREES.CRIT_SUCC) return false
+  if (currentDegreeOfSuccess === DEGREES.SUCCESS) return false
+  const potentialBonus = getSetting('highlight-potentials')
+  const highestStatusBonus = Math.max(
+    ...rollMods.filter(m => m.type === 'status').map(m => m.modifier),
+    0,
+  )
+  const potentialExtra = potentialBonus - highestStatusBonus
+  if (potentialExtra <= 0) return false
+  const newDegreeOfSuccess = calcDegreePlusRoll(originalDeltaFromDc + potentialExtra, dieRoll)
+  return newDegreeOfSuccess !== currentDegreeOfSuccess &&
+    !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, newDegreeOfSuccess, isStrike)
+}
+
+/**
  * dcFlavorSuffix will be e.g. 'Off-Guard -2, Frightened -1'
  *
  * @param $flavorText
@@ -321,6 +362,13 @@ const insertDcFlavorSuffix = ($flavorText, dcFlavorSuffix, dcActorType) => {
     `<div data-visibility="${dataVisibility}">
 ${targetHasPrefix} <b>${dcFlavorSuffix}</b>
 </div>`)
+}
+
+const insertPotentialForAmpedGuidance = ($flavorText) => {
+  const text = game.i18n.localize(`${MODULE_ID}.Message.HasPotential`)
+  $flavorText.find('div.degree-of-success').append(
+    `<span class="pf2emm-potential-for-amped-guidance">${text}</span>`,
+  )
 }
 
 const parsePf2eChatMessageWithRoll = (chatMessage) => {
@@ -547,11 +595,19 @@ const calcSignificantModifiers = ({
       significance: significance,
     })
   })
+  const potentialForAmpedGuidance = checkPotentialForAmpedGuidance({
+    rollMods,
+    currentDegreeOfSuccess,
+    originalDeltaFromDc,
+    isStrike,
+    dieRoll,
+  })
 
   return {
     significantRollModifiers,
     significantDcModifiers,
     insignificantDcModifiers,
+    potentialForAmpedGuidance,
   }
 }
 
@@ -561,6 +617,7 @@ const updateChatMessageFlavorWithHighlights = async ({
   significantRollModifiers,
   significantDcModifiers,
   insignificantDcModifiers,
+  potentialForAmpedGuidance,
   targetedActor,
   isStrike,
   isSpell,
@@ -616,6 +673,9 @@ const updateChatMessageFlavorWithHighlights = async ({
     const dcActorType = targetedActor ? 'target' : isSpell ? 'caster' : 'actor'
     insertDcFlavorSuffix($editedFlavor, dcFlavorSuffix, dcActorType)
   }
+  if (potentialForAmpedGuidance) {
+    insertPotentialForAmpedGuidance($editedFlavor)
+  }
   // newFlavor will be the inner HTML without the artificial div
   const newFlavor = $editedFlavor.html()
   if (newFlavor !== oldFlavor) {
@@ -670,7 +730,12 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
     dcSlug,
   })
 
-  const { significantRollModifiers, significantDcModifiers, insignificantDcModifiers } = calcSignificantModifiers({
+  const {
+    significantRollModifiers,
+    significantDcModifiers,
+    insignificantDcModifiers,
+    potentialForAmpedGuidance,
+  } = calcSignificantModifiers({
     rollMods,
     dcMods,
     originalDeltaFromDc: deltaFromDc,
@@ -685,6 +750,7 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
     significantRollModifiers,
     significantDcModifiers,
     insignificantDcModifiers,
+    potentialForAmpedGuidance,
     targetedActor,
     isStrike,
     isSpell,
@@ -785,14 +851,6 @@ Hooks.on('init', function () {
     default: true,
     type: Boolean,
   })
-  game.settings.register(MODULE_ID, 'ignore-crit-fail-over-fail-on-attacks', {
-    name: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.name`,
-    hint: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.hint`,
-    scope: 'client',
-    config: true,
-    default: false,
-    type: Boolean,
-  })
   game.settings.register(MODULE_ID, 'additional-ignored-labels', {
     name: `${MODULE_ID}.Settings.additional-ignored-labels.name`,
     hint: `${MODULE_ID}.Settings.additional-ignored-labels.hint`,
@@ -810,6 +868,27 @@ Hooks.on('init', function () {
     default: false,
     type: Boolean,
   })
+  game.settings.register(MODULE_ID, 'ignore-crit-fail-over-fail-on-attacks', {
+    name: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.name`,
+    hint: `${MODULE_ID}.Settings.ignore-crit-fail-over-fail-on-attacks.hint`,
+    scope: 'client',
+    config: true,
+    default: false,
+    type: Boolean,
+  })
+  game.settings.register(MODULE_ID, 'highlight-potentials', {
+    name: `${MODULE_ID}.Settings.highlight-potentials.name`,
+    hint: `${MODULE_ID}.Settings.highlight-potentials.hint`,
+    scope: 'client',
+    config: true,
+    type: String,
+    choices: {
+      0: game.i18n.localize(`${MODULE_ID}.Settings.highlight-potentials.choices.0`),
+      1: game.i18n.localize(`${MODULE_ID}.Settings.highlight-potentials.choices.1`),
+      2: game.i18n.localize(`${MODULE_ID}.Settings.highlight-potentials.choices.2`),
+    },
+    default: 0,
+  })
 })
 
 Hooks.once('setup', function () {
@@ -826,4 +905,5 @@ window.pf2eMm = {
   parsePf2eChatMessageWithRoll,
   getDcModsAndDcActor,
   calcSignificantModifiers,
+  checkPotentialForAmpedGuidance,
 }
