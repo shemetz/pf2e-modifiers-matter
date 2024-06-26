@@ -73,6 +73,12 @@ However, class DC (and other DCs) are **not supported if they appear in a Note**
 create is in text that is appended to an attack, damage, or similar chat message.  For example, the Monk's Stunning Fist
 won't properly have highlights with this module.  (This issue is a PF2E system problem:  See https://github.com/foundryvtt/pf2e/issues/9824)
 
+### Highlight potential for Amped Guidance or Nudge Fate
+
+If you have the Psychic's [Guidance Amp](https://2e.aonprd.com/ConsciousMinds.aspx?ID=2), or the witch's 
+[Nudge Fate](https://2e.aonprd.com/Spells.aspx?ID=1890), you can enable this setting to highlight rolls that fail by 1
+(or by 2 if you can heighten Amped Guidance), where you could use your ability to change the outcome.
+
 ## Examples
 
 Example situation:
