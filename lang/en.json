@@ -7,11 +7,11 @@
       },
       "always-show-defense-conditions": {
         "name": "Always show defense conditions",
-        "hint": "If set to true, defense highlights such as \"Flat-footed -2\" will be shown constantly, even when they don't matter."
+        "hint": "If enabled, defense highlights such as \"Flat-footed -2\" will be shown constantly, even when they don't matter."
       },
       "ignore-crit-fail-over-fail-on-attacks": {
         "name": "Ignore Crit Fail over Fail on Attacks",
-        "hint": "If set to true, the module will not highlight changes that changed an attack from a fail to a crit fail or vice versa. This is helpful because usually there's no difference between the two cases on attacks;  however, there are some exceptions to this rule, such as Confident Finisher."
+        "hint": "If enabled while you're attacking, the module will not highlight changes that changed an attack from a fail to a crit fail or vice versa. This is helpful because usually there's no difference between the two cases on attacks;  however, there are some exceptions to this rule, such as Confident Finisher.  (It's recommended to disable this setting if you're a GM in that case)"
       },
       "additional-ignored-labels": {
         "name": "Additional ignored labels",
