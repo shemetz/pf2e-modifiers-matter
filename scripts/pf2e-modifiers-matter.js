@@ -105,6 +105,8 @@ const tryLocalize = (key, defaultValue) => {
   return localized
 }
 
+const i18n = (keyInModule) => game.i18n.localize(`${MODULE_ID}.${keyInModule}`)
+
 /** @param {string} settingName */
 const getSetting = (settingName) => game.settings.get(MODULE_ID, settingName)
 
@@ -302,44 +304,61 @@ const shouldIgnoreStrikeCritFailToFail = (oldDOS, newDOS, isStrike) => {
 }
 
 /**
- * See https://2e.aonprd.com/ConsciousMinds.aspx?ID=2
+ * See:
+ * - https://2e.aonprd.com/ConsciousMinds.aspx?ID=2 (Amped Guidance, +1 or +2 status bonus to any check)
+ * - https://2e.aonprd.com/Spells.aspx?ID=1890 (Nudge Fate, +1 status bonus to any check)
+ * - https://2e.aonprd.com/Feats.aspx?ID=4802 (Guardian's Deflection, +2 circumstance bonus to AC)
  *
- * > You can cast an amped guidance spell as a reaction triggered when your ally fails or critically fails an
- * attack roll, Perception check, saving throw, or skill check, and the bonus from guidance would change the
- * failure to a success or the critical failure to a normal failure. The bonus from guidance applies retroactively
- * to their check.  (+1 status bonus, heightens to +2 bonus later)
+ * These are abilities that require a player to know that a roll failed/succeeded by a certain amount.
+ *
+ * This function will calculate whether any of the above abilities would be helpful, and based on that the code will
+ * later insert markers into the chat message, for any of them that would indeed help.  Those markers will become
+ * visible to any player who has the highlight-potentials-preset game setting enabled for the matching modifier.
  *
  * This function checks:
- * - degree of success is fail or crit fail
- * - status bonus would be significant
+ * - degree of success can be upgraded/downgraded to the appropriate one
+ * - status/circumstance bonus would be significant (taking existing bonuses into account)
  * - not a crit-fail strike upgraded to fail (depends on setting)
  *
  * This function does not check:
- * - type of roll (already assumed to fit one of these four)
- * - actor (may not be an ally)
- * - whether a reaction is available
- * - whether the user can cast the spell (it's hard to tell, easier to rely on the setting)
- * - the value of the guidance status bonus (use the setting to choose for yourself)
+ * - type of roll (already assumed to be an attack, skill, perception, or saving throw)
+ * - actor
+ * - whether any reaction is available
+ * - whether any user has the relevant ability
  */
-const checkPotentialForAmpedGuidance = ({
+const checkHighlightPotentials = ({
   rollMods,
+  dcMods,
   currentDegreeOfSuccess,
   originalDeltaFromDc,
   dieRoll,
   isStrike,
 }) => {
-  if (currentDegreeOfSuccess === DEGREES.CRIT_SUCC) return false
-  if (currentDegreeOfSuccess === DEGREES.SUCCESS) return false
-  const potentialBonus = getSetting('highlight-potentials')
   const highestStatusBonus = Math.max(
     ...rollMods.filter(m => m.type === 'status').map(m => m.modifier),
     0,
   )
-  const potentialExtra = potentialBonus - highestStatusBonus
-  if (potentialExtra <= 0) return false
-  const newDegreeOfSuccess = calcDegreePlusRoll(originalDeltaFromDc + potentialExtra, dieRoll)
-  return newDegreeOfSuccess !== currentDegreeOfSuccess &&
-    !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, newDegreeOfSuccess, isStrike)
+  const highestDcCircumstanceBonus = Math.max(
+    ...dcMods.filter(m => m.type === 'circumstance').map(m => m.modifier),
+    0,
+  )
+  const plus1StatusDegree = calcDegreePlusRoll(originalDeltaFromDc + 1 - highestStatusBonus, dieRoll)
+  const plus1StatusHasPotential = plus1StatusDegree !== currentDegreeOfSuccess
+    && plus1StatusDegree !== DEGREES.CRIT_SUCC
+    && !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, plus1StatusDegree, isStrike)
+  const plus2StatusDegree = calcDegreePlusRoll(originalDeltaFromDc + 2 - highestStatusBonus, dieRoll)
+  const plus2StatusHasPotential = plus2StatusDegree !== currentDegreeOfSuccess
+    && plus2StatusDegree !== DEGREES.CRIT_SUCC
+    && !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, plus2StatusDegree, isStrike)
+  const plus2CircumstanceAcDegree = calcDegreePlusRoll(originalDeltaFromDc - 2 + highestDcCircumstanceBonus, dieRoll)
+  const plus2CircumstanceAcHasPotential = plus2CircumstanceAcDegree !== currentDegreeOfSuccess
+    && plus2CircumstanceAcDegree !== DEGREES.CRIT_FAIL
+    && isStrike
+  return {
+    plus1StatusHasPotential,
+    plus2StatusHasPotential,
+    plus2CircumstanceAcHasPotential,
+  }
 }
 
 /**
@@ -353,21 +372,35 @@ const insertDcFlavorSuffix = ($flavorText, dcFlavorSuffix, dcActorType) => {
   const showHighlightsToEveryone = getSetting('always-show-highlights-to-everyone')
   const dataVisibility = showHighlightsToEveryone ? 'all' : 'gm'
   const messageKey = {
-    target: `${MODULE_ID}.Message.TargetHas`,
-    caster: `${MODULE_ID}.Message.CasterHas`,
-    actor: `${MODULE_ID}.Message.ActorHas`,
+    target: 'Message.TargetHas',
+    caster: 'Message.CasterHas',
+    actor: 'Message.ActorHas',
   }[dcActorType]
-  const targetHasPrefix = tryLocalize(messageKey, 'Target has:')
+  const targetHasPrefix = i18n(messageKey)
   $flavorText.find('div.degree-of-success').before(
     `<div data-visibility="${dataVisibility}">
 ${targetHasPrefix} <b>${dcFlavorSuffix}</b>
 </div>`)
 }
 
-const insertPotentialForAmpedGuidance = ($flavorText) => {
-  const text = game.i18n.localize(`${MODULE_ID}.Message.HasPotential`)
+const updateChatLogClass = () => {
+  const setting = getSetting('highlight-potentials-preset')
+  const $chatLogs = $('section.chat-sidebar')
+  $chatLogs.removeClass(`pf2emm_hp_1_status pf2emm_hp_2_status pf2emm_hp_2_circumstance_ac`)
+  if (setting !== 'disabled')
+    $chatLogs.addClass(`pf2emm_hp_${setting}`)
+}
+
+const insertHighlightPotentials = ($flavorText, highlightPotentials) => {
+  const classes = [
+    highlightPotentials.plus1StatusHasPotential ? 'has_potential_1_status' : '',
+    highlightPotentials.plus2StatusHasPotential ? 'has_potential_2_status' : '',
+    highlightPotentials.plus2CircumstanceAcHasPotential ? 'has_potential_2_circumstance_ac' : '',
+  ].filter(c => c !== '')
+  if (classes.length === 0) return
+  const text = i18n('Message.HasPotential')
   $flavorText.find('div.degree-of-success').append(
-    `<span class="pf2emm-potential-for-amped-guidance">${text}</span>`,
+    `<span class="pf2emm-potential ${classes.join(' ')}">${text}</span>`,
   )
 }
 
@@ -595,8 +628,9 @@ const calcSignificantModifiers = ({
       significance: significance,
     })
   })
-  const potentialForAmpedGuidance = checkPotentialForAmpedGuidance({
+  const highlightPotentials = checkHighlightPotentials({
     rollMods,
+    dcMods,
     currentDegreeOfSuccess,
     originalDeltaFromDc,
     isStrike,
@@ -607,7 +641,7 @@ const calcSignificantModifiers = ({
     significantRollModifiers,
     significantDcModifiers,
     insignificantDcModifiers,
-    potentialForAmpedGuidance,
+    highlightPotentials,
   }
 }
 
@@ -617,7 +651,7 @@ const updateChatMessageFlavorWithHighlights = async ({
   significantRollModifiers,
   significantDcModifiers,
   insignificantDcModifiers,
-  potentialForAmpedGuidance,
+  highlightPotentials,
   targetedActor,
   isStrike,
   isSpell,
@@ -673,9 +707,7 @@ const updateChatMessageFlavorWithHighlights = async ({
     const dcActorType = targetedActor ? 'target' : isSpell ? 'caster' : 'actor'
     insertDcFlavorSuffix($editedFlavor, dcFlavorSuffix, dcActorType)
   }
-  if (potentialForAmpedGuidance) {
-    insertPotentialForAmpedGuidance($editedFlavor)
-  }
+  insertHighlightPotentials($editedFlavor, highlightPotentials)
   // newFlavor will be the inner HTML without the artificial div
   const newFlavor = $editedFlavor.html()
   if (newFlavor !== oldFlavor) {
@@ -734,7 +766,7 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
     significantRollModifiers,
     significantDcModifiers,
     insignificantDcModifiers,
-    potentialForAmpedGuidance,
+    highlightPotentials,
   } = calcSignificantModifiers({
     rollMods,
     dcMods,
@@ -750,7 +782,7 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
     significantRollModifiers,
     significantDcModifiers,
     insignificantDcModifiers,
-    potentialForAmpedGuidance,
+    highlightPotentials,
     targetedActor,
     isStrike,
     isSpell,
@@ -876,24 +908,20 @@ Hooks.on('init', function () {
     default: false,
     type: Boolean,
   })
-  game.settings.register(MODULE_ID, 'highlight-potentials', {
-    name: `${MODULE_ID}.Settings.highlight-potentials.name`,
-    hint: `${MODULE_ID}.Settings.highlight-potentials.hint`,
+  game.settings.register(MODULE_ID, 'highlight-potentials-preset', {
+    name: `${MODULE_ID}.Settings.highlight-potentials-preset.name`,
+    hint: `${MODULE_ID}.Settings.highlight-potentials-preset.hint`,
     scope: 'client',
     config: true,
     type: String,
     choices: {
-      0: game.i18n.localize(`${MODULE_ID}.Settings.highlight-potentials.choices.0`),
-      1: game.i18n.localize(`${MODULE_ID}.Settings.highlight-potentials.choices.1`),
-      2: game.i18n.localize(`${MODULE_ID}.Settings.highlight-potentials.choices.2`),
+      'disabled': i18n('Settings.highlight-potentials-preset.choices.disabled'),
+      '1_status': i18n('Settings.highlight-potentials-preset.choices.1_status'),
+      '2_status': i18n('Settings.highlight-potentials-preset.choices.2_status'),
+      '2_circumstance_ac': i18n('Settings.highlight-potentials-preset.choices.2_circumstance_ac'),
     },
-    default: 0,
-    onChange: (value) => {
-      if (value > 0)
-        $('section.chat-sidebar').addClass('pf2emm-hp')
-      else
-        $('section.chat-sidebar').removeClass('pf2emm-hp')
-    },
+    default: 'disabled',
+    onChange: updateChatLogClass,
   })
 })
 
@@ -903,10 +931,7 @@ Hooks.once('setup', function () {
   console.info(`${MODULE_ID} | initialized`)
 })
 
-Hooks.on('renderChatLog', (_chatlog, $element, _options) => {
-  if (getSetting('highlight-potentials') > 0)
-    $element.addClass('pf2emm-hp')
-})
+Hooks.on('renderChatLog', updateChatLogClass)
 
 window.pf2eMm = {
   checkIfChatMessageShouldHaveHighlights,
@@ -916,5 +941,6 @@ window.pf2eMm = {
   parsePf2eChatMessageWithRoll,
   getDcModsAndDcActor,
   calcSignificantModifiers,
-  checkPotentialForAmpedGuidance,
+  checkHighlightPotentials,
+  checkPotentialForAmpedGuidance: checkHighlightPotentials, // backwards compatibility until 2025
 }

@@ -82,15 +82,18 @@ I added #chat-log to all of these CSS selectors to increase their specificity, s
     }
 }
 
-section.chat-sidebar:not(.pf2emm-hp) .pf2emm-potential-for-amped-guidance {
-    display: none;
-}
-
-section.chat-sidebar.pf2emm-hp .pf2emm-potential-for-amped-guidance {
+section.chat-sidebar .pf2emm-potential {
+    display: none; /* overridden with !important if it is visible */
     margin: 0 8px;
     /* 51 iterations, 30s total, ends on 100% */
     animation: pf2emm-glow 0.6s 51 alternate;
     animation-timing-function: ease-in-out;
     animation-fill-mode: both;
     font-weight: 600;
+}
+
+section.chat-sidebar.pf2emm_hp_1_status .pf2emm-potential.has_potential_1_status,
+section.chat-sidebar.pf2emm_hp_2_status .pf2emm-potential.has_potential_2_status,
+section.chat-sidebar.pf2emm_hp_2_circumstance_ac .pf2emm-potential.has_potential_2_circumstance_ac {
+    display: unset !important;
 }

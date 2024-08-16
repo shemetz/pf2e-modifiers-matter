@@ -17,13 +17,14 @@
         "name": "Additional ignored labels",
         "hint": "Insert text separated by semicolons (;).  Each of these modifier labels will be ignored.  If you feel an existing modifier in the rules should be ignored by default, please suggest it on Github/Discord."
       },
-      "highlight-potentials": {
+      "highlight-potentials-preset": {
         "name": "Highlight potentials",
-        "hint": "Useful if you have the psychic amp for Guidance, or have the Nudge Fate effect active.  Will display a highlight whenever anyone fails a roll by 1-2, which you could potentially change with your spell.",
+        "hint": "Will display a highlight for you whenever a roll could potentially be upgraded/downgraded with your special ability. Select option based on the kind of modifier that you are able to apply.",
         "choices": {
-          "0": "Disabled",
-          "1": "Highlight opportunities for a +1",
-          "2": "Highlight opportunities for a +2"
+          "disabled": "Disabled (default)",
+          "1_status": "+1 status bonus (Amped Guidance, Nudge Fate)",
+          "2_status": "+2 status bonus (Amped Guidance 6th)",
+          "2_circumstance_ac": "+2 circumstance bonus to AC (Guardian's Deflection)"
         }
       }
     },
