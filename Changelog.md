@@ -1,3 +1,9 @@
+## 1.10.2 - 2024-08-16
+- Rewrote "Highlight potentials" setting to be better, fixing a major bug with it
+  - Now supports Guardian's Deflection too!
+  - Now responds immediately when you change it, allowing for quick testing and verification (you can set it to use a macro too)
+  - Setting was reset so you'll need to set it again if you were using it.
+
 ## 1.10.1 - 2024-06-26
 - Added setting to highlight potential uses for Amped Guidance or Nudge Fate
 
