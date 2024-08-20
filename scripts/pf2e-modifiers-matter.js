@@ -808,18 +808,17 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
 }
 
 /**
- *
  * @param {ChatMessage} chatMessage
- * @return {boolean} true if the chat message includes a roll that should have one of its roll/DC modifiers highlighted
+ * @return {SignificantModifier[]} possibly-empty list of modifiers (to roll or to DC) which mattered
  */
-const checkIfChatMessageShouldHaveHighlights = (chatMessage) => {
+const getSignificantModifiersOfMessage = (chatMessage) => {
   if (
     !chatMessage.flags
     || !chatMessage.flags.pf2e
     || !chatMessage.flags.pf2e.modifiers
     || !chatMessage.flags.pf2e.context.dc
     || !chatMessage.flags.pf2e.context.actor
-  ) return false
+  ) return []
   const {
     rollingActor,
     deltaFromDc,
@@ -850,8 +849,16 @@ const checkIfChatMessageShouldHaveHighlights = (chatMessage) => {
     currentDegreeOfSuccess,
     isStrike,
   })
-  const significantModifiers = significantRollModifiers.concat(significantDcModifiers)
+  return significantRollModifiers.concat(significantDcModifiers)
+}
 
+/**
+ *
+ * @param {ChatMessage} chatMessage
+ * @return {boolean} true if the chat message includes a roll that should have one of its roll/DC modifiers highlighted
+ */
+const checkIfChatMessageShouldHaveHighlights = (chatMessage) => {
+  const significantModifiers = getSignificantModifiersOfMessage(chatMessage)
   return significantModifiers.length > 0
 }
 
@@ -934,6 +941,7 @@ Hooks.once('setup', function () {
 Hooks.on('renderChatLog', updateChatLogClass)
 
 window.pf2eMm = {
+  getSignificantModifiersOfMessage,
   checkIfChatMessageShouldHaveHighlights,
   exampleHookCourageousAnthem,
   DEGREES,
