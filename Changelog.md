@@ -1,5 +1,5 @@
-## 1.10.3 - 2024-08-21
-- Export another API function, getSignificantModifiersOfMessage
+## 1.10.4 - 2024-08-21
+- Exported more API functions
 
 ## 1.10.2 - 2024-08-16
 - Rewrote "Highlight potentials" setting to be better, fixing a major bug with it
