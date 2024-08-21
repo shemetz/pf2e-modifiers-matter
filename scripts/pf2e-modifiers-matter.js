@@ -459,13 +459,13 @@ const parsePf2eChatMessageWithRoll = (chatMessage) => {
  * @returns {{dcMods: Modifier[], actorWithDc: Actor | undefined}}
  */
 const getDcModsAndDcActor = ({
-  isStrike,
   targetedActor,
-  contextOptionsInFlags,
-  chatMessageFlavor,
-  isSpell,
   originItem,
   dcSlug,
+  isStrike,
+  isSpell,
+  contextOptionsInFlags,
+  chatMessageFlavor,
 }) => {
   let dcMods
   let actorWithDc
@@ -941,6 +941,7 @@ window.pf2eMm = {
   DEGREES,
   IGNORED_MODIFIER_LABELS,
   parsePf2eChatMessageWithRoll,
+  filterRollModsFromChatMessage,
   getDcModsAndDcActor,
   calcSignificantModifiers,
   checkHighlightPotentials,
