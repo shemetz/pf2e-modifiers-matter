@@ -194,41 +194,35 @@ const getOffGuardAcMod = () => {
   }
 }
 const filterDcModsOfStatistic = (dcStatistic, actorWithDc) => {
+  const armorItemModLabels = actorWithDc?.attributes.ac.modifiers.filter(m => m.type === 'item').map(m => m.label)
   return dcStatistic.modifiers
     // remove if not enabled, or ignored
     .filter(m => m.enabled && !m.ignored)
     // remove everything that should be ignored (including user-defined)
     .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
     // ignore item bonuses that come from armor, they're Resilient runes
-    .filter(m => !(
-      m.type === 'item'
-      // comparing the modifier label to the names of the actor's Armor items
-      && actorWithDc?.attributes.ac.modifiers.some(m2 => m2.label === m.label)
-    ))
+    .filter(m => !(m.type === 'item' && armorItemModLabels.includes(m.label)))
 }
 
 /**
- * @param {Modifier[]} modifiersFromChatMessage
+ * @param {Modifier[]} allModifiersInChatMessage
  * @param {Actor} rollingActor
- * @param {DcType} dcType
+ * @param {boolean} isStrike
  * @returns {Modifier[]}
  */
-const filterRollModsFromChatMessage = (modifiersFromChatMessage, rollingActor, dcType) => {
-  return modifiersFromChatMessage
+const filterRollModsFromChatMessage = ({ allModifiersInChatMessage, rollingActor, isStrike }) => {
+  const armorItemModLabels = rollingActor.attributes.ac.modifiers.filter(m => m.type === 'item').map(m => m.label)
+  return allModifiersInChatMessage
     // enabled is false for one of the conditions if it can't stack with others
     .filter(m => m.enabled && !m.ignored)
     // ignoring standard things from list (including user-defined)
     .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus
-    .filter(m => !((dcType === 'armor' || dcType === 'ac') && m.slug.endsWith('-form')))
-    // for attacks/skills, ignore Doubling Rings which are basically a permanent item bonus
+    .filter(m => !(isStrike && m.slug.endsWith('-form')))
+    // ignore Doubling Rings which are basically a permanent item bonus
     .filter(m => !m.slug.startsWith('doubling-rings'))
-    // for saving throws, ignore item bonuses that come from armor, they're Resilient runes
-    .filter(m => !(
-      m.type === 'item'
-      // comparing the modifier label to the name of the rolling actor's Armor item
-      && rollingActor.attributes.ac.modifiers.some(m2 => m2.label === m.label)
-    ))
+    // ignore item bonuses that come from armor, they're Resilient runes
+    .filter(m => !(m.type === 'item' && armorItemModLabels.includes(m.label)))
 }
 
 const DEGREES = Object.freeze({
@@ -750,7 +744,7 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
   a bonus or penalty to the roll or to the DC the roll was against.  I will filter rollMods and dcMods to only include
   relevant non-ignored modifiers, and then calculate which modifiers actually made a significant impact on the outcome.
    */
-  const rollMods = filterRollModsFromChatMessage(allModifiersInChatMessage, rollingActor, dcSlug)
+  const rollMods = filterRollModsFromChatMessage({ allModifiersInChatMessage, rollingActor, isStrike })
 
   const { actorWithDc, dcMods } = getDcModsAndDcActor({
     isStrike,
@@ -831,7 +825,7 @@ const getSignificantModifiersOfMessage = (chatMessage) => {
     originItem,
     allModifiersInChatMessage,
   } = parsePf2eChatMessageWithRoll(chatMessage)
-  const rollMods = filterRollModsFromChatMessage(allModifiersInChatMessage, rollingActor, dcSlug)
+  const rollMods = filterRollModsFromChatMessage({ allModifiersInChatMessage, rollingActor, isStrike })
   const { dcMods } = getDcModsAndDcActor({
     isStrike,
     targetedActor,
