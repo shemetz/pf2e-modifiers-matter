@@ -55,6 +55,14 @@ CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D2
  * @property {number} value
  * @property {'None'} significance
  */
+/**
+ * @typedef {Object} ChatMessage - a PF2E Chat Message object.  This definition is incomplete, includes only fields used in this module.
+ * @property {Object} flags
+ * @property {Object} rolls
+ * @property {Object} content
+ * @property {Object} flavor
+ * @property {Function} updateSource
+ */
 
 /**
  * ESSENTIAL (strong green) - This modifier was necessary to achieve this degree of success (DoS).  Others were
