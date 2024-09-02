@@ -93,6 +93,7 @@ const SIGNIFICANCE = Object.freeze({
 })
 let IGNORED_MODIFIER_LABELS = new Set()
 let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = new Set()
+let IGNORED_MODIFIER_SLUGS = new Set()
 
 let warnedAboutLocalization = false
 
@@ -238,11 +239,24 @@ const initializeIgnoredModifiers = () => {
     'Protective Template (AC)',
     'Sorcerous Template (Base)',
     'Doddering Template (Base)',
+
+    // Other adjustments are not in the pf2e system (yet?), but undead adjustments do appear in PF2e Workbench, and one of them is relevant:
+    'Ghoul Adjustment',
   ]
   IGNORED_MODIFIER_LABELS = new Set([
     ...IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)),
     ...IGNORED_MODIFIER_LABELS_HARDCODED,
     ...getSetting('additional-ignored-labels').split(';'),
+  ])
+  IGNORED_MODIFIER_SLUGS = new Set([
+    // commonly found on fiends
+    // but also commonly *incorrectly* used as a slug for e.g. "+2 to Will Saves vs Emotion"
+    '1-status-to-all-saves-vs-magic',
+    // Assorted things I found in the ability glossaries which seem permanent and thus not useful to highlight
+    'cryptid-experimental-augmented',
+    'kallas-devil-blameless',
+    'mana-wastes-mutant-hulking-form',
+    'skeleton-lacquered',
   ])
   const IGNORED_MODIFIERS_FOR_AC_ONLY_I18N = [
     // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
@@ -285,7 +299,7 @@ const filterDcModsOfStatistic = (dcStatistic, actorWithDc) => {
     // remove if not enabled, or ignored
     .filter(m => m.enabled && !m.ignored)
     // remove everything that should be ignored (including user-defined)
-    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
+    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label)).filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
     // ignore item bonuses that come from armor, they're Resilient runes
     .filter(m => !(m.type === 'item' && armorItemModLabels.includes(m.label)))
 }
@@ -302,7 +316,7 @@ const filterRollModsFromChatMessage = ({ allModifiersInChatMessage, rollingActor
     // enabled is false for one of the conditions if it can't stack with others
     .filter(m => m.enabled && !m.ignored)
     // ignoring standard things from list (including user-defined)
-    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
+    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label)).filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
     // for attacks, ignore all "form" spells that replace your attack bonus
     .filter(m => !(isStrike && m.slug.endsWith('-form')))
     // ignore Doubling Rings which are basically a permanent item bonus
@@ -1026,6 +1040,7 @@ window.pf2eMm = {
   exampleHookCourageousAnthem,
   DEGREES,
   IGNORED_MODIFIER_LABELS,
+  IGNORED_MODIFIER_SLUGS,
   IGNORED_MODIFIER_LABELS_FOR_AC_ONLY,
   parsePf2eChatMessageWithRoll,
   filterRollModsFromChatMessage,
