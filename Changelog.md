@@ -1,3 +1,9 @@
+## 1.10.5 - 2024-09-02
+- Added '+1 status to all saves VS magic' to ignored modifiers
+- Added compatibility with Mercenary Marketplace - ignoring modifiers from Templates
+- Added a few existing passive bestiary abilities to ignored modifiers, e.g. "(Cryptid) Experimental - Augmented"
+- Refactored ignore list code
+
 ## 1.10.4 - 2024-08-21
 - Exported more API functions
 
