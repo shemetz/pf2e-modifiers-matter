@@ -167,8 +167,81 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers3p.pf2e-flatten_pwol`,
     `${MODULE_ID}.IgnoredModifiers3p.pf2e-flatten_pwol_half`,
   ]
-  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)).
-    concat(getSetting('additional-ignored-labels').split(';'))
+  const IGNORED_MODIFIER_LABELS_HARDCODED = [
+    // compatibility with Mercenary Marketplace Vol 1, which adds templates that permanently adjust creature stats:
+    // Human ancestry templates
+    'Ancestral Strength',
+    'Ancestral Dexterity',
+    'Ancestral Constitution',
+    'Ancestral Intelligence',
+    'Ancestral Wisdom',
+    'Ancestral Charisma',
+    // Other ancestry templates (dwarf, elf, etc)
+    'Dwarven Constitution',
+    'Dwarven Wisdom',
+    'Dwarven Charisma',
+    'Elven Dexterity',
+    'Elven Constitution',
+    'Elven Intelligence',
+    'Gnomish Strength',
+    'Gnomish Constitution',
+    'Gnomish Charisma',
+    'Goblin Dexterity',
+    'Goblin Wisdom',
+    'Goblin Charisma',
+    'Keen Eyes (Seek hidden or undetected within 30 feet)', // from halfling template
+    'Halfling Strength',
+    'Halfling Dexterity',
+    'Halfling Wisdom',
+    'Orcish Strength',
+    // Crew templates
+    'Crew Level Adjustment',
+    'Crew Skill Adjustment',
+    // Descriptive Templates
+    'Boastful Template',
+    'Brutish Template',
+    'Oblivious Template',
+    'Oblivious Template (Circumstance)',
+    'Slight Template',
+    'Watchful Template',
+    'Convalescent Template (Base)',
+    'Convalescent Template (Circumstance Penalty)',
+    'Feeble Template (Base)',
+    'Feeble Template (Strength Based)',
+    'Feeble Template (AC)',
+    'Inept Template (Base)',
+    'Unlucky Template (Base)',
+    'Unlucky Template (AC)',
+    'Clumsy Template (Base)',
+    'Clumsy Template (Reflex)',
+    'Clumsy Template (AC)',
+    'Clumsy Template (Dexterity Attacks)',
+    'Foolish Template (Base)',
+    'Foolish Template (AC)',
+    'Foolish Template (Wisdom Based)',
+    'Foolish Template (Intelligence Based)',
+    'Foolish vs. illusion effects',
+    'Frail Template (Base)',
+    'Frail Template (Constitution Based)',
+    'Frail Template (AC)',
+    'Frail Template (Circumstance Penalty)',
+    'Punchable Template (Base)',
+    'Bold Template (Base)',
+    'Bold Template (Will)',
+    'Cunning Template (Base)',
+    'Cunning Template (Perception)',
+    'Cunning Template (Skills)',
+    'Hardy Template (Base)',
+    'Hardy Template (Fortitude)',
+    'Lucky Template (Base)',
+    'Protective Template (Base)',
+    'Protective Template (AC)',
+    'Sorcerous Template (Base)',
+    'Doddering Template (Base)',
+  ]
+  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
+    .concat(IGNORED_MODIFIER_LABELS_HARDCODED)
+    .concat(getSetting('additional-ignored-labels').split(';'))
   IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = [
     // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
     // however, this effect also has other modifiers which I don't want to ignore.
