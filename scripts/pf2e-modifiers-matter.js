@@ -91,8 +91,8 @@ const SIGNIFICANCE = Object.freeze({
   HARMFUL: 'HARMFUL',
   DETRIMENTAL: 'DETRIMENTAL',
 })
-let IGNORED_MODIFIER_LABELS = []
-let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = []
+let IGNORED_MODIFIER_LABELS = new Set()
+let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = new Set()
 
 let warnedAboutLocalization = false
 
@@ -239,14 +239,19 @@ const initializeIgnoredModifiers = () => {
     'Sorcerous Template (Base)',
     'Doddering Template (Base)',
   ]
-  IGNORED_MODIFIER_LABELS = IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str))
-    .concat(IGNORED_MODIFIER_LABELS_HARDCODED)
-    .concat(getSetting('additional-ignored-labels').split(';'))
-  IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = [
+  IGNORED_MODIFIER_LABELS = new Set([
+    ...IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)),
+    ...IGNORED_MODIFIER_LABELS_HARDCODED,
+    ...getSetting('additional-ignored-labels').split(';'),
+  ])
+  const IGNORED_MODIFIERS_FOR_AC_ONLY_I18N = [
     // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
     // however, this effect also has other modifiers which I don't want to ignore.
     `${MODULE_ID}.IgnoredModifiers.DrakeheartMutagen`,
-  ].map(str => tryLocalize(str, str))
+  ]
+  IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = new Set([
+    ...IGNORED_MODIFIERS_FOR_AC_ONLY_I18N.map(str => tryLocalize(str, str))],
+  )
 }
 
 /**
@@ -280,7 +285,7 @@ const filterDcModsOfStatistic = (dcStatistic, actorWithDc) => {
     // remove if not enabled, or ignored
     .filter(m => m.enabled && !m.ignored)
     // remove everything that should be ignored (including user-defined)
-    .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
+    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
     // ignore item bonuses that come from armor, they're Resilient runes
     .filter(m => !(m.type === 'item' && armorItemModLabels.includes(m.label)))
 }
@@ -297,7 +302,7 @@ const filterRollModsFromChatMessage = ({ allModifiersInChatMessage, rollingActor
     // enabled is false for one of the conditions if it can't stack with others
     .filter(m => m.enabled && !m.ignored)
     // ignoring standard things from list (including user-defined)
-    .filter(m => !IGNORED_MODIFIER_LABELS.includes(m.label))
+    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus
     .filter(m => !(isStrike && m.slug.endsWith('-form')))
     // ignore Doubling Rings which are basically a permanent item bonus
@@ -573,7 +578,7 @@ const getDcModsAndDcActor = ({
         dcMods.push(offGuardMod)
       }
     }
-    dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.includes(m.label))
+    dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.has(m.label))
   } else if (isSpell && !!originItem) {
     // (note:  originItem will be undefined in the rare case of a message created through a module like Quick Send To Chat)
     // if saving against spell, DC is the Spellcasting DC which means it's affected by stuff like Frightened and Stupefied
@@ -1021,6 +1026,7 @@ window.pf2eMm = {
   exampleHookCourageousAnthem,
   DEGREES,
   IGNORED_MODIFIER_LABELS,
+  IGNORED_MODIFIER_LABELS_FOR_AC_ONLY,
   parsePf2eChatMessageWithRoll,
   filterRollModsFromChatMessage,
   getDcModsAndDcActor,
