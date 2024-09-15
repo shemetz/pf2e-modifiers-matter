@@ -195,21 +195,23 @@ export const calcSignificantModifiers = ({
   const necessaryNegativeRollMods = negativeRollMods.filter(m => wouldChangeOutcome(-m.modifier))
   const necessaryPositiveDcMods = positiveDcMods.filter(m => wouldChangeOutcome(m.modifier))
   const necessaryNegativeDcMods = negativeDcMods.filter(m => wouldChangeOutcome(m.modifier))
-  // "beneficial" = positive roll mod or negative dc mod
-  // "detrimental" = negative roll mod or positive dc mod
-  const totalBeneficialDelta = sumMods(positiveRollMods) - sumMods(negativeDcMods)
-  const totalDetrimentalDelta = sumMods(negativeRollMods) - sumMods(positiveDcMods) // negative!
+  // "forward" = positive roll mod or negative dc mod.  facilitates success
+  // "backward" = negative roll mod or positive dc mod.  hampers success
+  // the total deltas are the sum of all mods, in each direction
+  const totalForwardDelta = sumMods(positiveRollMods) - sumMods(negativeDcMods)
+  const totalBackwardDelta = sumMods(negativeRollMods) - sumMods(positiveDcMods) // negative!
   // sum of modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
-  const necessaryBeneficialDelta = sumMods(necessaryPositiveRollMods) - sumMods(necessaryPositiveDcMods)
-  const necessaryDetrimentalDelta = sumMods(necessaryNegativeRollMods) - sumMods(necessaryNegativeDcMods)
+  // all of them definitely changed the outcome.
+  const necessaryForwardDelta = sumMods(necessaryPositiveRollMods) - sumMods(necessaryPositiveDcMods)
+  const necessaryBackwardDelta = sumMods(necessaryNegativeRollMods) - sumMods(necessaryNegativeDcMods)
   // sum of all other modifiers.  if this sum's changing does not affect the outcome it means modifiers were unnecessary
-  const remainingBeneficialDelta = totalBeneficialDelta - necessaryBeneficialDelta
-  const remainingDetrimentalDelta = totalDetrimentalDelta - necessaryDetrimentalDelta // negative!
+  const remainingForwardDelta = totalForwardDelta - necessaryForwardDelta
+  const remainingBackwardDelta = totalBackwardDelta - necessaryBackwardDelta // negative!
   // based on the above sums and the following booleans, we can determine which modifiers were significant and how much
-  const didTotBenChangeOutcome = wouldChangeOutcome(-totalBeneficialDelta)
-  const didTotDetChangeOutcome = wouldChangeOutcome(-totalDetrimentalDelta)
-  const didRemBenChangeOutcome = wouldChangeOutcome(-remainingBeneficialDelta)
-  const didRemDetChangeOutcome = wouldChangeOutcome(-remainingDetrimentalDelta)
+  const didTotForwardChangeOutcome = wouldChangeOutcome(-totalForwardDelta)
+  const didTotBackwardChangeOutcome = wouldChangeOutcome(-totalBackwardDelta)
+  const didRemForwardChangeOutcome = wouldChangeOutcome(-remainingForwardDelta)
+  const didRemBackwardChangeOutcome = wouldChangeOutcome(-remainingBackwardDelta)
 
   /*
   EXAMPLE:
@@ -223,16 +225,16 @@ export const calcSignificantModifiers = ({
   This function calculates:
     - wouldChangeOutcome(x) returns true when x is -4 or lower, or +7 or higher
     - necessaryNegativeDcMods = -4 from Unconscious.  Nothing else is "necessary" so other such arrays are empty.
-    - totalBeneficialDelta = +1+2 - (-2-4) = +3+6 = +9
-    - totalDetrimentalDelta = -0 - 1 = -1
-    - necessaryBeneficialDelta = 0 - (-4) = +4
-    - necessaryDetrimentalDelta = 0 - 0 = 0
-    - remainingBeneficialDelta = +9 - 4 = +5
-    - remainingDetrimentalDelta = -1 - 0 = -1
-    - didTotBenChangeOutcome = wouldChangeOutcome(-9) = true
-    - didTotDetChangeOutcome = wouldChangeOutcome(1) = false
-    - didRemBenChangeOutcome = wouldChangeOutcome(-5) = true
-    - didRemDetChangeOutcome = wouldChangeOutcome(1) = false
+    - totalForwardDelta = +1+2 - (-2-4) = +3+6 = +9
+    - totalBackwardDelta = -0 - 1 = -1
+    - necessaryForwardDelta = 0 - (-4) = +4
+    - necessaryBackwardDelta = 0 - 0 = 0
+    - remainingForwardDelta = +9 - 4 = +5
+    - remainingBackwardDelta = -1 - 0 = -1
+    - didTotForwardChangeOutcome = wouldChangeOutcome(-9) = true
+    - didTotBackwardChangeOutcome = wouldChangeOutcome(1) = false
+    - didRemForwardChangeOutcome = wouldChangeOutcome(-5) = true
+    - didRemBackwardChangeOutcome = wouldChangeOutcome(1) = false
   Which means:
     - Aid:  calcSignificance(+1):
       - changedOutcome = wouldChangeOutcome(-1) = false
@@ -251,11 +253,11 @@ export const calcSignificantModifiers = ({
     const changedOutcome = wouldChangeOutcome(-modifierValue)
     if (isPositiveMod && changedOutcome)
       return SIGNIFICANCE.ESSENTIAL
-    if (isPositiveMod && !changedOutcome && didTotBenChangeOutcome && didRemBenChangeOutcome)
+    if (isPositiveMod && !changedOutcome && didTotForwardChangeOutcome && didRemForwardChangeOutcome)
       return SIGNIFICANCE.HELPFUL
     if (isNegativeMod && changedOutcome)
       return SIGNIFICANCE.HARMFUL
-    if (isNegativeMod && !changedOutcome && didTotDetChangeOutcome && didRemDetChangeOutcome)
+    if (isNegativeMod && !changedOutcome && didTotBackwardChangeOutcome && didRemBackwardChangeOutcome)
       return SIGNIFICANCE.DETRIMENTAL
     return SIGNIFICANCE.NONE
   }
