@@ -661,6 +661,8 @@ const calcSignificantModifiers = ({
       !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, newDegreeOfSuccess, isStrike)
   }
 
+  // "positive" = +1, +2, etc
+  // "negative" = -1, -2, etc
   const positiveRollMods = rollMods.filter(modifierPositive)
   const negativeRollMods = rollMods.filter(modifierNegative)
   const positiveDcMods = dcMods.filter(modifierPositive)
@@ -669,19 +671,55 @@ const calcSignificantModifiers = ({
   const necessaryNegativeRollMods = negativeRollMods.filter(m => wouldChangeOutcome(-m.modifier))
   const necessaryPositiveDcMods = positiveDcMods.filter(m => wouldChangeOutcome(m.modifier))
   const necessaryNegativeDcMods = negativeDcMods.filter(m => wouldChangeOutcome(m.modifier))
-  const rollModsPositiveTotal = sumMods(positiveRollMods) - sumMods(negativeDcMods)
-  const rollModsNegativeTotal = sumMods(negativeRollMods) - sumMods(positiveDcMods)
+  // "beneficial" = positive roll mod or negative dc mod
+  // "detrimental" = negative roll mod or positive dc mod
+  const totalBeneficialDelta = sumMods(positiveRollMods) - sumMods(negativeDcMods)
+  const totalDetrimentalDelta = sumMods(negativeRollMods) - sumMods(positiveDcMods) // negative!
   // sum of modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
-  const rollModsNecessaryPositiveTotal = sumMods(necessaryPositiveRollMods) - sumMods(necessaryPositiveDcMods)
-  const rollModsNecessaryNegativeTotal = sumMods(necessaryNegativeRollMods) - sumMods(necessaryNegativeDcMods)
+  const necessaryBeneficialDelta = sumMods(necessaryPositiveRollMods) - sumMods(necessaryPositiveDcMods)
+  const necessaryDetrimentalDelta = sumMods(necessaryNegativeRollMods) - sumMods(necessaryNegativeDcMods)
   // sum of all other modifiers.  if this sum's changing does not affect the outcome it means modifiers were unnecessary
-  const rollModsRemainingPositiveTotal = rollModsPositiveTotal - rollModsNecessaryPositiveTotal
-  const rollModsRemainingNegativeTotal = rollModsNegativeTotal - rollModsNecessaryNegativeTotal
+  const remainingBeneficialDelta = totalBeneficialDelta - necessaryBeneficialDelta
+  const remainingDetrimentalDelta = totalDetrimentalDelta - necessaryDetrimentalDelta // negative!
   // based on the above sums and the following booleans, we can determine which modifiers were significant and how much
-  const didPositiveModifiersChangeOutcome = wouldChangeOutcome(-rollModsPositiveTotal)
-  const didNegativeModifiersChangeOutcome = wouldChangeOutcome(-rollModsNegativeTotal)
-  const didRemainingPositivesChangeOutcome = wouldChangeOutcome(-rollModsRemainingPositiveTotal)
-  const didRemainingNegativesChangeOutcome = wouldChangeOutcome(-rollModsRemainingNegativeTotal)
+  const didTotBenChangeOutcome = wouldChangeOutcome(-totalBeneficialDelta)
+  const didTotDetChangeOutcome = wouldChangeOutcome(-totalDetrimentalDelta)
+  const didRemBenChangeOutcome = wouldChangeOutcome(-remainingBeneficialDelta)
+  const didRemDetChangeOutcome = wouldChangeOutcome(-remainingDetrimentalDelta)
+
+  /*
+  EXAMPLE:
+  - A player character (buffed with Heroism, helped with Aid) is attacking an enemy (who is unconscious and frightened)
+  - Roll modifiers: +1 from Aid, +2 from Heroism
+  - DC modifiers: -2 from Frightened, -4 from Unconscious, +1 from Lesser Cover
+    - Other modifiers (e.g. from level, ability, non-stacking bonuses) are ignored earlier in the process
+  - Die roll: 10, roll total: 19, DC: 16
+    - originalDeltaFromDc = +3, currentDegreeOfSuccess = SUCCESS
+
+  This function calculates:
+    - wouldChangeOutcome(x) returns true when x is -4 or lower, or +7 or higher
+    - necessaryNegativeDcMods = -4 from Unconscious.  Nothing else is "necessary" so other such arrays are empty.
+    - totalBeneficialDelta = +1+2 - (-2-4) = +3+6 = +9
+    - totalDetrimentalDelta = -0 - 1 = -1
+    - necessaryBeneficialDelta = 0 - (-4) = +4
+    - necessaryDetrimentalDelta = 0 - 0 = 0
+    - remainingBeneficialDelta = +9 - 4 = +5
+    - remainingDetrimentalDelta = -1 - 0 = -1
+    - didTotBenChangeOutcome = wouldChangeOutcome(-9) = true
+    - didTotDetChangeOutcome = wouldChangeOutcome(1) = false
+    - didRemBenChangeOutcome = wouldChangeOutcome(-5) = true
+    - didRemDetChangeOutcome = wouldChangeOutcome(1) = false
+  Which means:
+    - Aid:  calcSignificance(+1):
+      - changedOutcome = wouldChangeOutcome(-1) = false
+      - isPositiveMod && !changedOutcome && didTotBenChangeOutcome && didRemBenChangeOutcome:
+      = true && !false && true && true
+      - returns SIGNIFICANCE.HELPFUL
+    - Heroism:  calcSignificance(+2):  SIGNIFICANCE.HELPFUL
+    - Frightened:  calcSignificance(-2):  SIGNIFICANCE.HARMFUL
+    - Unconscious:  calcSignificance(-4):  SIGNIFICANCE.ESSENTIAL
+    - Lesser Cover:  calcSignificance(+1):  SIGNIFICANCE.NONE
+  */
 
   const calcSignificance = (modifierValue) => {
     const isNegativeMod = modifierValue < 0
@@ -689,11 +727,11 @@ const calcSignificantModifiers = ({
     const changedOutcome = wouldChangeOutcome(-modifierValue)
     if (isPositiveMod && changedOutcome)
       return SIGNIFICANCE.ESSENTIAL
-    if (isPositiveMod && !changedOutcome && didPositiveModifiersChangeOutcome && didRemainingPositivesChangeOutcome)
+    if (isPositiveMod && !changedOutcome && didTotBenChangeOutcome && didRemBenChangeOutcome)
       return SIGNIFICANCE.HELPFUL
     if (isNegativeMod && changedOutcome)
       return SIGNIFICANCE.HARMFUL
-    if (isNegativeMod && !changedOutcome && didNegativeModifiersChangeOutcome && didRemainingNegativesChangeOutcome)
+    if (isNegativeMod && !changedOutcome && didTotDetChangeOutcome && didRemDetChangeOutcome)
       return SIGNIFICANCE.DETRIMENTAL
     return SIGNIFICANCE.NONE
   }
