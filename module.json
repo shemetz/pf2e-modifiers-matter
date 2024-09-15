@@ -8,7 +8,7 @@
     "verified": "12"
   },
   "esmodules": [
-    "scripts/pf2e-modifiers-matter.js"
+    "scripts/pf2e-modifiers-matter.mjs"
   ],
   "styles": [
     "styles/pf2e-modifiers-matter.css"
