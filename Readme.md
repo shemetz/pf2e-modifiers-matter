@@ -143,6 +143,9 @@ down depending on significance.  For example, if you want your animation to play
 relevant, name the entry "Modifiers Matter: Off-Guard".  If you want it to only play when off-guard was crucial to
 improving the effect, name it "Modifiers Matter: Off-Guard (ESSENTIAL)".
 
+See [Pf2e Rules Lawyer](https://github.com/ChasarooniZ/Pf2e-Rules-Lawyer) for a module that uses this for its core
+functionality: displaying a banner whenever a roll included an important modifier.
+
 ## Accessibility
 
 Feel free to contact me if you want different colors instead of red and green, telling me which colors work best for
