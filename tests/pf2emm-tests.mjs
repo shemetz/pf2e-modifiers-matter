@@ -32,7 +32,7 @@ const test = (testName, testValue, expectedValue) => {
     console.error(`FAIL: ${testName}`)
     console.error(`  Expected: ${JSON.stringify(expectedValue)}`)
     console.error(`  Got: ${JSON.stringify(testValue)}`)
-    console.log()
+    console.error()
   }
 }
 
@@ -124,6 +124,23 @@ test('checkHighlightPotentials 2', checkHighlightPotentials({
     plus2CircumstanceAcHasPotential: true,
   },
 )
+test('checkHighlightPotentials 3, higher existing bonus', checkHighlightPotentials({
+      rollMods: [
+        { label: 'Heroism', modifier: 4, type: 'status', slug: 'heroism', enabled: true, ignored: false },
+        { label: 'Aid', modifier: 5, type: 'circumstance', slug: 'aid', enabled: true, ignored: false },
+      ],
+      dcMods: [],
+      originalDeltaFromDc: 1,
+      dieRoll: 7,
+      currentDegreeOfSuccess: DEGREES.SUCCESS,
+      isStrike: true,
+    },
+  ), {
+    plus1StatusHasPotential: false,
+    plus2StatusHasPotential: false,
+    plus2CircumstanceAcHasPotential: true,
+  },
+)
 
 test('calcSignificantModifiers 1', calcSignificantModifiers({
     rollMods: [
@@ -137,6 +154,30 @@ test('calcSignificantModifiers 1', calcSignificantModifiers({
     isStrike: true,
   }), {
     significantRollModifiers: [{ appliedTo: 'roll', name: 'Aid', value: 2, significance: 'ESSENTIAL' }],
+    significantDcModifiers: [],
+    insignificantDcModifiers: [],
+    highlightPotentials: {
+      plus1StatusHasPotential: false,
+      plus2StatusHasPotential: false,
+      plus2CircumstanceAcHasPotential: true,
+    },
+  },
+)
+test('calcSignificantModifiers 2, higher existing bonus', calcSignificantModifiers({
+    rollMods: [
+      { label: 'Heroism', modifier: 4, type: 'status', slug: 'heroism', enabled: true, ignored: false },
+      { label: 'Aid', modifier: 5, type: 'circumstance', slug: 'aid', enabled: true, ignored: false },
+    ],
+    dcMods: [],
+    originalDeltaFromDc: 1,
+    dieRoll: 7,
+    currentDegreeOfSuccess: DEGREES.SUCCESS,
+    isStrike: true,
+  }), {
+    significantRollModifiers: [
+      { appliedTo: 'roll', name: 'Heroism', value: 4, significance: 'ESSENTIAL' },
+      { appliedTo: 'roll', name: 'Aid', value: 5, significance: 'ESSENTIAL' },
+    ],
     significantDcModifiers: [],
     insignificantDcModifiers: [],
     highlightPotentials: {
