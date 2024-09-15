@@ -238,7 +238,7 @@ export const calcSignificantModifiers = ({
   Which means:
     - Aid:  calcSignificance(+1):
       - changedOutcome = wouldChangeOutcome(-1) = false
-      - isPositiveMod && !changedOutcome && didTotBenChangeOutcome && didRemBenChangeOutcome:
+      - isPositiveMod && !changedOutcome && didTotForwardChangeOutcome && didRemForwardChangeOutcome:
       = true && !false && true && true
       - returns SIGNIFICANCE.HELPFUL
     - Heroism:  calcSignificance(+2):  SIGNIFICANCE.HELPFUL
