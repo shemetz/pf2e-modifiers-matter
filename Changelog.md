@@ -1,3 +1,10 @@
+## 1.11.0 - 2024-09-15
+- Fixed core logic bug that caused some extra mods to be incorrectly highlighted as helpful/detrimental
+- Fixed core logic bug that caused some rolls to be incorrectly marked has "has potential" (when there was an existing +2/+3 status bonus)
+- Split up code into multiple files
+- Refactored core logic code
+- Added tests (finally...!)
+ 
 ## 1.10.5 - 2024-09-02
 - Added '+1 status to all saves VS magic' to ignored modifiers
 - Added compatibility with Mercenary Marketplace - ignoring modifiers from Templates
