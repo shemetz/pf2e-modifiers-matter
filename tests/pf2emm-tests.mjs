@@ -30,8 +30,8 @@ const test = (testName, testValue, expectedValue) => {
     VERBOSE && console.log(`PASS: ${testName}`)
   } else {
     console.error(`FAIL: ${testName}`)
-    console.error(`  Expected: ${JSON.stringify(expectedValue)}`)
-    console.error(`  Got: ${JSON.stringify(testValue)}`)
+    console.error(`  Expected: ${JSON.stringify(expectedValue, null, 2)}`)
+    console.error(`  Got: ${JSON.stringify(testValue, null, 2)}`)
     console.error()
   }
 }
@@ -184,6 +184,328 @@ test('calcSignificantModifiers 2, higher existing bonus', calcSignificantModifie
       plus1StatusHasPotential: false,
       plus2StatusHasPotential: false,
       plus2CircumstanceAcHasPotential: true,
+    },
+  },
+)
+test('calcSignificantModifiers 3, ezren hit skeleton in readme example 1', calcSignificantModifiers({
+    rollMods: [
+      { label: 'Bless', modifier: 1, type: 'status', slug: 'bless', enabled: true, ignored: false },
+      { label: 'Assisting Shot', modifier: 1, type: 'circumstance', slug: 'ass-shot', enabled: true, ignored: false },
+      { label: 'Enfeebled', modifier: -1, type: 'status', slug: 'enfeebled', enabled: true, ignored: false },
+    ],
+    dcMods: [
+      { label: 'Frightened', modifier: -1, type: 'status', slug: 'frightened', enabled: true, ignored: false },
+      { label: 'Off-Guard', modifier: -2, type: 'circumstance', slug: 'off-guard', enabled: true, ignored: false },
+    ],
+    originalDeltaFromDc: 11,
+    dieRoll: 15,
+    currentDegreeOfSuccess: DEGREES.CRIT_SUCC,
+    isStrike: true,
+  }), {
+    'significantRollModifiers': [
+      {
+        'appliedTo': 'roll',
+        'name': 'Bless',
+        'value': 1,
+        'significance': 'HELPFUL',
+      },
+      {
+        'appliedTo': 'roll',
+        'name': 'Assisting Shot',
+        'value': 1,
+        'significance': 'HELPFUL',
+      },
+    ],
+    'significantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Frightened',
+        'value': -1,
+        'significance': 'HELPFUL',
+      },
+      {
+        'appliedTo': 'dc',
+        'name': 'Off-Guard',
+        'value': -2,
+        'significance': 'ESSENTIAL',
+      },
+    ],
+    'insignificantDcModifiers': [],
+    'highlightPotentials': {
+      'plus1StatusHasPotential': false,
+      'plus2StatusHasPotential': false,
+      'plus2CircumstanceAcHasPotential': true,
+    },
+  },
+)
+test('calcSignificantModifiers 4, ezren hit skeleton in readme example 2', calcSignificantModifiers({
+    rollMods: [
+      { label: 'Bless', modifier: 1, type: 'status', slug: 'bless', enabled: true, ignored: false },
+      { label: 'Assisting Shot', modifier: 1, type: 'circumstance', slug: 'ass-shot', enabled: true, ignored: false },
+      { label: 'Enfeebled', modifier: -1, type: 'status', slug: 'enfeebled', enabled: true, ignored: false },
+    ],
+    dcMods: [
+      { label: 'Frightened', modifier: -1, type: 'status', slug: 'frightened', enabled: true, ignored: false },
+      { label: 'Off-Guard', modifier: -2, type: 'circumstance', slug: 'off-guard', enabled: true, ignored: false },
+    ],
+    originalDeltaFromDc: 10,
+    dieRoll: 19,
+    currentDegreeOfSuccess: DEGREES.CRIT_SUCC,
+    isStrike: true,
+  }), {
+    'significantRollModifiers': [
+      {
+        'appliedTo': 'roll',
+        'name': 'Bless',
+        'value': 1,
+        'significance': 'ESSENTIAL',
+      },
+      {
+        'appliedTo': 'roll',
+        'name': 'Assisting Shot',
+        'value': 1,
+        'significance': 'ESSENTIAL',
+      },
+    ],
+    'significantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Frightened',
+        'value': -1,
+        'significance': 'ESSENTIAL',
+      },
+      {
+        'appliedTo': 'dc',
+        'name': 'Off-Guard',
+        'value': -2,
+        'significance': 'ESSENTIAL',
+      },
+    ],
+    'insignificantDcModifiers': [],
+    'highlightPotentials': {
+      'plus1StatusHasPotential': false,
+      'plus2StatusHasPotential': false,
+      'plus2CircumstanceAcHasPotential': true,
+    },
+  },
+)
+test('calcSignificantModifiers 5, ezren hit skeleton in readme example 3', calcSignificantModifiers({
+    rollMods: [
+      { label: 'Bless', modifier: 1, type: 'status', slug: 'bless', enabled: true, ignored: false },
+      { label: 'Assisting Shot', modifier: 1, type: 'circumstance', slug: 'ass-shot', enabled: true, ignored: false },
+      { label: 'Enfeebled', modifier: -1, type: 'status', slug: 'enfeebled', enabled: true, ignored: false },
+    ],
+    dcMods: [
+      { label: 'Frightened', modifier: -1, type: 'status', slug: 'frightened', enabled: true, ignored: false },
+      { label: 'Off-Guard', modifier: -2, type: 'circumstance', slug: 'off-guard', enabled: true, ignored: false },
+    ],
+    originalDeltaFromDc: -1,
+    dieRoll: 8,
+    currentDegreeOfSuccess: DEGREES.FAILURE,
+    isStrike: true,
+  }), {
+    'significantRollModifiers': [
+      {
+        'appliedTo': 'roll',
+        'name': 'Enfeebled',
+        'value': -1,
+        'significance': 'HARMFUL',
+      },
+    ],
+    'significantDcModifiers': [],
+    'insignificantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Frightened',
+        'value': -1,
+        'significance': 'NONE',
+      },
+      {
+        'appliedTo': 'dc',
+        'name': 'Off-Guard',
+        'value': -2,
+        'significance': 'NONE',
+      },
+    ],
+    'highlightPotentials': {
+      'plus1StatusHasPotential': false,
+      'plus2StatusHasPotential': true,
+      'plus2CircumstanceAcHasPotential': false,
+    },
+  },
+)
+
+mockSettingValue = false
+test('calcSignificantModifiers 6, ezren hit skeleton in readme example 4', calcSignificantModifiers({
+    rollMods: [
+      { label: 'Bless', modifier: 1, type: 'status', slug: 'bless', enabled: true, ignored: false },
+      { label: 'Assisting Shot', modifier: 1, type: 'circumstance', slug: 'ass-shot', enabled: true, ignored: false },
+      { label: 'Enfeebled', modifier: -1, type: 'status', slug: 'enfeebled', enabled: true, ignored: false },
+    ],
+    dcMods: [
+      { label: 'Frightened', modifier: -1, type: 'status', slug: 'frightened', enabled: true, ignored: false },
+      { label: 'Off-Guard', modifier: -2, type: 'circumstance', slug: 'off-guard', enabled: true, ignored: false },
+      { label: 'Cover (Greater)', modifier: 4, type: 'circumstance', slug: 'cover', enabled: true, ignored: false },
+    ],
+    originalDeltaFromDc: -5,
+    dieRoll: 8,
+    currentDegreeOfSuccess: DEGREES.FAILURE,
+    isStrike: true,
+  }), {
+    'significantRollModifiers': [
+      {
+        'appliedTo': 'roll',
+        'name': 'Bless',
+        'value': 1,
+        'significance': 'HELPFUL',
+      },
+      {
+        'appliedTo': 'roll',
+        'name': 'Assisting Shot',
+        'value': 1,
+        'significance': 'HELPFUL',
+      },
+      {
+        'appliedTo': 'roll',
+        'name': 'Enfeebled',
+        'value': -1,
+        'significance': 'DETRIMENTAL',
+      },
+    ],
+    'significantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Frightened',
+        'value': -1,
+        'significance': 'HELPFUL',
+      },
+      {
+        'appliedTo': 'dc',
+        'name': 'Off-Guard',
+        'value': -2,
+        'significance': 'HELPFUL',
+      },
+      {
+        'appliedTo': 'dc',
+        'name': 'Cover (Greater)',
+        'value': 4,
+        'significance': 'DETRIMENTAL',
+      },
+    ],
+    'insignificantDcModifiers': [],
+    'highlightPotentials': {
+      'plus1StatusHasPotential': false,
+      'plus2StatusHasPotential': false,
+      'plus2CircumstanceAcHasPotential': false,
+    },
+  },
+)
+test('calcSignificantModifiers 6, ezren hit skeleton in readme example 5', calcSignificantModifiers({
+    rollMods: [
+      { label: 'Bless', modifier: 1, type: 'status', slug: 'bless', enabled: true, ignored: false },
+      { label: 'Assisting Shot', modifier: 1, type: 'circumstance', slug: 'ass-shot', enabled: true, ignored: false },
+      { label: 'Enfeebled', modifier: -1, type: 'status', slug: 'enfeebled', enabled: true, ignored: false },
+    ],
+    dcMods: [
+      { label: 'Frightened', modifier: -1, type: 'status', slug: 'frightened', enabled: true, ignored: false },
+      { label: 'Off-Guard', modifier: -2, type: 'circumstance', slug: 'off-guard', enabled: true, ignored: false },
+      { label: 'Cover (Greater)', modifier: 4, type: 'circumstance', slug: 'cover', enabled: true, ignored: false },
+    ],
+    originalDeltaFromDc: -2,
+    dieRoll: 11,
+    currentDegreeOfSuccess: DEGREES.FAILURE,
+    isStrike: true,
+  }), {
+    'significantRollModifiers': [],
+    'significantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Cover (Greater)',
+        'value': 4,
+        'significance': 'HARMFUL',
+      },
+    ],
+    'insignificantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Frightened',
+        'value': -1,
+        'significance': 'NONE',
+      },
+      {
+        'appliedTo': 'dc',
+        'name': 'Off-Guard',
+        'value': -2,
+        'significance': 'NONE',
+      },
+    ],
+    'highlightPotentials': {
+      'plus1StatusHasPotential': false,
+      'plus2StatusHasPotential': false,
+      'plus2CircumstanceAcHasPotential': false,
+    },
+  },
+)
+test('calcSignificantModifiers 7, valeros reflex save in readme example', calcSignificantModifiers({
+    rollMods: [],
+    dcMods: [
+      { label: 'Stupefied', modifier: -2, type: 'status', slug: 'stupefied', enabled: true, ignored: false },
+    ],
+    originalDeltaFromDc: +1,
+    dieRoll: 9,
+    currentDegreeOfSuccess: DEGREES.SUCCESS,
+    isStrike: false,
+  }), {
+    'significantRollModifiers': [],
+    'significantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Stupefied',
+        'value': -2,
+        'significance': 'ESSENTIAL',
+      },
+    ],
+    'insignificantDcModifiers': [],
+    'highlightPotentials': {
+      'plus1StatusHasPotential': false,
+      'plus2StatusHasPotential': false,
+      'plus2CircumstanceAcHasPotential': false,
+    },
+  },
+)
+test('calcSignificantModifiers 8, gilgwyn tumble through in readme example', calcSignificantModifiers({
+    rollMods: [
+      { label: 'Clumsy 1', modifier: -1, type: 'status', slug: 'clumsy', enabled: true, ignored: false },
+    ],
+    dcMods: [
+      {
+        label: 'Drakeheart Mutagen',
+        modifier: -1,
+        type: 'status',
+        slug: 'drakeheart-mutagen',
+        enabled: true,
+        ignored: false,
+      },
+    ],
+    originalDeltaFromDc: 0,
+    dieRoll: 3,
+    currentDegreeOfSuccess: DEGREES.SUCCESS,
+    isStrike: false,
+  }), {
+    'significantRollModifiers': [],
+    'significantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Drakeheart Mutagen',
+        'value': -1,
+        'significance': 'ESSENTIAL',
+      },
+    ],
+    'insignificantDcModifiers': [],
+    'highlightPotentials': {
+      'plus1StatusHasPotential': false,
+      'plus2StatusHasPotential': false,
+      'plus2CircumstanceAcHasPotential': false,
     },
   },
 )
