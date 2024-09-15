@@ -202,8 +202,8 @@ export const calcSignificantModifiers = ({
   const totalBackwardDelta = sumMods(negativeRollMods) - sumMods(positiveDcMods) // negative!
   // sum of modifiers that were necessary to reach the current outcome - these are the biggest bonuses/penalties.
   // all of them definitely changed the outcome.
-  const necessaryForwardDelta = sumMods(necessaryPositiveRollMods) - sumMods(necessaryPositiveDcMods)
-  const necessaryBackwardDelta = sumMods(necessaryNegativeRollMods) - sumMods(necessaryNegativeDcMods)
+  const necessaryForwardDelta = sumMods(necessaryPositiveRollMods) - sumMods(necessaryNegativeDcMods)
+  const necessaryBackwardDelta = sumMods(necessaryNegativeRollMods) - sumMods(necessaryPositiveDcMods)
   // sum of all other modifiers.  if this sum's changing does not affect the outcome it means modifiers were unnecessary
   const remainingForwardDelta = totalForwardDelta - necessaryForwardDelta
   const remainingBackwardDelta = totalBackwardDelta - necessaryBackwardDelta // negative!
