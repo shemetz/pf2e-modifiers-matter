@@ -242,7 +242,7 @@ export const calcSignificantModifiers = ({
       = true && !false && true && true
       - returns SIGNIFICANCE.HELPFUL
     - Heroism:  calcSignificance(+2):  SIGNIFICANCE.HELPFUL
-    - Frightened:  calcSignificance(-2):  SIGNIFICANCE.HARMFUL
+    - Frightened:  calcSignificance(-2):  SIGNIFICANCE.HELPFUL
     - Unconscious:  calcSignificance(-4):  SIGNIFICANCE.ESSENTIAL
     - Lesser Cover:  calcSignificance(+1):  SIGNIFICANCE.NONE
   */

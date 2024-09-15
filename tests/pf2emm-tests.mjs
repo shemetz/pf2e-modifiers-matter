@@ -509,3 +509,71 @@ test('calcSignificantModifiers 8, gilgwyn tumble through in readme example', cal
     },
   },
 )
+
+/*
+  EXAMPLE:
+  - A player character (buffed with Heroism, helped with Aid) is attacking an enemy (who is unconscious and frightened)
+  - Roll modifiers: +1 from Aid, +2 from Heroism
+  - DC modifiers: -2 from Frightened, -4 from Unconscious, +1 from Lesser Cover
+    - Other modifiers (e.g. from level, ability, non-stacking bonuses) are ignored earlier in the process
+  - Die roll: 10, roll total: 19, DC: 16
+    - originalDeltaFromDc = +3, currentDegreeOfSuccess = SUCCESS
+ */
+test('calcSignificantModifiers 9, player attacking unconscious and frightened enemy', calcSignificantModifiers({
+    rollMods: [
+      { label: 'Heroism', modifier: 2, type: 'status', slug: 'heroism', enabled: true, ignored: false },
+      { label: 'Aid', modifier: 1, type: 'circumstance', slug: 'aid', enabled: true, ignored: false },
+    ],
+    dcMods: [
+      { label: 'Frightened', modifier: -2, type: 'status', slug: 'frightened', enabled: true, ignored: false },
+      { label: 'Unconscious', modifier: -4, type: 'status', slug: 'unconscious', enabled: true, ignored: false },
+      { label: 'Lesser Cover', modifier: 1, type: 'circumstance', slug: 'cover', enabled: true, ignored: false },
+    ],
+    originalDeltaFromDc: 3,
+    dieRoll: 10,
+    currentDegreeOfSuccess: DEGREES.SUCCESS,
+    isStrike: true,
+  }), {
+    'significantRollModifiers': [
+      {
+        'appliedTo': 'roll',
+        'name': 'Heroism',
+        'value': 2,
+        'significance': 'HELPFUL',
+      },
+      {
+        'appliedTo': 'roll',
+        'name': 'Aid',
+        'value': 1,
+        'significance': 'HELPFUL',
+      },
+    ],
+    'significantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Frightened',
+        'value': -2,
+        'significance': 'HELPFUL',
+      },
+      {
+        'appliedTo': 'dc',
+        'name': 'Unconscious',
+        'value': -4,
+        'significance': 'ESSENTIAL',
+      },
+    ],
+    'insignificantDcModifiers': [
+      {
+        'appliedTo': 'dc',
+        'name': 'Lesser Cover',
+        'value': 1,
+        'significance': 'NONE',
+      },
+    ],
+    'highlightPotentials': {
+      'plus1StatusHasPotential': false,
+      'plus2StatusHasPotential': false,
+      'plus2CircumstanceAcHasPotential': false,
+    },
+  },
+)
