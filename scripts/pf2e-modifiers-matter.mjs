@@ -357,6 +357,7 @@ const getDcModsAndDcActor = ({
   } else if (originItem?.category === 'class') {
     // if saving against a class feat/feature, DC is the Class DC which means it's affected by stuff like Frightened and Enfeebled/Drained/etc, depending
     // NOTE:  this will not work for embedded Check buttons that come from Note REs.  see https://github.com/foundryvtt/pf2e/issues/9824
+    // TODO - this broke around version 6.3.1, things stop using class feats for class DC;  a solution is needed and it needs to allow for multiclassing too (multiple class DCs)
     actorWithDc = originItem.actor
     dcMods = filterDcModsOfStatistic(originItem.parent.classDC, actorWithDc)
   } else if (targetedActor && dcSlug) {
