@@ -3,7 +3,7 @@ import { getSetting, i18n, tryLocalize } from './pf2emm-utils.mjs'
 import { calcDegreePlusRoll, calcSignificantModifiers, checkHighlightPotentials } from './pf2emm-logic.mjs'
 
 // TODO - currently impossible, but in the future may be possible to react to effects that change embedded DCs in Note rule elements.
-// See:  https://github.com/foundryvtt/pf2e/issues/9824
+// See:  https://github.com/foundryvtt/pf2e/issues/16537
 // for example, the Monk's Stunning Fist uses a Class DC but this module won't recognize modifiers to that DC in this situation.
 
 // Helpful for testing - replace random dice roller with 1,2,3,4....19,20 by putting this in the console:
