@@ -120,15 +120,18 @@ export const checkHighlightPotentials = ({
     ...dcMods.filter(m => m.type === 'circumstance').map(m => m.modifier),
     0,
   )
-  const plus1StatusDegree = calcDegreePlusRoll(originalDeltaFromDc + 1 - highestStatusBonus, dieRoll)
+  const potentialStatusIncrease1 = Math.max(highestStatusBonus, 1) - highestStatusBonus
+  const plus1StatusDegree = calcDegreePlusRoll(originalDeltaFromDc + potentialStatusIncrease1, dieRoll)
   const plus1StatusHasPotential = plus1StatusDegree !== currentDegreeOfSuccess
     && plus1StatusDegree !== DEGREES.CRIT_SUCC
     && !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, plus1StatusDegree, isStrike)
-  const plus2StatusDegree = calcDegreePlusRoll(originalDeltaFromDc + 2 - highestStatusBonus, dieRoll)
+  const potentialStatusIncrease2 = Math.max(highestStatusBonus, 2) - highestStatusBonus
+  const plus2StatusDegree = calcDegreePlusRoll(originalDeltaFromDc + potentialStatusIncrease2, dieRoll)
   const plus2StatusHasPotential = plus2StatusDegree !== currentDegreeOfSuccess
     && plus2StatusDegree !== DEGREES.CRIT_SUCC
     && !shouldIgnoreStrikeCritFailToFail(currentDegreeOfSuccess, plus2StatusDegree, isStrike)
-  const plus2CircumstanceAcDegree = calcDegreePlusRoll(originalDeltaFromDc - 2 + highestDcCircumstanceBonus, dieRoll)
+  const potentialCircumstanceIncrease2 = Math.max(highestDcCircumstanceBonus, 2) - highestDcCircumstanceBonus
+  const plus2CircumstanceAcDegree = calcDegreePlusRoll(originalDeltaFromDc - potentialCircumstanceIncrease2, dieRoll)
   const plus2CircumstanceAcHasPotential = plus2CircumstanceAcDegree !== currentDegreeOfSuccess
     && plus2CircumstanceAcDegree !== DEGREES.CRIT_FAIL
     && isStrike
