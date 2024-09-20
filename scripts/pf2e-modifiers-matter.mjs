@@ -155,6 +155,8 @@ const initializeIgnoredModifiers = () => {
     'kallas-devil-blameless',
     'mana-wastes-mutant-hulking-form',
     'skeleton-lacquered',
+    // Included in all bombs, in the "Bonus attack" field.  label is just "Item Bonus"
+    'item-bonus',
   ])
   const IGNORED_MODIFIERS_FOR_AC_ONLY_I18N = [
     // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
