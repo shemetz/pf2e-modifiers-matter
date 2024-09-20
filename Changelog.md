@@ -1,3 +1,6 @@
+## 1.11.1 - 2024-09-20
+- Added "item-bonus" to ignored modifiers; it was included in all bombs
+
 ## 1.11.0 - 2024-09-15
 - Fixed core logic bug that caused some extra mods to be incorrectly highlighted as helpful/detrimental
 - Fixed core logic bug that caused some rolls to be incorrectly marked has "has potential" (when there was an existing +2/+3 status bonus)
