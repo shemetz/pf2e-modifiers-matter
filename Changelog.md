@@ -1,3 +1,6 @@
+## 1.11.2 - 2024-09-20
+- Added Stylish Combatant to ignored modifiers
+
 ## 1.11.1 - 2024-09-20
 - Added "item-bonus" to ignored modifiers; it was included in all bombs
 
