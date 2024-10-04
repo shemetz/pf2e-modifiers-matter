@@ -17,6 +17,17 @@ let IGNORED_MODIFIER_LABELS = new Set()
 let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = new Set()
 let IGNORED_MODIFIER_SLUGS = new Set()
 
+/**
+ * These lists of ignored modifiers are hardcoded (with optional user extension via settings).  The goal is to
+ * use them to exclude modifiers that aren't "useful" to highlight, which is decided to be:
+ * - If they're permanent passive bonuses that are part of the character build (decided long ago)
+ *   - e.g. ability modifier, skill proficiency, fundamental item/potency bonuses, Elite/Weak, templates for NPCs
+ * - If they're static numbers that replace your normal passive bonuses (those numbers are usually very high rather than
+ * capturing only the "diff", so, there's no easy way to highlight when the choice to use them is significant)
+ *   - e.g. Devise a Stratagem, Battle Forms
+ * - If they're so common that you don't care about them or couldn't help but apply them
+ *   - e.g. multiple attack penalty
+ */
 const initializeIgnoredModifiers = () => {
   const IGNORED_MODIFIERS_I18N = [
     'PF2E.BaseModifier',
@@ -48,6 +59,7 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry1`, // Ranger, replaces multiple attack penalty
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry3`, // same, Ranger's companion
+    `${MODULE_ID}.IgnoredModifiers.StylishCombatant`, // Swashbuckler, bonus is permanent
     // NOTE: all spells that end in "form" are also ignored for the attack bonus; e.g. Ooze Form
     // also some battle form spells with different names:
     `${MODULE_ID}.IgnoredModifiers.BattleForm1`, // battle form
@@ -146,6 +158,7 @@ const initializeIgnoredModifiers = () => {
     ...IGNORED_MODIFIER_LABELS_HARDCODED,
     ...getSetting('additional-ignored-labels').split(';'),
   ])
+  // TODO - consider moving more things from the i18n list to this slugs list
   IGNORED_MODIFIER_SLUGS = new Set([
     // commonly found on fiends
     // but also commonly *incorrectly* used as a slug for e.g. "+2 to Will Saves vs Emotion"
