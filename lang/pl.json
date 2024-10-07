@@ -2,46 +2,58 @@
   "pf2e-modifiers-matter": {
     "Settings": {
       "always-show-highlights-to-everyone": {
-        "name": "Pokaż wyróżnienia obrony wszystkim",
-        "hint": "Jeżeli ustawione na TAK, podświetlenia obrony takie jak \"Odsłonięty -2\" będą pokazywane wszystkim, nie tylko MG."
+        "name": "Zawsze pokazuj wszystkim najważniejsze wydarzenia",
+        "hint": "Jeśli ta opcja jest włączona, podświetlenia stanów BN, takich jak „Odsłonięty -2”, będą zawsze wyświetlane wszystkim, nawet jeśli ustawienie systemowe „Pokaż podziały rzutów” jest wyłączone. Zazwyczaj jest to pożądane, ale ujawnia graczom dodatkowe informacje."
       },
       "always-show-defense-conditions": {
-        "name": "Zawsze pokazuj czynniki obrony",
-        "hint": "Jeżeli ustawione na TAK, podświetlenia obrony takie jak \"Odsłonięty -2\" będą pokazywane stale, nawet jeżeli nie mają znaczenia."
+        "name": "Zawsze pokazuj stany obronne",
+        "hint": "Jeśli ta opcja jest włączona, podświetlenia w obronie, takie jak „Odsłonięty -2”, będą wyświetlane stale, nawet jeśli nie mają znaczenia."
       },
       "ignore-crit-fail-over-fail-on-attacks": {
-        "name": "Ignoruj zmianę Krtycznej Porażki na Porażkę przy Atakach",
-        "hint": "Jeżeli ustawione na TAK, moduł nie podświetli czynników, które zmieniły atak z porażki na krytyczną porażkę i vice versa. Jest to pomocne, gdyż zwykle nie ma różnicy między tymi dwoma przypadkami dla ataków;  jednakże są też wyjątki od reguły, jak np. Pewne Wykończenie (COnfident Finisher)."
+        "name": "Ignorowanie zmiany Krytycznych Porażek na Porażki przy atakach",
+        "hint": "Jeśli opcja ta jest włączona podczas ataku, moduł nie podświetli zmian, które zmieniły atak z porażki na porażkę krytyczną lub odwrotnie. Jest to przydatne, ponieważ zazwyczaj nie ma różnicy między tymi dwoma przypadkami ataków; istnieją jednak pewne wyjątki od tej reguły, takie jak Cios Kończący. (Zaleca się wyłączenie tego ustawienia, jeśli jesteś MG w takim przypadku)."
       },
       "additional-ignored-labels": {
-        "name": "Dodatkowe ignorowane czynniki",
-        "hint": "Wprowadź tekst dzielony średnikami (;).  Każdy taki modyfikator będzie ignorowany.  Jeżeli uważasz że istniejący modyfikator w zasadach powinien być ignorowany z definicji, zasugeruj to na Githubie/Discordzie."
+        "name": "Dodatkowe ignorowane etykiety",
+        "hint": "Wstaw tekst oddzielony średnikami (;). Każda z tych etykiet modyfikatorów będzie ignorowana. Jeśli uważasz, że istniejący modyfikator w regułach powinien być domyślnie ignorowany, zasugeruj go na Github/Discord."
+      },
+      "highlight-potentials-preset": {
+        "name": "Wyróżnij potencjał",
+        "hint": "Wyświetli wyróżnienie za każdym razem, gdy rzut może zostać potencjalnie ulepszony/obniżony za pomocą zdolności specjalnej. Wybierz opcję w oparciu o rodzaj modyfikatora, który możesz zastosować.",
+        "choices": {
+          "disabled": "Wyłączone (domyślnie)",
+          "1_status": "+1 premia do statusu (Amplikowana Wskazówka, Pchnąć Los)",
+          "2_status": "+2 premia do statusu (Amplikowana Wskazówka 6. rangi)",
+          "2_circumstance_ac": "+2 premia okolicznościowa do KP (Odpieranie Ataku Strażnika)"
+        }
       }
     },
     "Message": {
-      "CasterHas": "Rzucający czar ma:",
+      "CasterHas": "Rzucający zaklęcie ma:",
       "ActorHas": "Aktor ma:",
-      "TargetHas": "Cel ma:"
+      "TargetHas": "Cel ma:",
+      "HasPotential": "(Ma potencjał!)"
     },
     "IgnoredModifiers": {
-      "DeviseAStratagem": "Opracuj Strategię",
-      "HuntersEdgeFlurry1": "Ostrze Łowcy: Grad Ciosów",
+      "DeviseAStratagem": "Opracowanie Strategii",
+      "HuntersEdgeFlurry1": "Przewaga Myśliwego: Grad Ciosów",
       "HuntersEdgeFlurry2": "Grad Ciosów",
-      "HuntersEdgeFlurry3": "Efekt: Ostrze Łowcy: Grad Ciosów",
-      "SpellAttackHouserule": "Atak czarem zasada domowa",
-      "SpellPotency1": "Moc Czaru",
-      "SpellPotency2":  "Moc czaru",
+      "HuntersEdgeFlurry3": "Efekt: Przewaga Myśliwego: Grad Ciosów",
+      "SpellAttackHouserule": "Atak zaklęciem - zasada domowa",
+      "SpellPotency1": "Moc Zaklęcia",
+      "SpellPotency2":  "Moc zaklęcia",
       "SkillPotency1": "Moc Umiejętności",
       "SkillPotency2":  "Moc umiejętności",
+      "StylishCombatant":  "Stylowy Bojownik",
       "BattleForm1": "Wcielenie Natury",
-      "BattleForm2": "Forma Piaskowego Diabła",
+      "BattleForm2": "Postać Piaskowego Diabła",
       "BattleForm3": "Ucieleśnienie Żywiołu",
       "BattleForm4": "Awatar",
-      "DrakeheartMutagen": "Mutagen Smoczyserca"
+      "DrakeheartMutagen": "Mutagen z Serca Smoczydła"
     },
     "IgnoredModifiers3p": {
-      "pf2e-flatten_pwol": "Biegłość Bez Poziomu",
-      "pf2e-flatten_pwol_half": "1/2 Poziomu Biegłości"
+      "pf2e-flatten_pwol": "Biegłość bez poziomów",
+      "pf2e-flatten_pwol_half": "1/2 poziomu biegłości"
     }
   }
 }
