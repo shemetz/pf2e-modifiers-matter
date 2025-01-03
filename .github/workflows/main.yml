@@ -1,144 +1,70 @@
-# GitHub Actions workflow for creating a new FoundryVTT module release.
+# Shemetz's FoundryVTT Package Release Workflow -- last updated 2025-01-03
 #
-# Useful References:
-#   - https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
-#   - https://docs.github.com/en/actions/learn-github-actions/contexts
-#   - https://docs.github.com/en/actions/learn-github-actions/environment-variables
+# To set this up, copy this workflow and set up the PACKAGE_TOKEN action secret in your repository secrets settings.
 #
-# Troubleshooting Checklist:
-#   - Is the module's manifest file valid JSON?
-#     You can test your manifest file using https://jsonlint.com/.
+# To work with this, create a New Tag for the new version's commit, e.g. "v1.2.3"  (the v is important)
+# and then push the tag (pushing the branch is not enough!).
 #
-#   - Does the module's manifest have all the required keys?
-#     See https://foundryvtt.com/article/module-development/#manifest for more
-#     information.
+# This workflow will:
+# 1. Create a new release on GitHub with the tag name
+# 2. Set up the required zip and json files inside it (updated with the correct version)
+# 3. Publish the release to FoundryVTT
 #
-#   - Are all the proper files and directories being included in the release's
-#     module archive ("module.zip")?
-#     Check that the correct files are being passed to the `zip` command run
-#     in the "Create Module Archive" step below.
-#
-#   - Is the release tag the proper format?
-#     See the comments for the "Extract Version From Tag" step below.
-#
-#   - Is a GitHub release being published?
-#     This workflow will only run when a release is published, not when a
-#     release is updated. Furthermore, note that while a GitHub release will
-#     (by default) create a repository tag, a repository tag will not create
-#     or publish a GitHub release.
-#
-#   - Has the module's entry on FoundryVTT's module administration site
-#     (https://foundryvtt.com/admin) been updated?
-#
-name: Create Module Files For GitHub Release
+# Remember to occasionally go to the Foundry package edit page and clean up versions (~once per major foundry version)
 
-
-env:
-  # The URL used for the module's "Project URL" link on FoundryVTT's website.
-  project_url: "https://github.com/${{github.repository}}"
-
-  # A URL that will always point to the latest manifest.
-  # FoundryVTT uses this URL to check whether the current module version that
-  # is installed is the latest version. This URL should NOT change,
-  # otherwise FoundryVTT won't be able to perform this check.
-  latest_manifest_url: "https://github.com/${{github.repository}}/releases/latest/download/module.json"
-
-  # The URL to the module archive associated with the module release being
-  # processed by this workflow.
-  release_module_url: "https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip"
-
+name: Release Creation
 
 on:
-  # Only run this workflow when a release is published.
-  # To modify this workflow when other events occur, see:
-  #   - https://docs.github.com/en/actions/using-workflows/triggering-a-workflow
-  #   - https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
-  #   - https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
-  #
-  # Note that some steps may depend on context variables that are only
-  # available for release events, so if you add other events, you may need to
-  # alter other parts of this workflow.
-  release:
-    types: [published]
+  push:
+    tags:
+      - v*
 
+permissions:
+  contents: write
 
 jobs:
-  build:
+  release:
+    name: Release pushed tag as github release and then publish it to Foundry
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
+      - name: Extract tag version number without the v
+        id: get-version
+        run: echo "version-without-v=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
-      # Extract version embedded in the tag.
-      # This step expects the tag to be one of the following formats:
-      #   - "v<major>.<minor>.<patch>" (e.g., "v1.2.3")
-      #   - "<major>.<minor>.<patch>"  (e.g., "1.2.3")
-      #
-      # The version will be used by later steps to fill in the value for the
-      # "version" key required for a valid module manifest.
-      - name: Extract Version From Tag
-        id: get_version
-        uses: battila7/get-version-action@v2
-
-
-      # Modify "module.json" with values specific to the release.
-      # Since the values for the "version" and "url" keys aren't known ahead of
-      # time, the manifest file in the repository is updated with these values.
-      #
-      # While this does modify the manifest file in-place, the changes are not
-      # commited to the repository, and only exist in the action's filesystem.
-      - name: Modify Module Manifest With Release-Specific Values
+      - name: Substitute manifest and download links for versioned ones
         id: sub_manifest_link_version
-        uses: cschleiden/replace-tokens@v1
+        uses: devops-actions/variable-substitution@v1.2
         with:
-          files: 'module.json'
+          files: module.json
         env:
-          VERSION: ${{steps.get_version.outputs.version-without-v}}
-          URL: ${{ env.project_url }}
-          MANIFEST: ${{ env.latest_manifest_url }}
-          DOWNLOAD: ${{ env.release_module_url }}
+          version: ${{ steps.get-version.outputs.version-without-v }}
+          manifest: https://github.com/${{ github.repository }}/releases/latest/download/module.json
+          download: https://github.com/${{ github.repository }}/releases/download/${{ steps.get-version.outputs.version-without-v }}/module.zip
 
+      - name: Create zip with all important module stuff (skipping unwanted files/folders, warning about missing ones)
+        run: zip -r9 ./module.zip scripts/ styles/ packs/ lang/ Readme.md License.txt Changelog.md module.json
 
-      # Create a "module.zip" archive containing all the module's required files.
-      # If you have other directories or files that will need to be added to
-      # your packaged module, add them here.
-      - name: Create Module Archive
-        run: |
-          # Note that `zip` will only emit warnings when a file or directory
-          # doesn't exist, it will not fail.
-          zip                                    \
-            `# Options`                          \
-            --recurse-paths                      \
-            `# The name of the output file`      \
-             ./module.zip                        \
-            `# The files that will be included.` \
-            module.json                          \
-            README.md                            \
-            LICENSE                              \
-            templates                            \
-            scripts/                             \
-            styles/                              \
-            packs/                               \
-            languages/                           \
-            lang/
-          # Don't forget to add a backslash at the end of the line for any
-          # additional files or directories!
-
-
-      # Update the GitHub release with the manifest and module archive files.
-      - name: Update Release With Files
+      - name: Create/Update GitHub release with json and zip files
         id: create_version_release
         uses: ncipollo/release-action@v1
         with:
+          draft: false
+          prerelease: false
           allowUpdates: true
-          name: ${{ github.event.release.name }}
-          draft: ${{ github.event.release.unpublished }}
-          prerelease: ${{ github.event.release.prerelease }}
+          omitDraftDuringUpdate: true
+          omitPrereleaseDuringUpdate: true
           token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.get-version.outputs.version-without-v }}
+          name: ${{ steps.get-version.outputs.version-without-v }}
           artifacts: './module.json, ./module.zip'
-          tag: ${{ github.event.release.tag_name }}
-          body: ${{ github.event.release.body }}
+
+      - name: Publish to FoundryVTT
+        uses: cs96and/FoundryVTT-release-package@v1.0.2
+        if: ${{ env.PACKAGE_TOKEN }}
+        env:
+          PACKAGE_TOKEN: ${{ secrets.PACKAGE_TOKEN }}
+        with:
+          package-token: ${{ env.PACKAGE_TOKEN }}
+          manifest-url: https://github.com/${{ github.repository }}/releases/download/${{ steps.get-version.outputs.version-without-v }}/module.json
