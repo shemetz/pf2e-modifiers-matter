@@ -1,3 +1,6 @@
+## 1.11.3 - 2025-01-03
+- Improved github workflow automation
+
 ## 1.11.2 - 2024-09-20
 - Added Stylish Combatant to ignored modifiers
 
