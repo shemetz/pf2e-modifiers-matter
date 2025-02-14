@@ -144,8 +144,8 @@ test('checkHighlightPotentials 3, higher existing bonus', checkHighlightPotentia
 
 test('calcSignificantModifiers 1', calcSignificantModifiers({
     rollMods: [
-      { label: 'Heroism', modifier: 1, type: 'status', slug: 'heroism', enabled: true, ignored: false },
-      { label: 'Aid', modifier: 2, type: 'circumstance', slug: 'aid', enabled: true, ignored: false },
+      { label: 'Heroism', modifier: 1, type: 'status', slug: 'heroism', enabled: true, ignored: false, source: 'MOCK' },
+      { label: 'Aid', modifier: 2, type: 'circumstance', slug: 'aid', enabled: true, ignored: false, source: 'MOCK' },
     ],
     dcMods: [],
     originalDeltaFromDc: 1,
@@ -153,7 +153,9 @@ test('calcSignificantModifiers 1', calcSignificantModifiers({
     currentDegreeOfSuccess: DEGREES.SUCCESS,
     isStrike: true,
   }), {
-    significantRollModifiers: [{ appliedTo: 'roll', name: 'Aid', value: 2, significance: 'ESSENTIAL' }],
+    significantRollModifiers: [
+      { appliedTo: 'roll', name: 'Aid', sourceUuid: 'MOCK', value: 2, significance: 'ESSENTIAL' },
+    ],
     significantDcModifiers: [],
     insignificantDcModifiers: [],
     highlightPotentials: {
@@ -165,8 +167,8 @@ test('calcSignificantModifiers 1', calcSignificantModifiers({
 )
 test('calcSignificantModifiers 2, higher existing bonus', calcSignificantModifiers({
     rollMods: [
-      { label: 'Heroism', modifier: 4, type: 'status', slug: 'heroism', enabled: true, ignored: false },
-      { label: 'Aid', modifier: 5, type: 'circumstance', slug: 'aid', enabled: true, ignored: false },
+      { label: 'Heroism', modifier: 4, type: 'status', slug: 'heroism', enabled: true, ignored: false, source: 'MOCK' },
+      { label: 'Aid', modifier: 5, type: 'circumstance', slug: 'aid', enabled: true, ignored: false, source: 'MOCK' },
     ],
     dcMods: [],
     originalDeltaFromDc: 1,
@@ -175,8 +177,8 @@ test('calcSignificantModifiers 2, higher existing bonus', calcSignificantModifie
     isStrike: true,
   }), {
     significantRollModifiers: [
-      { appliedTo: 'roll', name: 'Heroism', value: 4, significance: 'ESSENTIAL' },
-      { appliedTo: 'roll', name: 'Aid', value: 5, significance: 'ESSENTIAL' },
+      { appliedTo: 'roll', name: 'Heroism', sourceUuid: 'MOCK', value: 4, significance: 'ESSENTIAL' },
+      { appliedTo: 'roll', name: 'Aid', sourceUuid: 'MOCK', value: 5, significance: 'ESSENTIAL' },
     ],
     significantDcModifiers: [],
     insignificantDcModifiers: [],

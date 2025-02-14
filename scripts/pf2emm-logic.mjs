@@ -271,6 +271,7 @@ export const calcSignificantModifiers = ({
     significantRollModifiers.push({
       appliedTo: 'roll',
       name: m.label,
+      sourceUuid: m.source,
       value: modVal,
       significance: significance,
     })
@@ -282,6 +283,7 @@ export const calcSignificantModifiers = ({
     arr.push({
       appliedTo: 'dc',
       name: m.label,
+      sourceUuid: m.source,
       value: modVal,
       significance: significance,
     })

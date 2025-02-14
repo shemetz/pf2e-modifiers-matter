@@ -32,6 +32,7 @@ export const MODULE_ID = 'pf2e-modifiers-matter'
  * @typedef {Object} SignificantModifier
  * @property {'roll' | 'dc'} appliedTo
  * @property {string} name - name of the modifier, e.g. "Frightened 1"
+ * @property {string} sourceUuid - source UUID of what caused the modifier, usually an item, e.g. "Scene.CwD5P013Aeob7V7q.Token.jwvXVi3CpVoJasYn.Actor.Ue8w2Mo03pCZllrK.Item.OGtvtua5fbS959Lg"
  * @property {number} value
  * @property {'ESSENTIAL' | 'HELPFUL' | 'HARMFUL' | 'DETRIMENTAL'} significance - note: never "None"
  */
@@ -39,6 +40,7 @@ export const MODULE_ID = 'pf2e-modifiers-matter'
  * @typedef {Object} InsignificantModifier
  * @property {'roll' | 'dc'} appliedTo
  * @property {string} name
+ * @property {string} sourceUuid
  * @property {number} value
  * @property {'None'} significance
  */
