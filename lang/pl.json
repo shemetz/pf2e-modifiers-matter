@@ -52,8 +52,8 @@
       "DrakeheartMutagen": "Mutagen z Serca Smoczydła"
     },
     "IgnoredModifiers3p": {
-      "pf2e-flatten_pwol": "Biegłość bez poziomów",
-      "pf2e-flatten_pwol_half": "1/2 poziomu biegłości"
+      "pf2e-flatten_pwol": "Proficiency Without Level",
+      "pf2e-flatten_pwol_half": "1/2 Level Proficiency"
     }
   }
 }
