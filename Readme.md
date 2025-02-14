@@ -130,7 +130,7 @@ And as of v1.7.0 (added visible modifiers for caster DC and target actor DC:
 
 ![](metadata/v1_7_0_example.png)
 
-## Integration with other modules
+## API & Integration with other modules
 
 There is a hook, `'modifiersMatter'`, which you can listen to, if you want things to trigger based on modifiers mattering.
 For example, the code includes a sample function - `exampleHookInspireCourage` - which will make Foundry play a short

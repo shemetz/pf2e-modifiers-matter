@@ -1,3 +1,7 @@
+## 1.12.0 - 2025-02-14
+- Added sourceUuid to API hook (#43)
+- Improved documentation a little bit
+
 ## 1.11.3 - 2025-01-03
 - Improved github workflow automation
 
