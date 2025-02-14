@@ -42,7 +42,7 @@ export const MODULE_ID = 'pf2e-modifiers-matter'
  * @property {string} name
  * @property {string} sourceUuid
  * @property {number} value
- * @property {'None'} significance
+ * @property {'None'}
  */
 /**
  * @typedef {Object} ChatMessage - a PF2E Chat Message object.  This definition is incomplete, includes only fields used in this module.
@@ -57,12 +57,10 @@ export const MODULE_ID = 'pf2e-modifiers-matter'
  * ESSENTIAL (strong green) - This modifier was necessary to achieve this degree of success (DoS).  Others were
  * potentially also necessary.  You should thank the character who caused this modifier!
  *
- * HELPFUL (weak green) - This modifier was not necessary to achieve this DoS, but degree of success did change due to
- * modifiers in this direction, and at least one of the helpful modifiers was needed.  For example, if you rolled a 14,
- * had +1 & +2, and needed a 15, both the +1 and +2 are weak green because neither is necessary on its own, but they
- * were necessary together. If you had rolled a 13 in this case, the +2 would be strong green but the +1 would still be
- * weak green, simply because it's difficult to come up with an algorithm that would solve complex cases.
- * Note, by the way, that in case of multiple non-stacking modifiers, PF2e hides some of them from the chat card.
+ * HELPFUL (weak green) - This modifier was not necessary by itself to achieve this DoS, but it was one of many that
+ * caused the DoS upgrade, and losing all of them would have been bad.  For example, if you rolled a 14,
+ * had +1 & +2, and needed a 15, both the +1 and +2 are marked weak green (helpful) because you needed to have at least
+ * one of them, but it didn't matter which one, and you happened to have both at once.
  *
  * NONE - This modifier did not affect the DoS at all, this time.
  *
@@ -70,6 +68,24 @@ export const MODULE_ID = 'pf2e-modifiers-matter'
  * not without any one of them), you would've gotten a better DoS.
  *
  * DETRIMENTAL (red) - Like ESSENTIAL but in the opposite direction.  Without this, you would've gotten a better DoS.
+ *
+ *
+ *
+ * Note that in case of multiple non-stacking modifiers, PF2e "disables" some of them and hides them from the chat card,
+ * so the module won't notice them.  For example, if a monster is both Frightened 1 and Sickened 1 and rolls a -1 miss,
+ * you'll probably see Frightened marked as DETRIMENTAL and Sickened not showing up at all, even though the "truth" was
+ * that both of them were HARMFUL.
+ *
+ *
+ * Another example:
+ *
+ * A Giant Opossum  (+10 to hit) is attacking a Goblin Warrior (AC 16).  The opossum is Prone and Enfeebled 1.
+ *
+ * - If it rolls 9 (total 16), it hits the goblin.  No modifier is significant (so none will be highlighted).
+ * - If it rolls 8 (total 15), it misses by -1. Both Prone and Enfeebled 1 are DETRIMENTAL.
+ * - If it rolls 7 (total 14), it misses by -2.  Prone is DETRIMENTAL and Enfeebled is not significant.
+ * - If it rolls 6 (total 13), it misses by -3.  Both Prone and Enfeebled 1 are HARMFUL.
+ * - If it rolls 5 (total 12), it misses by -4.  No modifier is significant.
  *
  * @typedef {'ESSENTIAL' | 'HELPFUL' | 'NONE' | 'HARMFUL' | 'DETRIMENTAL'} Significance
  */
