@@ -38,10 +38,6 @@
       "BattleForm3": "Incarnation élémentaire",
       "BattleForm4": "Avatar",
       "DrakeheartMutagen": "Mutagène de cœur de drake"
-    },
-    "IgnoredModifiers3p": {
-      "pf2e-flatten_pwol": "Proficiency Without Level",
-      "pf2e-flatten_pwol_half": "1/2 Level Proficiency"
     }
   }
 }

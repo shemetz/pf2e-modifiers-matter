@@ -73,12 +73,13 @@ const initializeIgnoredModifiers = () => {
     `${MODULE_ID}.IgnoredModifiers.SpellPotency2`,
     `${MODULE_ID}.IgnoredModifiers.SkillPotency1`,
     `${MODULE_ID}.IgnoredModifiers.SkillPotency2`,
-    // compatibility with a module, pf2e-flatten, which adds modifiers to match the PWoL variants.
-    // https://github.com/League-of-Foundry-Developers/pf2e-flatten/blob/main/bundle.js#L41
-    `${MODULE_ID}.IgnoredModifiers3p.pf2e-flatten_pwol`,
-    `${MODULE_ID}.IgnoredModifiers3p.pf2e-flatten_pwol_half`,
   ]
   const IGNORED_MODIFIER_LABELS_HARDCODED = [
+    // compatibility with pf2e-flatten, which adds modifiers to match the PWoL variants.
+    // https://github.com/League-of-Foundry-Developers/pf2e-flatten/blob/main/bundle.js#L33
+    'Proficiency Without Level',
+    `1/2 Level Proficiency`,
+
     // compatibility with Mercenary Marketplace Vol 1, which adds templates that permanently adjust creature stats:
     // Human ancestry templates
     'Ancestral Strength',

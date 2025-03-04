@@ -33,10 +33,6 @@
       "BattleForm3": "元素具身",
       "BattleForm4": "天神下凡",
       "DrakeheartMutagen": "龙兽之心突变药剂"
-    },
-    "IgnoredModifiers3p": {
-      "pf2e-flatten_pwol": "Proficiency Without Level",
-      "pf2e-flatten_pwol_half": "1/2 Level Proficiency"
     }
   }
 }

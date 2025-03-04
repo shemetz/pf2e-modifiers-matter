@@ -38,10 +38,6 @@
       "BattleForm3": "Verkörperung der Elemente",
       "BattleForm4": "Avatar",
       "DrakeheartMutagen": "Drakaherzmutagen"
-    },
-    "IgnoredModifiers3p": {
-      "pf2e-flatten_pwol": "Kompetenz ohne Stufe",
-      "pf2e-flatten_pwol_half": "1/2 Level Proficiency"
     }
   }
 }
