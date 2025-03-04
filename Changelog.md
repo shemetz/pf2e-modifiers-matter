@@ -1,3 +1,6 @@
+## 1.12.1 - 2025-03-04
+- Moved "Proficiency Without Level" from i18n list to hardcoded list (fixes #42)
+
 ## 1.12.0 - 2025-02-14
 - Added sourceUuid to API hook (#43)
 - Improved documentation a little bit
