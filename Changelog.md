@@ -1,3 +1,6 @@
+## 1.12.2 - 2025-05-01
+- Fixed console error thrown when using the Exploit Vulnerability module (#44)
+
 ## 1.12.1 - 2025-03-04
 - Moved "Proficiency Without Level" from i18n list to hardcoded list (fixes #42)
 
