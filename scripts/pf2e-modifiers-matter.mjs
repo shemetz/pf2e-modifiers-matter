@@ -376,12 +376,28 @@ const getDcModsAndDcActor = ({
     // TODO - this broke around version 6.3.1, things stop using class feats for class DC;  a solution is needed and it needs to allow for multiclassing too (multiple class DCs)
     actorWithDc = originItem.actor
     dcMods = filterDcModsOfStatistic(originItem.parent.classDC, actorWithDc)
+  } else if (targetedActor && dcSlug === 'exploit-vulnerability') {
+    // Compatibility with the pf2e-thaum-vuln module (for Thaumaturge's "Exploit Vulnerability")
+    // The custom action is made using esoteric lore against a standard level-based DC, so there are never DC modifiers
+    // see https://github.com/mysurvive/pf2e-thaum-vuln/blob/99ed41038d9051ea906a247a5a6faf1f0a8ed580/src/module/feats/exploit-vulnerability/exploitVulnerability.js#L80
+    return {
+      dcMods: [],
+      actorWithDc: targetedActor,
+    }
   } else if (targetedActor && dcSlug) {
     // if there's a target, but it's not an attack, then it's probably a skill check against one of the target's
     // save DCs or perception DC or possibly a skill DC
     actorWithDc = targetedActor
     const dcStatistic = targetedActor.saves[dcSlug] || targetedActor.skills[dcSlug] || targetedActor[dcSlug]
     // dcStatistic should always be defined.  (otherwise it means I didn't account for all cases here!)
+    if (dcStatistic === undefined) {
+      console.error(
+        `${MODULE_ID} | failed to find target DC statistic for dcSlug: ${dcSlug}.  Perhaps it comes from a module's custom action.  Please report this issue!`)
+      return {
+        dcMods: [],
+        actorWithDc: targetedActor,
+      }
+    }
     dcMods = filterDcModsOfStatistic(dcStatistic.dc, actorWithDc)
   } else {
     // happens if e.g. rolling from a @Check style button
