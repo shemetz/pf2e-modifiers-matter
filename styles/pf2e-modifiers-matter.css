@@ -11,63 +11,59 @@
     --pf2emm-color-glow: #ffcc00;
 }
 
-/*
-I added #chat-log to all of these CSS selectors to increase their specificity, so that they override the pf2e system styles.
-(having an ID makes them more specific than the pf2e css styles, which only have classes for these)
-*/
-#chat-log .pf2emm-highlight {
+.pf2emm-highlight {
     font-weight: bold;
 }
 
-#chat-log .tag_alt.pf2emm-is-ESSENTIAL {
+.tag_alt.pf2emm-is-ESSENTIAL {
     background-color: var(--pf2emm-color-essential);
 }
 
-#chat-log .tag_alt.pf2emm-is-HELPFUL {
+.tag_alt.pf2emm-is-HELPFUL {
     background-color: var(--pf2emm-color-helpful);
 }
 
-#chat-log .tag_alt.pf2emm-is-HARMFUL {
+.tag_alt.pf2emm-is-HARMFUL {
     background-color: var(--pf2emm-color-harmful);
 }
 
-#chat-log .tag_alt.pf2emm-is-DETRIMENTAL {
+.tag_alt.pf2emm-is-DETRIMENTAL {
     background-color: var(--pf2emm-color-detrimental);
 }
 
-#chat-log .tag_transparent.pf2emm-is-ESSENTIAL {
+.tag_transparent.pf2emm-is-ESSENTIAL {
     color: var(--pf2emm-color-essential);
     box-shadow: inset 0 0 0 1px var(--pf2emm-color-essential-outline);
 }
 
-#chat-log .tag_transparent.pf2emm-is-HELPFUL {
+.tag_transparent.pf2emm-is-HELPFUL {
     color: var(--pf2emm-color-helpful);
     box-shadow: inset 0 0 0 1px var(--pf2emm-color-helpful-outline);
 }
 
-#chat-log .tag_transparent.pf2emm-is-HARMFUL {
+.tag_transparent.pf2emm-is-HARMFUL {
     color: var(--pf2emm-color-harmful);
     box-shadow: inset 0 0 0 1px var(--pf2emm-color-harmful-outline);
 }
 
-#chat-log .tag_transparent.pf2emm-is-DETRIMENTAL {
+.tag_transparent.pf2emm-is-DETRIMENTAL {
     color: var(--pf2emm-color-detrimental);
     box-shadow: inset 0 0 0 1px var(--pf2emm-color-detrimental-outline);
 }
 
-#chat-log .pf2emm-suffix.pf2emm-is-ESSENTIAL {
+.pf2emm-suffix.pf2emm-is-ESSENTIAL {
     color: var(--pf2emm-color-essential);
 }
 
-#chat-log .pf2emm-suffix.pf2emm-is-HELPFUL {
+.pf2emm-suffix.pf2emm-is-HELPFUL {
     color: var(--pf2emm-color-helpful);
 }
 
-#chat-log .pf2emm-suffix.pf2emm-is-HARMFUL {
+.pf2emm-suffix.pf2emm-is-HARMFUL {
     color: var(--pf2emm-color-harmful);
 }
 
-#chat-log .pf2emm-suffix.pf2emm-is-DETRIMENTAL {
+.pf2emm-suffix.pf2emm-is-DETRIMENTAL {
     color: var(--pf2emm-color-detrimental);
 }
 
@@ -82,7 +78,7 @@ I added #chat-log to all of these CSS selectors to increase their specificity, s
     }
 }
 
-section.chat-sidebar .pf2emm-potential {
+.pf2emm-potential {
     display: none; /* overridden with !important if it is visible */
     margin: 0 8px;
     /* 51 iterations, 30s total, ends on 100% */
@@ -92,8 +88,8 @@ section.chat-sidebar .pf2emm-potential {
     font-weight: 600;
 }
 
-section.chat-sidebar.pf2emm_hp_1_status .pf2emm-potential.has_potential_1_status,
-section.chat-sidebar.pf2emm_hp_2_status .pf2emm-potential.has_potential_2_status,
-section.chat-sidebar.pf2emm_hp_2_circumstance_ac .pf2emm-potential.has_potential_2_circumstance_ac {
+.pf2emm_hp_1_status .pf2emm-potential.has_potential_1_status,
+.pf2emm_hp_2_status .pf2emm-potential.has_potential_2_status,
+.pf2emm_hp_2_circumstance_ac .pf2emm-potential.has_potential_2_circumstance_ac {
     display: unset !important;
 }
