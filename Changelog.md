@@ -1,3 +1,6 @@
+## 1.13.0 - 2025-05-31
+- Updated to Foundry V13 compatibility
+
 ## 1.12.2 - 2025-05-01
 - Fixed console error thrown when using the Exploit Vulnerability module (#44)
 
