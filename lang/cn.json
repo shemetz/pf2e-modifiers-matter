@@ -1,38 +1,55 @@
 {
-  "pf2e-modifiers-matter": {
-    "Settings": {
-      "always-show-highlights-to-everyone": {
-        "name": "将防御高光点展示给所有人",
-        "hint": "若启用，防御高光点比如像\"措手不及 -2\"会展示给所有人看（而不是仅GM）。"
-      },
-      "always-show-defense-conditions": {
-        "name": "永远显示防御状态",
-        "hint": "若启动，防御高光点比如像\"措手不及 -2\"会被一直显示，即使他们不影响结果。"
-      },
-      "ignore-crit-fail-over-fail-on-attacks": {
-        "name": "不区分攻击时的大失败和失败",
-        "hint": "若启用，模组不会高光那些让失败变为大失败的效果（因为这两者在攻击的情境下绝大多数时候没有什么差别）。"
-      },
-      "additional-ignored-labels": {
-        "name": "额外忽略标签",
-        "hint": "输入文本，以分号隔开（;），这些调整值会被忽略。如果你觉得有些调整值应该默认就该被忽略，请在Discord或Github提出你的建议。"
-      }
-    },
-    "Message": {
-      "CasterHas": "Caster has:",
-      "ActorHas": "Actor has:",
-      "TargetHas": "目标具有:"
-    },
-    "IgnoredModifiers": {
-      "DeviseAStratagem": "出谋划策",
-      "HuntersEdgeFlurry1": "猎手优势：连击",
-      "HuntersEdgeFlurry2": "连击",
-      "HuntersEdgeFlurry3": "效果：猎手优势：连击",
-      "BattleForm1": "生界化生",
-      "BattleForm2": "Form of the Sandpoint Devil",
-      "BattleForm3": "元素具身",
-      "BattleForm4": "天神下凡",
-      "DrakeheartMutagen": "龙兽之心突变药剂"
+    "pf2e-modifiers-matter": {
+        "Settings": {
+            "always-show-highlights-to-everyone": {
+                "name": "始终对所有人高亮显示防御调整值",
+                "hint": "若启用，即使“显示骰点拆解”系统设置被禁用，NPC身上像“措手不及 -2”此类涉及防御调整的状态也会高亮显示给所有人。这通常是必要的，但确实会向玩家透露一些额外信息。"
+            },
+            "always-show-defense-conditions": {
+                "name": "永远显示防御状态",
+                "hint": "若启用，像\"措手不及 -2\"此类涉及防御的状态会被高亮显示，即使他们不影响结果。"
+            },
+            "ignore-crit-fail-over-fail-on-attacks": {
+                "name": "不区分攻击时的大失败和失败",
+                "hint": "如果在攻击时启用此选项，模组将不会高亮那些将攻击从失败变为大失败或情况反之的改变。通常在攻击时这两种情况并没有区别；然而也有例外，如稳妥终结（Confident Finisher）。（如果你是GM，建议在这种情况下禁用此设置）"
+            },
+            "additional-ignored-labels": {
+                "name": "额外忽略标签",
+                "hint": "输入文本，以分号隔开（;），这些调整值会被忽略。如果你觉得有些调整值应该默认就该被忽略，请在Discord或Github提出你的建议。"
+            },
+            "highlight-potentials-preset": {
+                "choices": {
+                    "1_status": "+1状态加值（增幅神导术，偏转命运）",
+                    "2_status": "+2状态加值（6环增幅神导术）",
+                    "2_circumstance_ac": "AC+2环境加值（护卫格挡）",
+                    "disabled": "禁用（默认）"
+                },
+                "name": "对可以改变成功度的检定高亮显示",
+                "hint": "每当你的特殊能力有可能提升或降低某次掷骰的成功度时，都会为你高亮显示。根据你能够应用的改变成功度能力选择相应选项。"
+            }
+        },
+        "Message": {
+            "CasterHas": "施法者具有：",
+            "ActorHas": "角色具有：",
+            "TargetHas": "目标具有:",
+            "HasPotential": "（可以改变其成功度！）"
+        },
+        "IgnoredModifiers": {
+            "DeviseAStratagem": "出谋划策",
+            "HuntersEdgeFlurry1": "猎手优势：连击",
+            "HuntersEdgeFlurry2": "连击",
+            "HuntersEdgeFlurry3": "效果：猎手优势：连击",
+            "BattleForm1": "生界化身",
+            "BattleForm2": "来自沙尖镇魔鬼",
+            "BattleForm3": "元素具身",
+            "BattleForm4": "天神下凡",
+            "DrakeheartMutagen": "龙兽之心突变药剂",
+            "SpellAttackHouserule": "法术攻击房规",
+            "SpellPotency1": "法术潜能",
+            "SpellPotency2": "法术潜能",
+            "SkillPotency1": "技能潜能",
+            "SkillPotency2": "技能潜能",
+            "StylishCombatant": "潇洒斗士"
+        }
     }
-  }
 }
