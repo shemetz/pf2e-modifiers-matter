@@ -1,3 +1,6 @@
+## 1.13.1 - 2025-08-04
+- Added Bulwark to list of ignored modifiers
+
 ## 1.13.0 - 2025-05-31
 - Updated to Foundry V13 compatibility
 
