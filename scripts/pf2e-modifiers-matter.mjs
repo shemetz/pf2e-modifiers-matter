@@ -55,6 +55,7 @@ const initializeIgnoredModifiers = () => {
     'PF2E.MasterSavingThrow.fortitude',
     'PF2E.MasterSavingThrow.reflex',
     'PF2E.MasterSavingThrow.will',
+    'PF2E.TraitBulwark',
     `${MODULE_ID}.IgnoredModifiers.DeviseAStratagem`, // Investigator
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry1`, // Ranger, replaces multiple attack penalty
     `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
