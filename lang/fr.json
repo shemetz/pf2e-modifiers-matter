@@ -7,32 +7,44 @@
       },
       "always-show-defense-conditions": {
         "name": "Montrer le soulignement défensif tout le temps",
-        "hint": "S'il est défini sur vrai, les faits saillants de la défense seront affichés en permanence, même s'ils n'ont pas d'importance."
+        "hint": "S'il est activé, les faits saillants de la défense tels que \"pris au dépourvu -2\" seront affichés en permanence, même s'ils n'ont pas d'importance."
       },
       "ignore-crit-fail-over-fail-on-attacks": {
-        "name": "Ignorer l'échec critique lors des Attaques",
-        "hint": "S'il est réglé sur vrai, le module ne soulignera pas les changements qui ont changé un échec simple en échec critique ou vice versa. C'est utile car il n'y a pas de différence entre les deux cas lors des attaques ;  cependant, il peut y avoir des exceptions à cette règle, comme avec Coup final assuré."
+        "name": "Ignorer l'échec critique par rapport à l'échec lors des Attaques",
+        "hint": "S'il est activé alors que vous attaquez, le module ne soulignera pas les changements qui ont changé un échec simple en échec critique sur une attaque ou vice versa. C'est utile car il n'y a pas habituellement de différence entre les deux cas lors des attaques. Cependant, il peut y avoir des exceptions à cette règle, comme avec Coup final assuré. (Il est recommandé de désactiver ce réglage si vous êtes un MJ dans un tel cas)"
       },
       "additional-ignored-labels": {
-        "name": "Libellés ignorés supplémentaires",
+        "name": "Libellés supplémentaires ignorées",
         "hint": "Insérez le texte séparé par des points-virgules (;). Chacun des libellés de modificateur sera ignoré. Si vous pensez qu'un modificateur existant dans les règles doit être ignoré par défaut, vous pouvez le suggérer sur Github/Discord."
+      },
+      "highlight-potentials-preset": {
+        "name": "Souligner les potentiels",
+        "hint": "Un soulignement s'affichera lorsqu'un jet pourrait être amélioré/dégradé grâce à votre capacité spéciale. Sélectionnez l'option en fonction du modificateur que vous êtes capable d'appliquer.",
+        "choices": {
+          "disabled": "Désactivé (par défaut)",
+          "1_status": "+1 status bonus (Assistance surnaturelle, Coup de pouce au destin)",
+          "2_status": "bonus de statut de +2 (Assistance surnaturelle amplifiée 6e)",
+          "2_circumstance_ac": "bonus de circonstances de +2 à la CA (Déviation du gardien)"
+        }
       }
     },
     "Message": {
-      "CasterHas": "Caster has:",
-      "ActorHas": "Actor has:",
-      "TargetHas": "La cible a :"
+      "CasterHas": "Le lanceur possède :",
+      "ActorHas": "L'acteur possède :",
+      "TargetHas": "La cible possède :",
+      "HasPotential": "(Possède le potentiel !)"
     },
     "IgnoredModifiers": {
       "DeviseAStratagem": "Concevoir un Stratagème",
       "HuntersEdgeFlurry1": "Spécialisation du chasseur : Déluge",
       "HuntersEdgeFlurry2": "Déluge",
       "HuntersEdgeFlurry3": "Effet : Spécialisation du chasseur, déluge",
-      "SpellAttackHouserule": "Spell attack houserule",
-      "SpellPotency1": "Spell Potency",
-      "SpellPotency2":  "Spell potency",
-      "SkillPotency1": "Skill Potency",
-      "SkillPotency2":  "Skill potency",
+      "SpellAttackHouserule": "Attaque de sort règle maison",
+      "SpellPotency1": "Puissance des sorts",
+      "SpellPotency2": "Puissance des sorts",
+      "SkillPotency1": "Puissance des compétences",
+      "SkillPotency2": "Puissance des compétences",
+      "StylishCombatant": "Combattant stylé",
       "BattleForm1": "Incarnation de la nature",
       "BattleForm2": "Forme de diable de Pointesable",
       "BattleForm3": "Incarnation élémentaire",
