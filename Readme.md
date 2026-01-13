@@ -150,3 +150,8 @@ functionality: displaying a banner whenever a roll included an important modifie
 
 Feel free to contact me if you want different colors instead of red and green, telling me which colors work best for
 you, and I'll add a setting to the module.
+
+
+## Discussion
+
+You can discuss this module in its [dedicated thread in the Pathfinder on Foundry discord server](https://discord.com/channels/880968862240239708/1384806610635063296), or open a github issue here if it's a bug or a feature request.
