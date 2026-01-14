@@ -1,5 +1,5 @@
 import { DEGREES, MODULE_ID, SIGNIFICANCE } from './pf2emm-types.mjs'
-import { getSetting, i18n, tryLocalize } from './pf2emm-utils.mjs'
+import { getSetting, i18n } from './pf2emm-utils.mjs'
 import { calcDegreePlusRoll, calcSignificantModifiers, checkHighlightPotentials } from './pf2emm-logic.mjs'
 
 // TODO - currently impossible, but in the future may be possible to react to effects that change embedded DCs in Note rule elements.
@@ -13,9 +13,168 @@ rndIndex = -1
 CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D20.length; return 1.02 - NEXT_RND_ROLLS_D20[rndIndex] / 20}
  */
 
+const IGNORED_MODIFIER_SLUGS = new Set([
+  // basic
+  'base', // this accounts for a lot of ignored things, included weak/elite
+  'multiple-attack-penalty',
+  'proficiency',
+  // ability scores
+  'str',
+  'con',
+  'dex',
+  'int',
+  'wis',
+  'cha',
+  // fundamental runes
+  'weapon-potency',
+  'armor-potency',
+  'resilient',
+  'greaterResilient',
+  'majorResilient',
+  'mythicResilient',
+  'striking',
+  'greaterStriking',
+  'majorStriking',
+  'mythicStriking',
+  // also for sf2e... just future-proofing
+  'commercial',
+  'tactical',
+  'advanced',
+  'superior',
+  'elite',
+  'ultimate',
+  'paragon',
+  'commercial',
+  'tactical',
+  'advanced',
+  'superior',
+  'elite',
+  'ultimate',
+  'paragon',
+  // Automatic Bonus Progression
+  'save-potency',
+  'defense-potency',
+  'perception-potency',
+  'attack-potency',
+  // Misc common
+  'bulwark', // armor trait
+  'armor-check-penalty',
+  'level-bump', // for some PFS thing
+  'variant', // when using a skill check with a different skill
+  'battle-form',
+  'item-bonus', // Included in all bombs, in the "Bonus attack" field.  label is just "Item Bonus"
+
+  // Misc specific
+  'double-shot', // Double shot makes attacks at -2 and -4, just like MAP it should be ignored
+  'stylish-combatant', // Swashbuckler class feature, bonus is permanent
+  'simple-firearms-crossbows', // Gunslinger class features
+  'martial-firearms-crossbows', // same
+  'advanced-firearms-crossbows', // same
+
+  // commonly found on fiends
+  // but also commonly *incorrectly* used as a slug for e.g. "+2 to Will Saves vs Emotion"
+  '1-status-to-all-saves-vs-magic',
+  // Assorted monster abilities which seem permanent and thus not useful to highlight
+  'cryptid-experimental-augmented',
+  'kallas-devil-blameless',
+  'mana-wastes-mutant-hulking-form',
+  'skeleton-lacquered',
+
+  // yes I'm gonna add my houserules to my module, you can't stop me.
+  // https://discord.com/channels/880968862240239708/880969943724728391/1082678343234760704
+  'spell-attack-houserule',
+  'hr-spell-potency',
+  'hr-spell-attack-progression',
+  'hr-spell-attack-prof-potency-for-arp',
+])
+const IGNORED_MODIFIER_SLUGS_FOR_AC_ONLY = new Set([
+  // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
+  // however, this effect also has other modifiers which I don't want to ignore.
+  `drakeheart-mutagen`,
+])
 let IGNORED_MODIFIER_LABELS = new Set()
-let IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = new Set()
-let IGNORED_MODIFIER_SLUGS = new Set()
+const IGNORED_MODIFIER_LABELS_HARDCODED = [
+  // compatibility with pf2e-flatten, which adds modifiers to match the PWoL variants.
+  // https://github.com/League-of-Foundry-Developers/pf2e-flatten/blob/main/bundle.js#L33
+  'Proficiency Without Level',
+  `1/2 Level Proficiency`,
+  `Half level proficiency`,
+  `No level proficiency`,
+
+  // compatibility with Mercenary Marketplace Vol 1, which adds templates that permanently adjust creature stats:
+  // Human ancestry templates
+  'Ancestral Strength',
+  'Ancestral Dexterity',
+  'Ancestral Constitution',
+  'Ancestral Intelligence',
+  'Ancestral Wisdom',
+  'Ancestral Charisma',
+  // Other ancestry templates (dwarf, elf, etc)
+  'Dwarven Constitution',
+  'Dwarven Wisdom',
+  'Dwarven Charisma',
+  'Elven Dexterity',
+  'Elven Constitution',
+  'Elven Intelligence',
+  'Gnomish Strength',
+  'Gnomish Constitution',
+  'Gnomish Charisma',
+  'Goblin Dexterity',
+  'Goblin Wisdom',
+  'Goblin Charisma',
+  'Keen Eyes (Seek hidden or undetected within 30 feet)', // from halfling template
+  'Halfling Strength',
+  'Halfling Dexterity',
+  'Halfling Wisdom',
+  'Orcish Strength',
+  // Crew templates
+  'Crew Level Adjustment',
+  'Crew Skill Adjustment',
+  // Descriptive Templates
+  'Boastful Template',
+  'Brutish Template',
+  'Oblivious Template',
+  'Oblivious Template (Circumstance)',
+  'Slight Template',
+  'Watchful Template',
+  'Convalescent Template (Base)',
+  'Convalescent Template (Circumstance Penalty)',
+  'Feeble Template (Base)',
+  'Feeble Template (Strength Based)',
+  'Feeble Template (AC)',
+  'Inept Template (Base)',
+  'Unlucky Template (Base)',
+  'Unlucky Template (AC)',
+  'Clumsy Template (Base)',
+  'Clumsy Template (Reflex)',
+  'Clumsy Template (AC)',
+  'Clumsy Template (Dexterity Attacks)',
+  'Foolish Template (Base)',
+  'Foolish Template (AC)',
+  'Foolish Template (Wisdom Based)',
+  'Foolish Template (Intelligence Based)',
+  'Foolish vs. illusion effects',
+  'Frail Template (Base)',
+  'Frail Template (Constitution Based)',
+  'Frail Template (AC)',
+  'Frail Template (Circumstance Penalty)',
+  'Punchable Template (Base)',
+  'Bold Template (Base)',
+  'Bold Template (Will)',
+  'Cunning Template (Base)',
+  'Cunning Template (Perception)',
+  'Cunning Template (Skills)',
+  'Hardy Template (Base)',
+  'Hardy Template (Fortitude)',
+  'Lucky Template (Base)',
+  'Protective Template (Base)',
+  'Protective Template (AC)',
+  'Sorcerous Template (Base)',
+  'Doddering Template (Base)',
+
+  // Other adjustments are not in the pf2e system (yet?), but undead adjustments do appear in PF2e Workbench, and one of them is relevant:
+  'Ghoul Adjustment',
+]
 
 /**
  * These lists of ignored modifiers are hardcoded (with optional user extension via settings).  The goal is to
@@ -24,163 +183,16 @@ let IGNORED_MODIFIER_SLUGS = new Set()
  *   - e.g. ability modifier, skill proficiency, fundamental item/potency bonuses, Elite/Weak, templates for NPCs
  * - If they're static numbers that replace your normal passive bonuses (those numbers are usually very high rather than
  * capturing only the "diff", so, there's no easy way to highlight when the choice to use them is significant)
- *   - e.g. Devise a Stratagem, Battle Forms
+ *   - e.g. old Devise a Stratagem, Battle Forms
+ *   - NOTE - they almost all use the 'base' slug nowadays so this is no longer a separate category
  * - If they're so common that you don't care about them or couldn't help but apply them
- *   - e.g. multiple attack penalty
+ *   - e.g. multiple attack penalty, including e.g. Hunter's Edge: Flurry
  */
 const initializeIgnoredModifiers = () => {
-  const IGNORED_MODIFIERS_I18N = [
-    'PF2E.BaseModifier',
-    'PF2E.ModifierTitle',
-    'PF2E.MultipleAttackPenalty',
-    'PF2E.ProficiencyLevel0',
-    'PF2E.ProficiencyLevel1',
-    'PF2E.ProficiencyLevel2',
-    'PF2E.ProficiencyLevel3',
-    'PF2E.ProficiencyLevel4',
-    'PF2E.AbilityStr',
-    'PF2E.AbilityCon',
-    'PF2E.AbilityDex',
-    'PF2E.AbilityInt',
-    'PF2E.AbilityWis',
-    'PF2E.AbilityCha',
-    'PF2E.PotencyRuneLabel',
-    'PF2E.RuleElement.WeaponPotency',
-    'PF2E.AutomaticBonusProgression.attackPotency',
-    'PF2E.AutomaticBonusProgression.defensePotency',
-    'PF2E.AutomaticBonusProgression.savePotency',
-    'PF2E.AutomaticBonusProgression.perceptionPotency',
-    'PF2E.NPC.Adjustment.EliteLabel',
-    'PF2E.NPC.Adjustment.WeakLabel',
-    'PF2E.MasterSavingThrow.fortitude',
-    'PF2E.MasterSavingThrow.reflex',
-    'PF2E.MasterSavingThrow.will',
-    'PF2E.TraitBulwark',
-    `${MODULE_ID}.IgnoredModifiers.DeviseAStratagem`, // Investigator
-    `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry1`, // Ranger, replaces multiple attack penalty
-    `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry2`, // same
-    `${MODULE_ID}.IgnoredModifiers.HuntersEdgeFlurry3`, // same, Ranger's companion
-    `${MODULE_ID}.IgnoredModifiers.StylishCombatant`, // Swashbuckler, bonus is permanent
-    // NOTE: all spells that end in "form" are also ignored for the attack bonus; e.g. Ooze Form
-    // also some battle form spells with different names:
-    `${MODULE_ID}.IgnoredModifiers.BattleForm1`, // battle form
-    `${MODULE_ID}.IgnoredModifiers.BattleForm2`, // battle form
-    `${MODULE_ID}.IgnoredModifiers.BattleForm3`, // battle form
-    `${MODULE_ID}.IgnoredModifiers.BattleForm4`, // battle form
-    // yes I'm gonna add my houserules to my module, you can't stop me.
-    // https://discord.com/channels/880968862240239708/880969943724728391/1082678343234760704
-    `${MODULE_ID}.IgnoredModifiers.SpellAttackHouserule`,
-    `${MODULE_ID}.IgnoredModifiers.SpellPotency1`,
-    `${MODULE_ID}.IgnoredModifiers.SpellPotency2`,
-    `${MODULE_ID}.IgnoredModifiers.SkillPotency1`,
-    `${MODULE_ID}.IgnoredModifiers.SkillPotency2`,
-  ]
-  const IGNORED_MODIFIER_LABELS_HARDCODED = [
-    // compatibility with pf2e-flatten, which adds modifiers to match the PWoL variants.
-    // https://github.com/League-of-Foundry-Developers/pf2e-flatten/blob/main/bundle.js#L33
-    'Proficiency Without Level',
-    `1/2 Level Proficiency`,
-
-    // compatibility with Mercenary Marketplace Vol 1, which adds templates that permanently adjust creature stats:
-    // Human ancestry templates
-    'Ancestral Strength',
-    'Ancestral Dexterity',
-    'Ancestral Constitution',
-    'Ancestral Intelligence',
-    'Ancestral Wisdom',
-    'Ancestral Charisma',
-    // Other ancestry templates (dwarf, elf, etc)
-    'Dwarven Constitution',
-    'Dwarven Wisdom',
-    'Dwarven Charisma',
-    'Elven Dexterity',
-    'Elven Constitution',
-    'Elven Intelligence',
-    'Gnomish Strength',
-    'Gnomish Constitution',
-    'Gnomish Charisma',
-    'Goblin Dexterity',
-    'Goblin Wisdom',
-    'Goblin Charisma',
-    'Keen Eyes (Seek hidden or undetected within 30 feet)', // from halfling template
-    'Halfling Strength',
-    'Halfling Dexterity',
-    'Halfling Wisdom',
-    'Orcish Strength',
-    // Crew templates
-    'Crew Level Adjustment',
-    'Crew Skill Adjustment',
-    // Descriptive Templates
-    'Boastful Template',
-    'Brutish Template',
-    'Oblivious Template',
-    'Oblivious Template (Circumstance)',
-    'Slight Template',
-    'Watchful Template',
-    'Convalescent Template (Base)',
-    'Convalescent Template (Circumstance Penalty)',
-    'Feeble Template (Base)',
-    'Feeble Template (Strength Based)',
-    'Feeble Template (AC)',
-    'Inept Template (Base)',
-    'Unlucky Template (Base)',
-    'Unlucky Template (AC)',
-    'Clumsy Template (Base)',
-    'Clumsy Template (Reflex)',
-    'Clumsy Template (AC)',
-    'Clumsy Template (Dexterity Attacks)',
-    'Foolish Template (Base)',
-    'Foolish Template (AC)',
-    'Foolish Template (Wisdom Based)',
-    'Foolish Template (Intelligence Based)',
-    'Foolish vs. illusion effects',
-    'Frail Template (Base)',
-    'Frail Template (Constitution Based)',
-    'Frail Template (AC)',
-    'Frail Template (Circumstance Penalty)',
-    'Punchable Template (Base)',
-    'Bold Template (Base)',
-    'Bold Template (Will)',
-    'Cunning Template (Base)',
-    'Cunning Template (Perception)',
-    'Cunning Template (Skills)',
-    'Hardy Template (Base)',
-    'Hardy Template (Fortitude)',
-    'Lucky Template (Base)',
-    'Protective Template (Base)',
-    'Protective Template (AC)',
-    'Sorcerous Template (Base)',
-    'Doddering Template (Base)',
-
-    // Other adjustments are not in the pf2e system (yet?), but undead adjustments do appear in PF2e Workbench, and one of them is relevant:
-    'Ghoul Adjustment',
-  ]
   IGNORED_MODIFIER_LABELS = new Set([
-    ...IGNORED_MODIFIERS_I18N.map(str => tryLocalize(str, str)),
     ...IGNORED_MODIFIER_LABELS_HARDCODED,
     ...getSetting('additional-ignored-labels').split(';'),
   ])
-  // TODO - consider moving more things from the i18n list to this slugs list
-  IGNORED_MODIFIER_SLUGS = new Set([
-    // commonly found on fiends
-    // but also commonly *incorrectly* used as a slug for e.g. "+2 to Will Saves vs Emotion"
-    '1-status-to-all-saves-vs-magic',
-    // Assorted things I found in the ability glossaries which seem permanent and thus not useful to highlight
-    'cryptid-experimental-augmented',
-    'kallas-devil-blameless',
-    'mana-wastes-mutant-hulking-form',
-    'skeleton-lacquered',
-    // Included in all bombs, in the "Bonus attack" field.  label is just "Item Bonus"
-    'item-bonus',
-  ])
-  const IGNORED_MODIFIERS_FOR_AC_ONLY_I18N = [
-    // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
-    // however, this effect also has other modifiers which I don't want to ignore.
-    `${MODULE_ID}.IgnoredModifiers.DrakeheartMutagen`,
-  ]
-  IGNORED_MODIFIER_LABELS_FOR_AC_ONLY = new Set([
-    ...IGNORED_MODIFIERS_FOR_AC_ONLY_I18N.map(str => tryLocalize(str, str))],
-  )
 }
 
 /** @return {Modifier} */
@@ -202,7 +214,8 @@ export const filterDcModsOfStatistic = (dcStatistic, actorWithDc) => {
     // remove if not enabled, or ignored
     .filter(m => m.enabled && !m.ignored)
     // remove everything that should be ignored (including user-defined)
-    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label)).filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
+    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
+    .filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
     // ignore item bonuses that come from armor, they're Resilient runes
     .filter(m => !(m.type === 'item' && armorItemModLabels.includes(m.label)))
 }
@@ -365,7 +378,7 @@ const getDcModsAndDcActor = ({
         dcMods.push(offGuardMod)
       }
     }
-    dcMods = dcMods.filter(m => !IGNORED_MODIFIER_LABELS_FOR_AC_ONLY.has(m.label))
+    dcMods = dcMods.filter(m => !IGNORED_MODIFIER_SLUGS_FOR_AC_ONLY.has(m.slug))
   } else if (isSpell && !!originItem) {
     // (note:  originItem will be undefined in the rare case of a message created through a module like Quick Send To Chat)
     // if saving against spell, DC is the Spellcasting DC which means it's affected by stuff like Frightened and Stupefied
@@ -711,8 +724,9 @@ if (typeof Hooks !== 'undefined') {
     exampleHookCourageousAnthem,
     DEGREES,
     IGNORED_MODIFIER_LABELS,
+    IGNORED_MODIFIER_LABELS_HARDCODED,
     IGNORED_MODIFIER_SLUGS,
-    IGNORED_MODIFIER_LABELS_FOR_AC_ONLY,
+    IGNORED_MODIFIER_SLUGS_FOR_AC_ONLY,
     parsePf2eChatMessageWithRoll,
     filterRollModsFromChatMessage,
     getDcModsAndDcActor,
