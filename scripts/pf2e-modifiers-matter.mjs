@@ -12,6 +12,7 @@ NEXT_RND_ROLLS_D20 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
 rndIndex = -1
 CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D20.length; return 1.02 - NEXT_RND_ROLLS_D20[rndIndex] / 20}
  */
+// also helpful:  create an Effect with some level, and this rule element:  {"key":"SubstituteRoll","selector":"all","value":"@item.level","required":true}
 
 const IGNORED_MODIFIER_SLUGS = new Set([
   // basic
