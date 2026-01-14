@@ -22,17 +22,6 @@
       "CasterHas": "施法者有:",
       "ActorHas": "角色具有:",
       "TargetHas": "目標具有:"
-    },
-    "IgnoredModifiers": {
-      "DeviseAStratagem": "出謀劃策",
-      "HuntersEdgeFlurry1": "獵手優勢：連擊",
-      "HuntersEdgeFlurry2": "連擊",
-      "HuntersEdgeFlurry3": "效果：獵手優勢：連擊",
-      "BattleForm1": "生界化生",
-      "BattleForm2": "Form of the Sandpoint Devil",
-      "BattleForm3": "元素具身",
-      "BattleForm4": "天神下凡",
-      "DrakeheartMutagen": "龍獸之心突變藥劑"
     }
   }
 }

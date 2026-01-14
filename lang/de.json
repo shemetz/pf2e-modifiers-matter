@@ -22,22 +22,6 @@
       "CasterHas": "Zauberer hat:",
       "ActorHas": "Akteur hat:",
       "TargetHas": "Ziel hat:"
-    },
-    "IgnoredModifiers": {
-      "DeviseAStratagem": "Angriffsstrategie",
-      "HuntersEdgeFlurry1": "Jägervorteil: Angriffshagel",
-      "HuntersEdgeFlurry2": "Angriffshagel",
-      "HuntersEdgeFlurry3": "Effekt: Jägervorteil, Angriffshagel",
-      "SpellAttackHouserule": "Zauberangriff Hausregel",
-      "SpellPotency1": "Zauberverbesserung",
-      "SpellPotency2": "Zauberverbesserung",
-      "SkillPotency1": "Fertigkeitenverbesserung",
-      "SkillPotency2": "Fertigkeitenverbesserung",
-      "BattleForm1": "Verkörperung der Natur",
-      "BattleForm2": "Gestalt des Teufels von Sandspitze",
-      "BattleForm3": "Verkörperung der Elemente",
-      "BattleForm4": "Avatar",
-      "DrakeheartMutagen": "Drakaherzmutagen"
     }
   }
 }

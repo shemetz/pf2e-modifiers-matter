@@ -33,23 +33,6 @@
       "ActorHas": "Aktor ma:",
       "TargetHas": "Cel ma:",
       "HasPotential": "(Ma potencjał!)"
-    },
-    "IgnoredModifiers": {
-      "DeviseAStratagem": "Opracowanie Strategii",
-      "HuntersEdgeFlurry1": "Przewaga Myśliwego: Grad Ciosów",
-      "HuntersEdgeFlurry2": "Grad Ciosów",
-      "HuntersEdgeFlurry3": "Efekt: Przewaga Myśliwego: Grad Ciosów",
-      "SpellAttackHouserule": "Atak zaklęciem - zasada domowa",
-      "SpellPotency1": "Moc Zaklęcia",
-      "SpellPotency2":  "Moc zaklęcia",
-      "SkillPotency1": "Moc Umiejętności",
-      "SkillPotency2":  "Moc umiejętności",
-      "StylishCombatant":  "Stylowy Bojownik",
-      "BattleForm1": "Wcielenie Natury",
-      "BattleForm2": "Postać Piaskowego Diabła",
-      "BattleForm3": "Ucieleśnienie Żywiołu",
-      "BattleForm4": "Awatar",
-      "DrakeheartMutagen": "Mutagen z Serca Smoczydła"
     }
   }
 }

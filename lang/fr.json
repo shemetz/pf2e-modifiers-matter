@@ -22,22 +22,6 @@
       "CasterHas": "Caster has:",
       "ActorHas": "Actor has:",
       "TargetHas": "La cible a :"
-    },
-    "IgnoredModifiers": {
-      "DeviseAStratagem": "Concevoir un Stratagème",
-      "HuntersEdgeFlurry1": "Spécialisation du chasseur : Déluge",
-      "HuntersEdgeFlurry2": "Déluge",
-      "HuntersEdgeFlurry3": "Effet : Spécialisation du chasseur, déluge",
-      "SpellAttackHouserule": "Spell attack houserule",
-      "SpellPotency1": "Spell Potency",
-      "SpellPotency2":  "Spell potency",
-      "SkillPotency1": "Skill Potency",
-      "SkillPotency2":  "Skill potency",
-      "BattleForm1": "Incarnation de la nature",
-      "BattleForm2": "Forme de diable de Pointesable",
-      "BattleForm3": "Incarnation élémentaire",
-      "BattleForm4": "Avatar",
-      "DrakeheartMutagen": "Mutagène de cœur de drake"
     }
   }
 }

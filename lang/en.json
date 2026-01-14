@@ -33,23 +33,6 @@
       "ActorHas": "Actor has:",
       "TargetHas": "Target has:",
       "HasPotential": "(Has potential!)"
-    },
-    "IgnoredModifiers": {
-      "DeviseAStratagem": "Devise a Stratagem",
-      "HuntersEdgeFlurry1": "Hunter's Edge: Flurry",
-      "HuntersEdgeFlurry2": "Flurry",
-      "HuntersEdgeFlurry3": "Effect: Hunter's Edge, Flurry",
-      "SpellAttackHouserule": "Spell attack houserule",
-      "SpellPotency1": "Spell Potency",
-      "SpellPotency2":  "Spell potency",
-      "SkillPotency1": "Skill Potency",
-      "SkillPotency2":  "Skill potency",
-      "StylishCombatant":  "Stylish Combatant",
-      "BattleForm1": "Nature Incarnate",
-      "BattleForm2": "Form of the Sandpoint Devil",
-      "BattleForm3": "Element Embodied",
-      "BattleForm4": "Avatar",
-      "DrakeheartMutagen": "Drakeheart Mutagen"
     }
   }
 }
