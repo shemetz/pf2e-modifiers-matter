@@ -1,3 +1,6 @@
+## 1.14.0 - 2026-01-14
+- Moved a lot of hardcoded ignored labels into hardcoded ignored slugs
+
 ## 1.13.1 - 2025-08-04
 - Added Bulwark to list of ignored modifiers
 
