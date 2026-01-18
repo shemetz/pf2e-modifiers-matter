@@ -95,7 +95,6 @@ const IGNORED_MODIFIER_SLUGS_FOR_AC_ONLY = new Set([
   // however, this effect also has other modifiers which I don't want to ignore.
   `drakeheart-mutagen`,
 ])
-let IGNORED_MODIFIER_LABELS = new Set()
 const IGNORED_MODIFIER_LABELS_HARDCODED = [
   // compatibility with pf2e-flatten, which adds modifiers to match the PWoL variants.
   // https://github.com/League-of-Foundry-Developers/pf2e-flatten/blob/main/bundle.js#L33
@@ -178,6 +177,9 @@ const IGNORED_MODIFIER_LABELS_HARDCODED = [
   // Other adjustments are not in the pf2e system (yet?), but undead adjustments do appear in PF2e Workbench, and one of them is relevant:
   'Ghoul Adjustment',
 ]
+let IGNORED_MODIFIER_LABELS = new Set([
+  ...IGNORED_MODIFIER_LABELS_HARDCODED,
+])
 
 /**
  * These lists of ignored modifiers are hardcoded (with optional user extension via settings).  The goal is to
