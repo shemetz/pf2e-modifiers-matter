@@ -1,5 +1,5 @@
 import { DEGREES, MODULE_ID, SIGNIFICANCE } from './pf2emm-types.mjs'
-import { getSetting, i18n } from './pf2emm-utils.mjs'
+import { getDocFromUuidSync, getSetting, i18n } from './pf2emm-utils.mjs'
 import { calcDegreePlusRoll, calcSignificantModifiers, checkHighlightPotentials } from './pf2emm-logic.mjs'
 
 // TODO - currently impossible, but in the future may be possible to react to effects that change embedded DCs in Note rule elements.
@@ -209,37 +209,32 @@ const getOffGuardAcMod = () => {
     ignored: false,
   }
 }
-export const filterDcModsOfStatistic = (dcStatistic, actorWithDc) => {
-  const armorItemModLabels = actorWithDc?.attributes.ac.modifiers.filter(m => m.type === 'item').map(m => m.label)
-  return dcStatistic.modifiers
-    // remove if not enabled, or ignored
-    .filter(m => m.enabled && !m.ignored)
-    // remove everything that should be ignored (including user-defined)
-    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
-    .filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
-    // ignore item bonuses that come from armor, they're Resilient runes
-    .filter(m => !(m.type === 'item' && armorItemModLabels.includes(m.label)))
-}
 
 /**
  * @param {Modifier[]} allModifiersInChatMessage
- * @param {Actor} rollingActor
- * @param {boolean} isStrike
  * @returns {Modifier[]}
  */
-const filterRollModsFromChatMessage = ({ allModifiersInChatMessage, rollingActor, isStrike }) => {
-  const armorItemModLabels = rollingActor.attributes.ac.modifiers.filter(m => m.type === 'item').map(m => m.label)
+export const filterOutIgnoredModifiers = (allModifiersInChatMessage) => {
   return allModifiersInChatMessage
     // enabled is false for one of the conditions if it can't stack with others
     .filter(m => m.enabled && !m.ignored)
-    // ignoring standard things from list (including user-defined)
-    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label)).filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
-    // for attacks, ignore all "form" spells that replace your attack bonus
-    .filter(m => !(isStrike && m.slug.endsWith('-form')))
+    // ignore everything from the hardcoded lists, plus user-defined labels
+    .filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
+    .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
+    // for attacks, ignore all "form" spells that replace your attack bonus (e.g. Animal Form, Aerial Form)
+    .filter(m => !(m.slug.endsWith('-form') && m.type === "untyped" && m.modifier >= 5))
     // ignore Doubling Rings which are basically a permanent item bonus
     .filter(m => !m.slug.startsWith('doubling-rings'))
-    // ignore item bonuses that come from armor, they're Resilient runes
-    .filter(m => !(m.type === 'item' && armorItemModLabels.includes(m.label)))
+    // ignore ALL item bonuses from non-effect sources
+    .filter(m => {
+      if (m.type !== 'item') return true
+      if (!m.source) return true
+      const item = getDocFromUuidSync(m.source)
+      if (!item) return true
+      if (item.type === 'effect') return true
+      // it's a piece of equipment or a feat, probably, so it's permanent and not interesting to highlight
+      return false
+    })
 }
 
 /**
@@ -301,13 +296,13 @@ const parsePf2eChatMessageWithRoll = (chatMessage) => {
   const isSpell = chatMessage.flags.pf2e.origin?.type === 'spell'
   const targetedTokenUuid = chatMessage.flags.pf2e.context.target?.token
   const targetedActorUuid = chatMessage.flags.pf2e.context.target?.actor
-  const targetedToken = targetedTokenUuid ? fromUuidSync(targetedTokenUuid) : undefined
+  const targetedToken = targetedTokenUuid ? getDocFromUuidSync(targetedTokenUuid) : undefined
   // targetedActorUuid will return the TOKEN uuid if it's an unlinked token!  so, we're probably going to ignore it
   const targetedActor = targetedToken?.actor ? targetedToken.actor
-    : targetedActorUuid ? fromUuidSync(targetedActorUuid)
+    : targetedActorUuid ? getDocFromUuidSync(targetedActorUuid)
       : undefined
   const originUuid = chatMessage.flags.pf2e.origin?.uuid
-  const originItem = originUuid ? fromUuidSync(originUuid) : undefined
+  const originItem = originUuid ? getDocFromUuidSync(originUuid) : undefined
   const allModifiersInChatMessage = chatMessage.flags.pf2e.modifiers
   return {
     /** @type Actor */
@@ -358,7 +353,7 @@ const getDcModsAndDcActor = ({
   let actorWithDc
   if (isStrike && targetedActor) {
     actorWithDc = targetedActor
-    dcMods = filterDcModsOfStatistic(targetedActor.system.attributes.ac, actorWithDc)
+    dcMods = filterOutIgnoredModifiers(targetedActor.system.attributes.ac.modifiers)
     const offGuardMod = getOffGuardAcMod()
     const isTargetEphemerallyOffGuard = contextOptionsInFlags.includes('target:condition:off-guard')
     if (isTargetEphemerallyOffGuard && !dcMods.some(m => m.label === offGuardMod.label)) {
@@ -384,13 +379,13 @@ const getDcModsAndDcActor = ({
     // (note:  originItem will be undefined in the rare case of a message created through a module like Quick Send To Chat)
     // if saving against spell, DC is the Spellcasting DC which means it's affected by stuff like Frightened and Stupefied
     actorWithDc = originItem.actor
-    dcMods = filterDcModsOfStatistic(originItem.spellcasting.statistic.dc, actorWithDc)
+    dcMods = filterOutIgnoredModifiers(originItem.spellcasting.statistic.dc.modifiers)
   } else if (originItem?.category === 'class') {
     // if saving against a class feat/feature, DC is the Class DC which means it's affected by stuff like Frightened and Enfeebled/Drained/etc, depending
     // NOTE:  this will not work for embedded Check buttons that come from Note REs.  see https://github.com/foundryvtt/pf2e/issues/9824
     // TODO - this broke around version 6.3.1, things stop using class feats for class DC;  a solution is needed and it needs to allow for multiclassing too (multiple class DCs)
     actorWithDc = originItem.actor
-    dcMods = filterDcModsOfStatistic(originItem.parent.classDC, actorWithDc)
+    dcMods = filterOutIgnoredModifiers(originItem.parent.classDC.modifiers)
   } else if (targetedActor && dcSlug === 'exploit-vulnerability') {
     // Compatibility with the pf2e-thaum-vuln module (for Thaumaturge's "Exploit Vulnerability")
     // The custom action is made using esoteric lore against a standard level-based DC, so there are never DC modifiers
@@ -413,7 +408,7 @@ const getDcModsAndDcActor = ({
         actorWithDc: targetedActor,
       }
     }
-    dcMods = filterDcModsOfStatistic(dcStatistic.dc, actorWithDc)
+    dcMods = filterOutIgnoredModifiers(dcStatistic.dc.modifiers)
   } else {
     // happens if e.g. rolling from a @Check style button
     dcMods = []
@@ -437,24 +432,16 @@ const updateChatMessageFlavorWithHighlights = async ({
   // adding an artificial div to have a single parent element, enabling nicer editing of html
   const $editedFlavor = $(`<div>${oldFlavor}</div>`)
   // remove old highlights, in case of a reroll within the same message
-  $editedFlavor.find('.pf2emm-highlight').
-    removeClass('pf2emm-highlight').
-    removeClass(`pf2emm-is-${SIGNIFICANCE.HARMFUL}`).
-    removeClass(`pf2emm-is-${SIGNIFICANCE.HELPFUL}`).
-    removeClass(`pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`).
-    removeClass(`pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
+  $editedFlavor.find('.pf2emm-highlight').removeClass('pf2emm-highlight').removeClass(`pf2emm-is-${SIGNIFICANCE.HARMFUL}`).removeClass(`pf2emm-is-${SIGNIFICANCE.HELPFUL}`).removeClass(`pf2emm-is-${SIGNIFICANCE.ESSENTIAL}`).removeClass(`pf2emm-is-${SIGNIFICANCE.DETRIMENTAL}`)
   const showHighlightsToEveryone = getSetting('always-show-highlights-to-everyone')
   significantRollModifiers.forEach(m => {
     const modVal = m.value
     const modName = m.name
     const modSignificance = m.significance
     const modValStr = (modVal < 0 ? '' : '+') + modVal
-    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).
-      addClass('pf2emm-highlight').
-      addClass(`pf2emm-is-${modSignificance}`)
+    $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).addClass('pf2emm-highlight').addClass(`pf2emm-is-${modSignificance}`)
     if (showHighlightsToEveryone)
-      $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).
-        attr('data-visibility', 'all')
+      $editedFlavor.find(`span.tag:contains(${modName} ${modValStr})`).attr('data-visibility', 'all')
   })
   const dcFlavorSuffixHtmls = []
   significantDcModifiers.forEach(m => {
@@ -527,7 +514,7 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
   a bonus or penalty to the roll or to the DC the roll was against.  I will filter rollMods and dcMods to only include
   relevant non-ignored modifiers, and then calculate which modifiers actually made a significant impact on the outcome.
    */
-  const rollMods = filterRollModsFromChatMessage({ allModifiersInChatMessage, rollingActor, isStrike })
+  const rollMods = filterOutIgnoredModifiers(allModifiersInChatMessage)
 
   const { actorWithDc, dcMods } = getDcModsAndDcActor({
     isStrike,
@@ -608,7 +595,7 @@ const getSignificantModifiersOfMessage = (chatMessage) => {
     originItem,
     allModifiersInChatMessage,
   } = parsePf2eChatMessageWithRoll(chatMessage)
-  const rollMods = filterRollModsFromChatMessage({ allModifiersInChatMessage, rollingActor, isStrike })
+  const rollMods = filterOutIgnoredModifiers(allModifiersInChatMessage)
   const { dcMods } = getDcModsAndDcActor({
     isStrike,
     targetedActor,
@@ -729,7 +716,7 @@ if (typeof Hooks !== 'undefined') {
     IGNORED_MODIFIER_SLUGS,
     IGNORED_MODIFIER_SLUGS_FOR_AC_ONLY,
     parsePf2eChatMessageWithRoll,
-    filterRollModsFromChatMessage,
+    filterOutIgnoredModifiers,
     getDcModsAndDcActor,
     calcSignificantModifiers,
     checkHighlightPotentials,

@@ -5,11 +5,13 @@ import {
   shouldIgnoreStrikeCritFailToFail,
   sumMods,
 } from '../scripts/pf2emm-logic.mjs'
-import { getSetting } from '../scripts/pf2emm-utils.mjs'
+import { mocks, getSetting } from '../scripts/pf2emm-utils.mjs'
 import { DEGREES } from '../scripts/pf2emm-types.mjs'
+import { filterOutIgnoredModifiers } from '../scripts/pf2e-modifiers-matter.mjs'
 
 const VERBOSE = false
 let mockSettingValue = true
+mocks.fromUuidSync_mock = {}
 
 // mock game functions
 global.game = {
@@ -578,4 +580,141 @@ test('calcSignificantModifiers 9, player attacking unconscious and frightened en
       'plus2CircumstanceAcHasPotential': false,
     },
   },
+)
+
+mocks.fromUuidSync_mock['Actor.FOziyzK2ffN49BeG.Item.Er3G7zgnNBbMcN82'] = {
+  "img": "systems/pf2e/icons/equipment/worn-items/other-worn-items/bracelet-of-dashing.webp",
+  "name": "Bracelet of Dashing",
+  "system": {
+    "description": {
+      "gm": "",
+      "value": "<p>This jangling, silvery bracelet (...)</p>"
+    },
+    "rules": [
+      {
+        "key": "FlatModifier",
+        "selector": "acrobatics",
+        "type": "item",
+        "value": 1
+      }
+    ],
+    "slug": "bracelet-of-dashing",
+    "_migration": {
+      "version": 0.952,
+      "lastMigration": null,
+      "previous": null
+    },
+    "traits": {
+      "otherTags": [],
+      "value": [
+        "invested",
+        "magical"
+      ],
+      "rarity": "common"
+    },
+    "publication": {
+      "title": "Pathfinder GM Core",
+      "authors": "",
+      "license": "ORC",
+      "remaster": true
+    },
+    "level": {
+      "value": 3
+    },
+    "quantity": 1,
+    "baseItem": null,
+    "bulk": {
+      "value": 0.1
+    },
+    "hp": {
+      "value": 0,
+      "max": 0
+    },
+    "hardness": 0,
+    "price": {
+      "value": {
+        "gp": 58
+      }
+    },
+    "equipped": {
+      "carryType": "worn",
+      "invested": true,
+      "handsHeld": 0
+    },
+    "containerId": null,
+    "size": "med",
+    "material": {
+      "type": null,
+      "grade": null
+    },
+    "identification": {
+      "status": "identified",
+      "unidentified": {
+        "name": "",
+        "img": "",
+        "data": {
+          "description": {
+            "value": ""
+          }
+        }
+      }
+    },
+    "usage": {
+      "value": "worn"
+    },
+    "subitems": []
+  },
+  "type": "equipment",
+  "_stats": {
+    "compendiumSource": "Compendium.pf2e.equipment-srd.Item.BKdzb8hu3kZtKH3Z",
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "pf2e",
+    "systemVersion": "7.7.1",
+    "createdTime": 1768521615471,
+    "modifiedTime": 1768521620541,
+    "lastModifiedBy": "dgs6RfeuhCXyqsJL"
+  },
+  "effects": [],
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "dgs6RfeuhCXyqsJL": 3
+  },
+  "flags": {},
+  "_id": "Er3G7zgnNBbMcN82"
+}
+test('filterOutIgnoredModifiers should ignore bracelet of dashing because it\'s an equipment with an item bonus', filterOutIgnoredModifiers(
+    [
+      {
+        "slug": "bracelet-of-dashing",
+        "label": "Bracelet of Dashing",
+        "domains": [
+          "acrobatics",
+          "dex-based",
+          "skill-check",
+          "dex-skill-check",
+          "all"
+        ],
+        "modifier": 1,
+        "type": "item",
+        "ability": null,
+        "adjustments": [],
+        "force": false,
+        "enabled": true,
+        "ignored": false,
+        "source": "Actor.FOziyzK2ffN49BeG.Item.Er3G7zgnNBbMcN82",
+        "custom": false,
+        "damageType": null,
+        "damageCategory": null,
+        "critical": null,
+        "tags": [],
+        "hideIfDisabled": false,
+        "kind": "bonus",
+        "predicate": []
+      },
+    ]),
+  [],
 )
