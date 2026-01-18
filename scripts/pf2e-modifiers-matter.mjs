@@ -71,6 +71,8 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'simple-firearms-crossbows', // Gunslinger class features
   'martial-firearms-crossbows', // same
   'advanced-firearms-crossbows', // same
+  'doubling-rings', // these can function as a fundamental rune with a different source
+  'doubling-rings-greater', // same
 
   // commonly found on fiends
   // but also commonly *incorrectly* used as a slug for e.g. "+2 to Will Saves vs Emotion"
@@ -223,8 +225,6 @@ export const filterOutIgnoredModifiers = (allModifiersInChatMessage) => {
     .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus (e.g. Animal Form, Aerial Form)
     .filter(m => !(m.slug.endsWith('-form') && m.type === "untyped" && m.modifier >= 5))
-    // ignore Doubling Rings which are basically a permanent item bonus
-    .filter(m => !m.slug.startsWith('doubling-rings'))
     // ignore ALL item bonuses from non-effect sources
     .filter(m => {
       if (m.type !== 'item') return true
