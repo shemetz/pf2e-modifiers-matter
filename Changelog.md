@@ -1,3 +1,7 @@
+## 1.15.0 - 2026-01-18
+- Now all item bonuses will be ignored if they are directly added by an item (that isn't a condition or effect).
+- Rewritten filter function and added tests for it
+
 ## 1.14.0 - 2026-01-14
 - Moved a lot of hardcoded ignored labels into hardcoded ignored slugs
 
