@@ -226,7 +226,7 @@ export const filterOutIgnoredModifiers = (allModifiersInChatMessage) => {
     .filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
     .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus (e.g. Animal Form, Aerial Form)
-    .filter(m => !(m.slug.endsWith('-form') && m.type === "untyped" && m.modifier >= 5))
+    .filter(m => !(m.slug.endsWith('-form') && m.type === 'untyped' && m.modifier >= 5))
     // ignore ALL item bonuses from non-effect sources
     .filter(m => {
       if (m.type !== 'item') return true
@@ -355,7 +355,10 @@ const getDcModsAndDcActor = ({
   let actorWithDc
   if (isStrike && targetedActor) {
     actorWithDc = targetedActor
-    dcMods = filterOutIgnoredModifiers(targetedActor.system.attributes.ac.modifiers)
+    const actorArmorSlug = actorWithDc.wornArmor?.slug ?? 'NO-ARMOR'
+    const acModifiersExceptArmor = targetedActor.system.attributes.ac.modifiers
+      .filter(m => m.slug !== actorArmorSlug)
+    dcMods = filterOutIgnoredModifiers(acModifiersExceptArmor)
     const offGuardMod = getOffGuardAcMod()
     const isTargetEphemerallyOffGuard = contextOptionsInFlags.includes('target:condition:off-guard')
     if (isTargetEphemerallyOffGuard && !dcMods.some(m => m.label === offGuardMod.label)) {
