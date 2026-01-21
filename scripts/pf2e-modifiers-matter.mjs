@@ -589,7 +589,6 @@ const getSignificantModifiersOfMessage = (chatMessage) => {
     || !chatMessage.flags.pf2e.context.actor
   ) return []
   const {
-    rollingActor,
     deltaFromDc,
     dieRoll,
     currentDegreeOfSuccess,
