@@ -1,3 +1,6 @@
+## 1.15.3 - 2026-01-27
+- Fixed named armors not being ignored
+
 ## 1.15.0 - 2026-01-18
 - Now all item bonuses will be ignored if they are directly added by an item (that isn't a condition or effect).
 - Rewritten filter function and added tests for it
