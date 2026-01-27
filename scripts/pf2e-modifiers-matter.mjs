@@ -355,9 +355,9 @@ const getDcModsAndDcActor = ({
   let actorWithDc
   if (isStrike && targetedActor) {
     actorWithDc = targetedActor
-    const actorArmorSlug = actorWithDc.wornArmor?.slug ?? 'NO-ARMOR'
     const acModifiersExceptArmor = targetedActor.system.attributes.ac.modifiers
-      .filter(m => m.slug !== actorArmorSlug)
+      .filter(m => m.slug !== actorWithDc.wornArmor?.slug)
+      .filter(m => m.slug !== actorWithDc.wornArmor?.system?.baseItem)
     dcMods = filterOutIgnoredModifiers(acModifiersExceptArmor)
     const offGuardMod = getOffGuardAcMod()
     const isTargetEphemerallyOffGuard = contextOptionsInFlags.includes('target:condition:off-guard')
