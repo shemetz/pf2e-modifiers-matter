@@ -283,29 +283,30 @@ const insertHighlightPotentials = ($flavorText, highlightPotentials) => {
 }
 
 const parsePf2eChatMessageWithRoll = (chatMessage) => {
-  const rollingActor = game.actors.get(chatMessage.flags.pf2e.context.actor)
+  const pf2eFlags = chatMessage.flags?.pf2e ?? chatMessage.flags?.sf2e
+  const rollingActor = game.actors.get(pf2eFlags.context.actor)
   // here I assume the PF2E system always includes the d20 roll as the first roll!  and as the first term of that roll!
   const roll = chatMessage.rolls[0]
   const rollTotal = roll?.total !== undefined ? roll.total : parseInt(chatMessage.content)
   // dc.value is usually defined, but apparently not when Escaping vs an enemy's Athletics DC
-  const rollDc = chatMessage.flags.pf2e.context.dc.value ?? chatMessage.flags.pf2e.context.dc.parent?.dc?.value
+  const rollDc = pf2eFlags.context.dc.value ?? pf2eFlags.context.dc.parent?.dc?.value
   const deltaFromDc = rollTotal - rollDc
   // using roll.terms[0].total will work when rolling 1d20+9, or 2d20kh+9 (RollTwice RE), or 10+9 (SubstituteRoll RE)
   const dieRoll = roll.terms[0].total
   const currentDegreeOfSuccess = calcDegreePlusRoll(deltaFromDc, dieRoll)
-  const dcSlug = chatMessage.flags.pf2e.context.dc.slug ?? chatMessage.flags.pf2e.context.dc.parent?.slug
+  const dcSlug = pf2eFlags.context.dc.slug ?? pf2eFlags.context.dc.parent?.slug
   const isStrike = dcSlug === 'armor' || dcSlug === 'ac'
-  const isSpell = chatMessage.flags.pf2e.origin?.type === 'spell'
-  const targetedTokenUuid = chatMessage.flags.pf2e.context.target?.token
-  const targetedActorUuid = chatMessage.flags.pf2e.context.target?.actor
+  const isSpell = pf2eFlags.origin?.type === 'spell'
+  const targetedTokenUuid = pf2eFlags.context.target?.token
+  const targetedActorUuid = pf2eFlags.context.target?.actor
   const targetedToken = targetedTokenUuid ? getDocFromUuidSync(targetedTokenUuid) : undefined
   // targetedActorUuid will return the TOKEN uuid if it's an unlinked token!  so, we're probably going to ignore it
   const targetedActor = targetedToken?.actor ? targetedToken.actor
     : targetedActorUuid ? getDocFromUuidSync(targetedActorUuid)
       : undefined
-  const originUuid = chatMessage.flags.pf2e.origin?.uuid
+  const originUuid = pf2eFlags.origin?.uuid
   const originItem = originUuid ? getDocFromUuidSync(originUuid) : undefined
-  const allModifiersInChatMessage = chatMessage.flags.pf2e.modifiers
+  const allModifiersInChatMessage = pf2eFlags.modifiers
   return {
     /** @type Actor */
     rollingActor,
@@ -492,12 +493,12 @@ const updateChatMessageFlavorWithHighlights = async ({
  */
 const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
   // continue only if message is a PF2e roll message with a rolling actor
+  const pf2eFlags = chatMessage.flags?.pf2e ?? chatMessage.flags?.sf2e
   if (
-    !chatMessage.flags
-    || !chatMessage.flags.pf2e
-    || !chatMessage.flags.pf2e.modifiers
-    || !chatMessage.flags.pf2e.context.dc
-    || !chatMessage.flags.pf2e.context.actor
+    !pf2eFlags
+    || !pf2eFlags.modifiers
+    || !pf2eFlags.context.dc
+    || !pf2eFlags.context.actor
   ) return true
 
   const {
@@ -524,7 +525,7 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
   const { actorWithDc, dcMods } = getDcModsAndDcActor({
     isStrike,
     targetedActor,
-    contextOptionsInFlags: chatMessage.flags.pf2e.context.options,
+    contextOptionsInFlags: pf2eFlags.context.options,
     chatMessageFlavor: chatMessage.flavor,
     isSpell,
     originItem,
@@ -581,12 +582,12 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
  * @return {SignificantModifier[]} possibly-empty list of modifiers (to roll or to DC) which mattered
  */
 const getSignificantModifiersOfMessage = (chatMessage) => {
+  const pf2eFlags = chatMessage.flags?.pf2e ?? chatMessage.flags?.sf2e
   if (
-    !chatMessage.flags
-    || !chatMessage.flags.pf2e
-    || !chatMessage.flags.pf2e.modifiers
-    || !chatMessage.flags.pf2e.context.dc
-    || !chatMessage.flags.pf2e.context.actor
+    !pf2eFlags
+    || !pf2eFlags.modifiers
+    || !pf2eFlags.context.dc
+    || !pf2eFlags.context.actor
   ) return []
   const {
     deltaFromDc,
@@ -603,7 +604,7 @@ const getSignificantModifiersOfMessage = (chatMessage) => {
   const { dcMods } = getDcModsAndDcActor({
     isStrike,
     targetedActor,
-    contextOptionsInFlags: chatMessage.flags.pf2e.context.options,
+    contextOptionsInFlags: pf2eFlags.context.options,
     chatMessageFlavor: chatMessage.flavor,
     isSpell,
     originItem,
