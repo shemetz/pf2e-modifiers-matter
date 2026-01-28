@@ -45,13 +45,6 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'elite',
   'ultimate',
   'paragon',
-  'commercial',
-  'tactical',
-  'advanced',
-  'superior',
-  'elite',
-  'ultimate',
-  'paragon',
   // Automatic Bonus Progression
   'save-potency',
   'defense-potency',
