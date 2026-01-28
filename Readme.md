@@ -1,16 +1,18 @@
 # [Pf2E Modifiers Matter](https://foundryvtt.com/packages/pf2e-modifiers-matter/)
 
+### A module for the Pathfinder 2nd Edition system on Foundry Virtual Tabletop
+#### (Starfinder 2e is also supported!)
+
 ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/shemetz/pf2e-modifiers-matter?style=for-the-badge)
 ![GitHub Releases](https://img.shields.io/github/downloads/shemetz/pf2e-modifiers-matter/latest/total?style=for-the-badge)
 ![GitHub All Releases](https://img.shields.io/github/downloads/shemetz/pf2e-modifiers-matter/total?style=for-the-badge&label=Downloads+total)
 ![Latest Supported Foundry Version](https://img.shields.io/endpoint?url=https://foundryshields.com/version?url=https://github.com/shemetz/pf2e-modifiers-matter/raw/master/module.json)
 
-FoundryVTT module for the PF2e system, which highlights situations where status effects (buffs, debuffs, conditions)
-change the outcome of a roll.
+Visibly highlight situations where temporary bonuses and penalties have changed the outcome of a roll.
 
-With this module, the players or Gamemaster can notice when one character helped support another, and point it out or
+With this module, the players/gamemaster can notice when one character helped support another, and point it out or
 narrate it. For example, if the Fighter got a critical hit against a goblin only thanks to the Druid frightening the
-goblin, or when the Fighter misses an attack due to the poison it was recently exposed to.
+goblin, or if the Fighter missed an attack due to a goblin's cover.
 
 To install, browse for it in the module browser,
 or [directly copy the manifest link for the latest release](https://github.com/shemetz/pf2e-modifiers-matter/releases/latest/download/module.json)
@@ -18,8 +20,8 @@ or [directly copy the manifest link for the latest release](https://github.com/s
 
 ![](metadata/cover.png)
 
-Yes, technically this module is not about modifiers but about all the other things that modify a roll, which happen to
-not be called modifiers, despite applying modifications. But "Pathfinder 2nd Edition Highlight Status Effect Consequences" was too long.
+*Yes, technically this module is not about Modifiers but about all the other things that modify a roll, which happen to
+not be called modifiers, despite applying modifications. But "Pathfinder 2nd Edition Highlight Status Effect Consequences" was too long.*
 
 # Features
 

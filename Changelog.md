@@ -1,3 +1,6 @@
+## 1.16.0 - 2026-01-28
+- Added Starfinder 2e support!
+
 ## 1.15.3 - 2026-01-27
 - Fixed named armors not being ignored
 
