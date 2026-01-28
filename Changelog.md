@@ -1,3 +1,6 @@
+## 1.16.1 - 2026-01-28
+- Added many abilities to the ignore list, specifically those abilities that let you make multiple strikes with a penalty to each
+
 ## 1.16.0 - 2026-01-28
 - Added Starfinder 2e support!
 
