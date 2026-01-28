@@ -37,7 +37,8 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'greaterStriking',
   'majorStriking',
   'mythicStriking',
-  // also for sf2e... just future-proofing
+  // also for sf2e
+  'tracking',
   'commercial',
   'tactical',
   'advanced',
@@ -59,13 +60,38 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'item-bonus', // Included in all bombs, in the "Bonus attack" field.  label is just "Item Bonus"
 
   // Misc specific
-  'double-shot', // Double shot makes attacks at -2 and -4, just like MAP it should be ignored
   'stylish-combatant', // Swashbuckler class feature, bonus is permanent
   'simple-firearms-crossbows', // Gunslinger class features
   'martial-firearms-crossbows', // same
   'advanced-firearms-crossbows', // same
   'doubling-rings', // these can function as a fundamental rune with a different source
   'doubling-rings-greater', // same
+
+  // Specific actions that give a built-in penalty to strikes (e.g. make three attacks at -2 each)
+  // They generally grant "extra" attacks, rather than make an existing attack less likely to hit,
+  // so they should not be highlighted
+  'solar-barrage',
+  'unstable-flare',
+//   'stab-and-blast', // I chose to not ignore it, same about e.g. triggerbrand salvo.  a conditional bonus based on an unknown result is more interesting to highlight
+  'triangle-shot',
+  'target-of-opportunity',
+  'double-slice',
+  'cross-the-final-horizon',
+  'tag-team',
+  'dual-finisher',
+  'double-shot',
+  'cornered-animal',
+  'engine-of-destruction',
+  'triple-shot',
+  'impossible-volley',
+  'bullet-split',
+  'zombie-horde',
+  'heaven-rains-an-ending', // Infinite Blades Celestial Arrow
+  'crane-flutter',
+  // Similar but not an attack
+  'underhanded-assault',
+  'survey-wildlife',
+  'diverse-lore', // generally you choose to take a -2 for the benefit of rolling for a lower DC so it balances out
 
   // commonly found on fiends
   // but also commonly *incorrectly* used as a slug for e.g. "+2 to Will Saves vs Emotion"
