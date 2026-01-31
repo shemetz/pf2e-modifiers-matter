@@ -1,6 +1,10 @@
 {
   "pf2e-modifiers-matter": {
     "Settings": {
+      "enable-beginner-mode": {
+        "name": "Tryb dla początkujących",
+        "hint": "Jeśli opcja jest włączona, moduł będzie podświetlał bardziej fundamentalne modyfikatory (runy mocy, kary za wielokrotne ataki), nawet jeśli występują one cały czas i zazwyczaj nie są ekscytujące."
+      },
       "always-show-highlights-to-everyone": {
         "name": "Zawsze pokazuj wszystkim najważniejsze wydarzenia",
         "hint": "Jeśli ta opcja jest włączona, podświetlenia stanów BN, takich jak „Odsłonięty -2”, będą zawsze wyświetlane wszystkim, nawet jeśli ustawienie systemowe „Pokaż podziały rzutów” jest wyłączone. Zazwyczaj jest to pożądane, ale ujawnia graczom dodatkowe informacje."
