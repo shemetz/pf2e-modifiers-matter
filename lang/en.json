@@ -1,6 +1,10 @@
 {
   "pf2e-modifiers-matter": {
     "Settings": {
+      "enable-beginner-mode": {
+        "name": "Beginner Mode",
+        "hint": "If enabled, the module will highlight more fundamental modifiers (potency runes, multiple attack penalty) even though they occur all the time and usually aren't exciting."
+      },
       "always-show-highlights-to-everyone": {
         "name": "Always show highlights to everyone",
         "hint": "If enabled, highlights of NPC conditions such as \"Off-guard -2\" always be shown to everyone, even if the \"Show roll breakdowns\" system setting is disabled. This is usually desired, but it does reveal some extra information to the players."

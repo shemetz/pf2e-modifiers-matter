@@ -16,8 +16,7 @@ CONFIG.Dice.randomUniform = () => {rndIndex = (rndIndex + 1) % NEXT_RND_ROLLS_D2
 
 const IGNORED_MODIFIER_SLUGS = new Set([
   // basic
-  'base', // this accounts for a lot of ignored things, included weak/elite
-  'multiple-attack-penalty',
+  'base', // note: this accounts for a lot of ignored things, included weak/elite
   'proficiency',
   // ability scores
   'str',
@@ -26,26 +25,6 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'int',
   'wis',
   'cha',
-  // fundamental runes
-  'weapon-potency',
-  'armor-potency',
-  'resilient',
-  'greaterResilient',
-  'majorResilient',
-  'mythicResilient',
-  'striking',
-  'greaterStriking',
-  'majorStriking',
-  'mythicStriking',
-  // also for sf2e
-  'tracking',
-  'commercial',
-  'tactical',
-  'advanced',
-  'superior',
-  'elite',
-  'ultimate',
-  'paragon',
   // Automatic Bonus Progression
   'save-potency',
   'defense-potency',
@@ -53,11 +32,9 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'attack-potency',
   // Misc common
   'bulwark', // armor trait
-  'armor-check-penalty',
   'level-bump', // for some PFS thing
   'variant', // when using a skill check with a different skill
   'battle-form',
-  'item-bonus', // Included in all bombs, in the "Bonus attack" field.  label is just "Item Bonus"
 
   // Misc specific
   'stylish-combatant', // Swashbuckler class feature, bonus is permanent
@@ -108,6 +85,32 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'hr-spell-potency',
   'hr-spell-attack-progression',
   'hr-spell-attack-prof-potency-for-arp',
+])
+const IGNORED_MODIFIER_SLUGS_EXCEPT_IN_BEGINNER_MODE = new Set([
+  // fundamental runes
+  'weapon-potency',
+  'armor-potency',
+  'resilient',
+  'greaterResilient',
+  'majorResilient',
+  'mythicResilient',
+  'striking',
+  'greaterStriking',
+  'majorStriking',
+  'mythicStriking',
+  // also for sf2e
+  'tracking',
+  'commercial',
+  'tactical',
+  'advanced',
+  'superior',
+  'elite',
+  'ultimate',
+  'paragon',
+
+  'multiple-attack-penalty', // MAP
+  'armor-check-penalty', // penalty for too heavy an armor
+  'item-bonus', // Included in all bombs, in the "Bonus attack" field.  label is just "Item Bonus"
 ])
 const IGNORED_MODIFIER_SLUGS_FOR_AC_ONLY = new Set([
   // effect that replaces your AC item bonus and dex cap - super hard to calculate its "true" bonus so I just ignore.
@@ -238,11 +241,13 @@ const getOffGuardAcMod = () => {
  * @returns {Modifier[]}
  */
 export const filterOutIgnoredModifiers = (allModifiersInChatMessage) => {
+  const beginnerMode = getSetting('enable-beginner-mode')
   return allModifiersInChatMessage
     // enabled is false for one of the conditions if it can't stack with others
     .filter(m => m.enabled && !m.ignored)
     // ignore everything from the hardcoded lists, plus user-defined labels
     .filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
+    .filter(m => !beginnerMode || !IGNORED_MODIFIER_SLUGS_EXCEPT_IN_BEGINNER_MODE.has(m.slug))
     .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus (e.g. Animal Form, Aerial Form)
     .filter(m => !(m.slug.endsWith('-form') && m.type === 'untyped' && m.modifier >= 5))
@@ -672,6 +677,14 @@ const exampleHookCourageousAnthem = () => {
 // this check is only here for the sake of the barebones JS testing I'm doing during development
 if (typeof Hooks !== 'undefined') {
   Hooks.on('init', function () {
+    game.settings.register(MODULE_ID, 'enable-beginner-mode', {
+      name: `${MODULE_ID}.Settings.enable-beginner-mode.name`,
+      hint: `${MODULE_ID}.Settings.enable-beginner-mode.hint`,
+      scope: 'world',
+      config: true,
+      default: false,
+      type: Boolean,
+    })
     game.settings.register(MODULE_ID, 'always-show-highlights-to-everyone', {
       name: `${MODULE_ID}.Settings.always-show-highlights-to-everyone.name`,
       hint: `${MODULE_ID}.Settings.always-show-highlights-to-everyone.hint`,
@@ -738,6 +751,7 @@ if (typeof Hooks !== 'undefined') {
     IGNORED_MODIFIER_LABELS,
     IGNORED_MODIFIER_LABELS_HARDCODED,
     IGNORED_MODIFIER_SLUGS,
+    IGNORED_MODIFIER_SLUGS_EXCEPT_IN_BEGINNER_MODE,
     IGNORED_MODIFIER_SLUGS_FOR_AC_ONLY,
     parsePf2eChatMessageWithRoll,
     filterOutIgnoredModifiers,
