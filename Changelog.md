@@ -1,3 +1,6 @@
+## 1.16.2 - 2026-01-31
+- Added "Beginner Mode" as optional setting to highlight more common bonuses/penalties
+
 ## 1.16.1 - 2026-01-28
 - Added many abilities to the ignore list, specifically those abilities that let you make multiple strikes with a penalty to each
 
