@@ -247,7 +247,7 @@ export const filterOutIgnoredModifiers = (allModifiersInChatMessage) => {
     .filter(m => m.enabled && !m.ignored)
     // ignore everything from the hardcoded lists, plus user-defined labels
     .filter(m => !IGNORED_MODIFIER_SLUGS.has(m.slug))
-    .filter(m => !beginnerMode || !IGNORED_MODIFIER_SLUGS_EXCEPT_IN_BEGINNER_MODE.has(m.slug))
+    .filter(m => beginnerMode || !IGNORED_MODIFIER_SLUGS_EXCEPT_IN_BEGINNER_MODE.has(m.slug))
     .filter(m => !IGNORED_MODIFIER_LABELS.has(m.label))
     // for attacks, ignore all "form" spells that replace your attack bonus (e.g. Animal Form, Aerial Form)
     .filter(m => !(m.slug.endsWith('-form') && m.type === 'untyped' && m.modifier >= 5))
