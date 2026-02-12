@@ -1,3 +1,6 @@
+## 1.16.4 - 2026-02-13
+- Stop highlighting potentials for flat checks
+
 ## 1.16.2 - 2026-01-31
 - Added "Beginner Mode" as optional setting to highlight more common bonuses/penalties
 
