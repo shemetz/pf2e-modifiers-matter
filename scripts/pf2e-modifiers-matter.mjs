@@ -523,6 +523,7 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
     || !pf2eFlags.modifiers
     || !pf2eFlags.context.dc
     || !pf2eFlags.context.actor
+    || pf2eFlags.modifierName === "flat"
   ) return true
 
   const {
