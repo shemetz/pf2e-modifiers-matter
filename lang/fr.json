@@ -1,6 +1,10 @@
 {
   "pf2e-modifiers-matter": {
     "Settings": {
+      "enable-beginner-mode": {
+        "name": "Mode débutant",
+        "hint": "Si ce module est activé, il mettra en évidence les modificateurs les plus fondamentaux (runes de puissance, pénalité d'attaques multiples), même s'ils interviennent souvent et sont généralement peu intéressants."
+      },
       "always-show-highlights-to-everyone": {
         "name": "Montrer le soulignement défensif à tous",
         "hint": "S'il est réglé sur vrai, le soulignement défensif comme\"Pris au dépourvu -2\" sera montré à tous, pas seulement au MJ."
@@ -11,10 +15,10 @@
       },
       "ignore-crit-fail-over-fail-on-attacks": {
         "name": "Ignorer l'échec critique par rapport à l'échec lors des Attaques",
-        "hint": "S'il est activé alors que vous attaquez, le module ne soulignera pas les changements qui ont changé un échec simple en échec critique sur une attaque ou vice versa. C'est utile car il n'y a pas habituellement de différence entre les deux cas lors des attaques. Cependant, il peut y avoir des exceptions à cette règle, comme avec Coup final assuré. (Il est recommandé de désactiver ce réglage si vous êtes un MJ dans un tel cas)"
+        "hint": "S'il est activé alors que vous attaquez, le module ne soulignera pas les changements qui ont transformé un échec simple en échec critique sur une attaque ou vice versa. C'est utile car il n'y a pas habituellement de différence entre les deux cas lors des attaques. Cependant, il peut y avoir des exceptions à cette règle, comme avec Coup final assuré. (Il est recommandé de désactiver ce réglage si vous êtes un MJ dans un tel cas)"
       },
       "additional-ignored-labels": {
-        "name": "Libellés supplémentaires ignorées",
+        "name": "Libellés supplémentaires ignorés",
         "hint": "Insérez le texte séparé par des points-virgules (;). Chacun des libellés de modificateur sera ignoré. Si vous pensez qu'un modificateur existant dans les règles doit être ignoré par défaut, vous pouvez le suggérer sur Github/Discord."
       },
       "highlight-potentials-preset": {
