@@ -26,6 +26,10 @@
                 },
                 "name": "对可以改变成功度的检定高亮显示",
                 "hint": "每当你的特殊能力有可能提升或降低某次掷骰的成功度时，都会为你高亮显示。根据你能够应用的改变成功度能力选择相应选项。"
+            },
+            "enable-beginner-mode": {
+                "name": "新手模式",
+                "hint": "若启用，该模组将高亮显示更多基础调整值（如潜能符文，多重攻击减值等），即便这些调整值经常出现且并通常并不那么激动人心。"
             }
         },
         "Message": {
@@ -33,6 +37,23 @@
             "ActorHas": "角色具有：",
             "TargetHas": "目标具有:",
             "HasPotential": "（可以改变其成功度！）"
+        },
+        "IgnoredModifiers": {
+            "DeviseAStratagem": "出谋划策",
+            "HuntersEdgeFlurry1": "猎手优势：连击",
+            "HuntersEdgeFlurry2": "连击",
+            "HuntersEdgeFlurry3": "效果：猎手优势：连击",
+            "BattleForm1": "生界化身",
+            "BattleForm2": "来自沙尖镇魔鬼",
+            "BattleForm3": "元素具身",
+            "BattleForm4": "天神下凡",
+            "DrakeheartMutagen": "龙兽之心突变药剂",
+            "SpellAttackHouserule": "法术攻击房规",
+            "SpellPotency1": "法术潜能",
+            "SpellPotency2": "法术潜能",
+            "SkillPotency1": "技能潜能",
+            "SkillPotency2": "技能潜能",
+            "StylishCombatant": "潇洒斗士"
         }
     }
 }
