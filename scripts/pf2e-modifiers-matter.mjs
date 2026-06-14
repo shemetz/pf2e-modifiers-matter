@@ -412,7 +412,7 @@ const getDcModsAndDcActor = ({
     dcMods = filterOutIgnoredModifiers(originItem.spellcasting.statistic.dc.modifiers)
   } else if (originItem?.category === 'class') {
     // if saving against a class feat/feature, DC is the Class DC which means it's affected by stuff like Frightened and Enfeebled/Drained/etc, depending
-    // NOTE:  this will not work for embedded Check buttons that come from Note REs.  see https://github.com/foundryvtt/pf2e/issues/9824
+    // NOTE:  this will not work for embedded Check buttons that come from Note REs.  see https://github.com/foundryvtt/pf2e/issues/9824 / https://github.com/foundryvtt/pf2e/issues/16537
     // TODO - this broke around version 6.3.1, things stop using class feats for class DC;  a solution is needed and it needs to allow for multiclassing too (multiple class DCs)
     actorWithDc = originItem.actor
     dcMods = filterOutIgnoredModifiers(originItem.parent.classDC.modifiers)
@@ -523,7 +523,7 @@ const hook_preCreateChatMessage = async (chatMessage, chatMessageData) => {
     || !pf2eFlags.modifiers
     || !pf2eFlags.context.dc
     || !pf2eFlags.context.actor
-    || pf2eFlags.modifierName === "flat"
+    || pf2eFlags.context.type === "flat-check"
   ) return true
 
   const {
