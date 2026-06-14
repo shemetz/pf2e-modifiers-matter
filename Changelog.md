@@ -1,3 +1,6 @@
+## 1.16.7 - 2026-06-14
+- Fix persistent damage checks not counting as flat checks
+
 ## 1.16.4 - 2026-02-13
 - Stop highlighting potentials for flat checks
 
