@@ -44,6 +44,7 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'advanced-firearms-crossbows', // same
   'doubling-rings', // these can function as a fundamental rune with a different source
   'doubling-rings-greater', // same
+  'untrained-improvisation', // this bonus is permanent and is more like removing a (scaling) penalty
 
   // Specific actions that give a built-in penalty to strikes (e.g. make three attacks at -2 each)
   // They generally grant "extra" attacks, rather than make an existing attack less likely to hit,
