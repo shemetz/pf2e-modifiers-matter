@@ -30,6 +30,7 @@ const IGNORED_MODIFIER_SLUGS = new Set([
   'defense-potency',
   'perception-potency',
   'attack-potency',
+  'potency',
   // Misc common
   'bulwark', // armor trait
   'level-bump', // for some PFS thing
