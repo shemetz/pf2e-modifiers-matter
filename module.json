@@ -49,6 +49,11 @@
       "name": "正體中文",
       "path": "lang/zh-tw.json",
       "flags": {}
+    },
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt_BR.json"
     }
   ],
   "url": "https://github.com/shemetz/pf2e-modifiers-matter",
