@@ -1,1 +1,42 @@
-{}
+{
+  "pf2e-modifiers-matter": {
+    "Settings": {
+      "enable-beginner-mode": {
+        "name": "Modo Iniciante",
+        "hint": "Se ativado, o módulo vai destacar modificadores mais básicos (runas de potência, penalidade de ataques múltiplos), apesar de serem muito recorrentes e não muito empolgantes."
+      },
+      "always-show-highlights-to-everyone": {
+        "name": "Sempre mostrar destaques para todos",
+        "hint": "Se ativado, destaques de condições de PdMs como “desprevenido −2” serão sempre mostrados a todos, mesmo que a configuração de sistema “Mostrar detalhamento das rolagens” esteja desabilitada. Isso normalmente é desejado, mas revela informações extras aos jogadores."
+      },
+      "always-show-defense-conditions": {
+        "name": "Sempre mostrar condições de defesa",
+        "hint": "Se ativado, condições de defesa como “desprevenido −2” serão sempre mostradas, mesmo quando não fizerem diferença."
+      },
+      "ignore-crit-fail-over-fail-on-attacks": {
+        "name": "Priorizar Falha ao invés de Falha Crítica nos Ataques",
+        "hint": "Se ativado, o módulo não irá destacar mudanças que alteraram um ataque de Falha para Falha Crítica ou vice-versa. Isso é útil porque normalmente não há diferença entre esses dois graus de sucesso em ataques. No entanto, há algumas exceções a esta regra, como a Finalização Confiante. (É recomendado desabilitar esta opção se você for um MdJ nesse caso)"
+      },
+      "additional-ignored-labels": {
+        "name": "Etiquetas adicionais ignoradas",
+        "hint": "Insira o texto separado por ponto e vírgula (;). Cada uma dessas etiquetas modificadoras será ignorada. Se achar que um modificador existente nas regras deve ser ignorado por padrão, por favor sugira no GitHub/Discord."
+      },
+      "highlight-potentials-preset": {
+        "name": "Destacar potenciais",
+        "hint": "Mostra um destaque para você sempre que uma rolagem poderia potencialmente ser melhorada/piorada com uma habilidade especial sua. Escolha a opção baseada no tipo de modificador que você é capaz de aplicar.",
+        "choices": {
+          "disabled": "Desabilitado (padrão)",
+          "1_status": "+1 de bônus de estado (Orientação Aprimorada, Tocar o Destino)",
+          "2_status": "+2 de bônus de estado (Orientação Aprimorada 6º)",
+          "2_circumstance_ac": "+2 de bônus de circunstância na CA (Deflexão do Protetor)"
+        }
+      }
+    },
+    "Message": {
+      "CasterHas": "Conjurador tem:",
+      "ActorHas": "Ator tem:",
+      "TargetHas": "Alvo tem:",
+      "HasPotential": "(Tem potencial!)"
+    }
+  }
+}
